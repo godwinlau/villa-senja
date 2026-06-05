@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Villa Senja — v2 (Made With GSAP picks)</title>
+  <meta name="description" content="An open-air villa above the rice fields of Ubud. Slow mornings, jungle baths, and the warm hush of senja — Balinese dusk." />
+
+  <!-- Canonical, theme & icon -->
+  <link rel="canonical" href="https://villasenja.id/" />
+  <meta name="theme-color" content="#281006" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Social share (Open Graph + Twitter) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Villa Senja" />
+  <meta property="og:title" content="Villa Senja — A Hidden Stay in Ubud, Bali" />
+  <meta property="og:description" content="An open-air villa above the rice fields of Ubud — the whole place yours, only ever one booking at a time. From $420 / night." />
+  <meta property="og:url" content="https://villasenja.id/" />
+  <meta property="og:image" content="https://villasenja.id/images/hero.jpg" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1600" />
+  <meta property="og:image:alt" content="Villa Senja above the Ubud rice terraces at dusk" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Villa Senja — A Hidden Stay in Ubud, Bali" />
+  <meta name="twitter:description" content="The whole villa, only ever one booking at a time — above the rice fields of Ubud, from $420 / night." />
+  <meta name="twitter:image" content="https://villasenja.id/images/hero.jpg" />
+
+  <!-- Type: Salmond (self-hosted display serif) + Hanken Grotesk (UI sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="fonts/salmond-bold.woff2" crossorigin />
+  <link rel="preload" as="image" href="images/valley.jpg" fetchpriority="high" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="vendor/phosphor/style.css" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <link rel="stylesheet" href="v2.css?v=1" /><!-- v2: Made With GSAP effect layer (additive) -->
+
+  <!-- Structured data: the property as a bookable LodgingBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["LodgingBusiness", "Resort"],
+    "name": "Villa Senja",
+    "description": "An open-air villa above the rice fields of Ubud, Bali — let to only one booking at a time.",
+    "url": "https://villasenja.id/",
+    "image": "https://villasenja.id/images/hero.jpg",
+    "priceRange": "$420",
+    "currenciesAccepted": "USD",
+    "email": "stay@villasenja.id",
+    "maximumAttendeeCapacity": 2,
+    "petsAllowed": false,
+    "smokingAllowed": false,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jalan Raya, Ubud",
+      "addressLocality": "Ubud",
+      "addressRegion": "Bali",
+      "postalCode": "80571",
+      "addressCountry": "ID"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": -8.5167, "longitude": 115.25 },
+    "amenityFeature": [
+      { "@type": "LocationFeatureSpecification", "name": "Infinity pool", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Private chef", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Airport transfer", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Daily breakfast", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Free Wi-Fi", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Daily housekeeping", "value": true }
+    ],
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.98", "reviewCount": 126, "bestRating": "5" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <!-- LOADER — "through the gate, into dusk": the candi bentar draws itself, then the two doors slide apart to reveal the hero -->
+  <div class="loader" data-loader aria-hidden="true">
+    <!-- "through the gate, into senja": two dusk-stone doors carry the lit candi bentar halves; they PART to uncover the real valley behind -->
+    <div class="loader__door loader__door--l" aria-hidden="true">
+      <div class="loader__gh loader__gh--l"><span class="loader__ghlight"></span></div>
+    </div>
+    <div class="loader__door loader__door--r" aria-hidden="true">
+      <div class="loader__gh loader__gh--r"><span class="loader__ghlight"></span></div>
+    </div>
+    <div class="loader__center">
+      <p class="loader__mark"><span class="loader__mark-line">villa <em>senja</em></span></p>
+    </div>
+  </div>
+  <!-- layered texture: warm paper (multiply) + film grain (soft-light) -->
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <!-- scroll-progress bar (positional cue across the long page) -->
+  <div class="scrollbar" aria-hidden="true"><i></i></div>
+
+  <!-- Balinese ornament — one patra-punggel curl, referenced via <use> -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <symbol id="orn-curl" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22c0-6 4-9 4-14 0-3-2-5-5-5S6 5 6 8c0 4 4 5 6 3"/>
+        <path d="M12 11c2 0 3 2 2 4"/>
+      </g>
+    </symbol>
+    <symbol id="orn-patra-col" viewBox="0 0 120 240">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M60 4 C60 40 60 72 60 104 C60 140 60 176 60 236"/>
+        <path d="M60 30 C84 30 96 46 96 70 C96 90 82 100 70 92 C62 87 64 74 74 74"/>
+        <path d="M60 78 C36 78 24 94 24 118 C24 138 38 148 50 140 C58 135 56 122 46 122"/>
+        <path d="M60 126 C84 126 96 142 96 166 C96 186 82 196 70 188 C62 183 64 170 74 170"/>
+        <path d="M60 174 C36 174 24 190 24 214 C24 234 38 244 50 236"/>
+        <path d="M60 16 c6 0 9 4 9 9"/>
+        <path d="M60 16 c-6 0 -9 4 -9 9"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <!-- ───────────────────────── HEADER ───────────────────────── -->
+  <header class="header" data-header>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav__links nav__links--left">
+        <a href="#space" class="nav__link">The Space</a>
+        <a href="#rituals" class="nav__link">Rituals</a>
+        <a href="#stay" class="nav__link">Stay</a>
+      </div>
+      <a href="#top" class="wordmark" aria-label="Villa Senja — home">
+        <span class="wordmark__mark" aria-hidden="true">
+          <svg class="wm-v wm-v--sun" viewBox="0 0 40 40" focusable="false"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6.5" y1="23.5" x2="33.5" y2="23.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="wm-acc" d="M11.5 23.5 a8.5 8.5 0 0 1 17 0 Z"/><g class="wm-rays"><line x1="20" y1="6" x2="20" y2="9.5"/><line x1="11" y1="10.2" x2="13.2" y2="12.8"/><line x1="29" y1="10.2" x2="26.8" y2="12.8"/></g></svg>
+          <span class="wm-v wm-v--vs">V<em>S</em></span>
+          <svg class="wm-v wm-v--frangi" viewBox="0 0 120 120" focusable="false"><circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><ellipse cx="60" cy="40" rx="12" ry="22" transform="rotate(0 60 60)"/><ellipse cx="60" cy="40" rx="12" ry="22" transform="rotate(72 60 60)"/><ellipse cx="60" cy="40" rx="12" ry="22" transform="rotate(144 60 60)"/><ellipse cx="60" cy="40" rx="12" ry="22" transform="rotate(216 60 60)"/><ellipse cx="60" cy="40" rx="12" ry="22" transform="rotate(288 60 60)"/></g><circle class="wm-acc" cx="60" cy="60" r="9"/></svg>
+          <svg class="wm-v wm-v--gate" viewBox="0 0 120 120" focusable="false"><circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><path d="M30 88 L30 70 L40 70 L40 56 L48 56 L48 42 L54 42 L54 30 L58 30 L58 88 Z"/><path d="M90 88 L90 70 L80 70 L80 56 L72 56 L72 42 L66 42 L66 30 L62 30 L62 88 Z"/><rect x="27" y="86" width="66" height="5"/></g></svg>
+          <svg class="wm-v wm-v--boldsun" viewBox="0 0 120 120" focusable="false"><line x1="14" y1="76" x2="106" y2="76" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="wm-acc" d="M33 76 a27 27 0 0 1 54 0 Z"/><g class="wm-rays"><line x1="60" y1="20" x2="60" y2="32"/><line x1="31" y1="32" x2="39" y2="42"/><line x1="89" y1="32" x2="81" y2="42"/><line x1="16" y1="56" x2="28" y2="60"/><line x1="104" y1="56" x2="92" y2="60"/></g></svg>
+          <svg class="wm-v wm-v--patra" viewBox="0 0 120 120" focusable="false"><path d="M34 92 C 34 58, 58 46, 78 56 C 94 64, 92 86, 76 88 C 64 89, 58 78, 66 71 C 71 67, 78 70, 76 77" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 92 C 32 70, 24 58, 12 53" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>
+        </span>
+        <span class="wordmark__txt">Villa <em>Senja</em></span>
+        <span class="wordmark__lockup" aria-hidden="true"><span>Villa</span><i></i><span>Senja</span></span>
+      </a>
+      <div class="nav__links nav__links--right">
+        <span class="nav__meta" aria-label="Local time in Ubud, Bali">Ubud, Bali <span class="nav__meta-dot" aria-hidden="true"></span> <span data-clock>18:42</span><span class="nav__meta-word" data-clock-word></span></span>
+        <a href="#book" class="btn btn--sm">
+          <span class="btn__txt">Book</span>
+          <span class="btn__fill"></span>
+        </a>
+        <button type="button" class="nav__toggle" data-nav-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+          <i class="ph-bold ph-list" aria-hidden="true"></i>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ───── MOBILE MENU (hamburger overlay) ───── -->
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu aria-hidden="true">
+    <!-- Candi bentar — gold split-gate hairline framing the top -->
+    <div class="mm-gate" aria-hidden="true">
+      <span class="mm-gate__post mm-gate__post--l"></span>
+      <span class="mm-gate__finial"><svg class="mm-curl" width="22" height="22"><use href="#orn-curl"/></svg></span>
+      <span class="mm-gate__post mm-gate__post--r"></span>
+    </div>
+    <!-- Faint patra watermark behind the links -->
+    <svg class="mm-watermark" viewBox="0 0 120 240" aria-hidden="true" focusable="false"><use href="#orn-patra-col"/></svg>
+    <!-- In-overlay close cue (header toggle remains the live control) -->
+    <button type="button" class="mm-close" data-nav-link aria-label="Close menu"><span class="mm-close__txt">Close</span></button>
+
+    <div class="mobile-menu__inner">
+      <p class="mm-overline" aria-hidden="true"><span>Slow luxury</span> · Ubud, Bali</p>
+      <nav class="mobile-menu__nav" aria-label="Mobile">
+        <a href="#space" class="mobile-menu__link" data-nav-link style="--i:0"><span class="mm-link__num">01</span><span class="mm-link__body"><span class="mm-link__eyebrow">Explore</span><span class="mm-link__title">The Space</span></span><span class="mm-link__arrow"><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></span></a>
+        <a href="#rituals" class="mobile-menu__link" data-nav-link style="--i:1"><span class="mm-link__num">02</span><span class="mm-link__body"><span class="mm-link__eyebrow">Unwind</span><span class="mm-link__title">Rituals</span></span><span class="mm-link__arrow"><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></span></a>
+        <a href="#dining" class="mobile-menu__link" data-nav-link style="--i:2"><span class="mm-link__num">03</span><span class="mm-link__body"><span class="mm-link__eyebrow">Taste</span><span class="mm-link__title">The Table</span></span><span class="mm-link__arrow"><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></span></a>
+        <a href="#setting" class="mobile-menu__link" data-nav-link style="--i:3"><span class="mm-link__num">04</span><span class="mm-link__body"><span class="mm-link__eyebrow">Wander</span><span class="mm-link__title">The Setting</span></span><span class="mm-link__arrow"><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></span></a>
+        <a href="#stay" class="mobile-menu__link" data-nav-link style="--i:4"><span class="mm-link__num">05</span><span class="mm-link__body"><span class="mm-link__eyebrow">Reserve</span><span class="mm-link__title">Stay</span></span><span class="mm-link__arrow"><i class="ph-bold ph-arrow-up-right" aria-hidden="true"></i></span></a>
+      </nav>
+      <div class="mobile-menu__foot">
+        <span class="mm-rule" aria-hidden="true"><span class="mm-rule__line"></span><svg class="mm-curl mm-curl--sm" width="16" height="16"><use href="#orn-curl"/></svg><span class="mm-rule__line"></span></span>
+        <a href="#book" class="btn btn--lg mobile-menu__cta" data-nav-link><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a>
+        <div class="mobile-menu__meta">
+          <a href="mailto:stay@villasenja.id"><span class="mm-meta__k">Write</span>stay@villasenja.id</a>
+          <a href="https://instagram.com/villa.senja" target="_blank" rel="noopener"><span class="mm-meta__k">Follow</span>@villa.senja</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main">
+
+  <!-- ───────────────────────── HERO (real photo) ───────────────────────── -->
+  <section class="hero hero--editorial" id="top">
+    <div class="hero__art">
+      <video class="hero__photo" autoplay muted loop playsinline preload="auto"
+             poster="images/valley.jpg" aria-hidden="true">
+        <source src="videos/hero.mp4" type="video/mp4" />
+      </video>
+      <div class="hero__overlay"></div>
+      <div class="hero__tod" aria-hidden="true"></div><!-- LIVE-SENJA direction: time-of-day grade -->
+    </div>
+
+    <div class="hero__inner">
+      <p class="hero__live" data-hero-live aria-hidden="true">Right now in Ubud — <em>senja</em></p>
+      <p class="eyebrow">A hidden villa · Ubud, Bali</p>
+      <h1 class="hero__title">
+        <span class="line">Wake</span>
+        <span class="line line--gold">slowly</span>
+      </h1>
+      <div class="rule rule--patra rule--hero" style="margin-inline:0"></div>
+      <p class="hero__sub">Open-air living above the rice fields, where the day ends in <em lang="id">senja</em> — the warm Balinese dusk.</p>
+      <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Book your stay</span><span class="btn__fill"></span></a>
+    </div>
+
+    <!-- SENJA hero: the word as a window into the terraces, on terracotta paper, with a setting sun behind -->
+    <div class="hero__word">
+      <span class="hero__sun2" aria-hidden="true"></span>
+      <h1 class="hero__senja">Senja</h1>
+      <p class="hero__word-gloss">the warm Balinese dusk · <span lang="id">villa senja</span>, Ubud</p>
+      <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Reserve the villa</span><span class="btn__fill"></span></a>
+    </div>
+
+    <button type="button" class="hero__motion" data-hero-motion aria-pressed="true" aria-label="Pause background video">
+      <i class="ph-bold ph-pause" aria-hidden="true"></i>
+    </button>
+  </section>
+
+  <!-- ───── LEAD — statement + the facts ───── -->
+  <section class="lead" id="intro">
+    <div class="wrap">
+      <div class="lead__top">
+        <div class="lead__head">
+          <h2 class="lead__title" data-split>A slower way<br>to begin the day</h2>
+          <p class="lead__p" data-fade>Tucked into a fold of the Ubud jungle, Villa Senja is a single hideaway for people who want less — fewer rooms, fewer sounds, more morning. No lobby, no welcome drink, no rush. Just mist on the valley and the smell of frangipani. The whole place is yours; it’s only ever let to one booking at a time.</p>
+        </div>
+        <figure class="lead__media reveal">
+          <img width="1000" height="1500" src="images/linen.jpg" alt="Soft linen and morning light through the canopy" />
+        </figure>
+      </div>
+      <ul class="facts" data-fade>
+        <li class="fact"><span class="fact__num">2</span><span class="fact__label">guests, only</span></li>
+        <li class="fact"><span class="fact__num">3</span><span class="fact__label">open pavilions</span></li>
+        <li class="fact"><span class="fact__num">1</span><span class="fact__label">infinity pool</span></li>
+        <li class="fact"><span class="fact__num">180°</span><span class="fact__label">of valley</span></li>
+        <li class="fact"><span class="fact__num">40</span><span class="fact__label">yr frangipani</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───── MARQUEE — marigold ticker (Hungry Tiger style) ───── -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <div class="marquee__group">
+        <span class="marquee__item">Slow mornings</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Jungle baths</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Kopi at dawn</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Senja gold</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">One booking at a time</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Rice-field quiet</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+      </div>
+      <div class="marquee__group">
+        <span class="marquee__item">Slow mornings</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Jungle baths</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Kopi at dawn</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Senja gold</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">One booking at a time</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+        <span class="marquee__item">Rice-field quiet</span><span class="marquee__sep" aria-hidden="true"><svg class="orn-curl"><use href="#orn-curl"/></svg></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── THE SPACE — full-bleed alternating panel + photo ───── -->
+  <section class="sides" id="space">
+    <div class="sides__row">
+      <div class="sides__panel">
+        <svg class="draw draw--jamb sides__jamb" viewBox="0 0 90 360" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+          <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M64 360 C 52 320 80 300 74 256 C 70 218 50 210 64 170 C 76 138 100 134 88 100 C 80 78 62 84 68 58 C 73 38 92 36 86 6"/>
+            <path stroke-width="2.4" d="M74 256 C 102 254 108 226 86 222 C 73 220 73 240 86 238"/>
+            <path stroke-width="2.4" d="M88 112 C 60 110 54 86 76 81 C 89 78 90 98 78 98"/>
+            <path stroke-width="2" d="M70 306 L80 301 L73 296"/>
+            <path stroke-width="2" d="M66 190 L56 186 L63 181"/>
+          </g>
+        </svg>
+        <div class="sides__inner">
+          <div class="sides__head">
+            <h2 class="sides__title" data-split>What’s<br>around you</h2>
+            <div class="rule rule--dotted"></div>
+          </div>
+          <p class="sides__lede" data-fade>Open pavilions built for real living — bold views, soft light, and the jungle at the edge of every room.</p>
+          <ul class="features">
+            <li class="feature reveal"><span class="feature__circle"><i class="ph-bold ph-arrows-out" aria-hidden="true"></i></span><span class="feature__txt">Fold-away walls that open the living room to the valley</span></li>
+            <li class="feature reveal"><span class="feature__circle"><i class="ph-bold ph-swimming-pool" aria-hidden="true"></i></span><span class="feature__txt">A spring-fed infinity pool over the rice terraces</span></li>
+            <li class="feature reveal"><span class="feature__circle"><i class="ph-bold ph-sun-horizon" aria-hidden="true"></i></span><span class="feature__txt">A west-facing deck angled for the whole sunset</span></li>
+          </ul>
+        </div>
+      </div>
+      <figure class="sides__media reveal">
+        <img width="1500" height="2250" class="sides__img" src="images/pavilion.jpg" alt="Rattan loungers beside a plunge pool at the villa" />
+        <figcaption class="photo__cap">The living pavilion at first light</figcaption>
+        <svg class="draw draw--curl sides__curl" viewBox="0 0 64 64" aria-hidden="true" focusable="false" preserveAspectRatio="xMinYMax meet">
+          <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 59 L5 37"/>
+            <path d="M5 59 L27 59"/>
+            <path d="M5 59 C 5 31 25 17 40 30 C 50 39 44 52 33 47 C 26 44 28 36 35 38"/>
+          </g>
+        </svg>
+      </figure>
+    </div>
+
+  </section>
+
+  <!-- ───── THE SUITE — full-bleed photo + floating spec card ───── -->
+  <section class="suite" id="suite">
+    <img width="1000" height="1333" class="suite__bg" src="images/suite.jpg" alt="A canopy bed beneath a timber vault in the open-air suite" />
+    <div class="suite__overlay" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="suite__card">
+        <p class="eyebrow eyebrow--gold">The suite</p>
+        <h2 class="suite__title" data-split>One room, no walls you can’t open</h2>
+        <p class="suite__p" data-fade>A four-poster under a timber vault, hand-loomed linen, and a stone bath open to the ferns. Fold the west wall away and the bedroom becomes a verandah that catches the first light and the last.</p>
+        <dl class="specs" data-fade>
+          <div class="spec"><dt><i class="ph-bold ph-bed" aria-hidden="true"></i>Bed</dt><dd>King four-poster, hand-loomed linen</dd></div>
+          <div class="spec"><dt><i class="ph-bold ph-bathtub" aria-hidden="true"></i>Bath</dt><dd>Open-air stone tub &amp; rain shower</dd></div>
+          <div class="spec"><dt><i class="ph-bold ph-house-line" aria-hidden="true"></i>Pavilion</dt><dd>60m², walls fold fully away</dd></div>
+          <div class="spec"><dt><i class="ph-bold ph-binoculars" aria-hidden="true"></i>Outlook</dt><dd>Due west, over the rice terraces</dd></div>
+          <div class="spec"><dt><i class="ph-bold ph-wind" aria-hidden="true"></i>Comfort</dt><dd>Air-con, ceiling fans, fast wi-fi</dd></div>
+        </dl>
+        <svg class="draw draw--corner suite__corner suite__corner--tl" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 11 L37 11"/><path d="M11 11 L11 37"/><path d="M11 11 C 45 11 57 30 39 45 C 29 53 16 47 21 35 C 24 29 32 30 31 38"/></g></svg>
+        <svg class="draw draw--corner suite__corner suite__corner--br" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 11 L37 11"/><path d="M11 11 L11 37"/><path d="M11 11 C 45 11 57 30 39 45 C 29 53 16 47 21 35 C 24 29 32 30 31 38"/></g></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── FIXED-BACKGROUND REVEAL BAND ───── -->
+  <section class="reveal-band">
+    <svg class="draw draw--reveal reveal-band__curl" viewBox="0 0 64 64" aria-hidden="true" focusable="false" preserveAspectRatio="xMinYMax meet">
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 58 C 6 26 28 10 46 24 C 60 35 53 54 38 49 C 27 45 30 32 41 36"/>
+        <path stroke-width="2.2" d="M26 30 C 20 26 14 30 16 38"/>
+      </g>
+    </svg>
+    <div class="reveal-band__inner">
+      <p class="eyebrow eyebrow--gold">8°31′S · 115°15′E</p>
+      <h2 class="reveal-band__title" data-split>Above the rice fields,<br>the day keeps<br>its own time</h2>
+    </div>
+  </section>
+
+  <!-- ───── DINING — the table ───── -->
+  <section class="dining" id="dining">
+    <figure class="dining__media reveal">
+      <img width="1100" height="1467" src="images/dining.jpg" alt="A Balinese spread served on banana leaf" />
+    </figure>
+    <div class="dining__body">
+      <div class="wrap dining__wrap">
+        <p class="eyebrow">At the table</p>
+        <h2 class="dining__title" data-split>Eaten where<br>you like</h2>
+        <p class="dining__p" data-fade>Breakfast on the deck, lunch by the pool, dinner under the lanterns — wherever you are, that’s where it’s laid. Our cook shops the morning market and pounds the sambal by hand. Tell us what you love and it appears.</p>
+        <ul class="menu" data-fade>
+          <li><span class="menu__dish" lang="id">Nasi campur</span><span class="menu__note">market vegetables, sambal matah</span></li>
+          <li><span class="menu__dish" lang="id">Ikan bakar</span><span class="menu__note">charcoal-grilled fish, lime leaf</span></li>
+          <li><span class="menu__dish" lang="id">Bubur injin</span><span class="menu__note">black-rice pudding, young coconut</span></li>
+          <li><span class="menu__dish" lang="id">Kopi Kintamani</span><span class="menu__note">single-origin, from the volcano</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── A DAY AT SENJA — image + timeline ───── -->
+  <section class="day" data-theme="dark">
+    <figure class="day__media">
+      <img width="1500" height="2249" src="images/pool.jpg" alt="The infinity pool at midday" />
+      <span class="day__tod day__tod--dawn" aria-hidden="true"></span>
+      <span class="day__tod day__tod--midday" aria-hidden="true"></span>
+      <span class="day__tod day__tod--senja" aria-hidden="true"></span>
+      <span class="day__tod day__tod--night" aria-hidden="true"></span>
+    </figure>
+    <div class="day__content">
+      <header class="section-head">
+        <p class="eyebrow eyebrow--gold">From mist to lanterns</p>
+        <h2 class="day__title" data-split>A day,<br>unhurried</h2>
+        <p class="day__now"><span class="day__now-dot" aria-hidden="true"></span>In Ubud right now — <time data-clock>—:—</time> WITA — <span data-now-label>the quiet hours</span>.</p>
+      </header>
+      <ol class="timeline">
+        <li class="tl" data-min="350"><span class="tl__time">05:50</span><div class="tl__body"><h3 class="tl__h"><i class="ph-bold ph-sun-dim tl__hicon" aria-hidden="true"></i>The valley wakes</h3><p>Mist sits in the terraces and burns off slow. First the birds, then the light.</p></div></li>
+        <li class="tl" data-min="420"><span class="tl__time">07:00</span><div class="tl__body"><h3 class="tl__h"><i class="ph-bold ph-coffee tl__hicon" aria-hidden="true"></i>Coffee on the deck</h3><p>Kintamani coffee and fruit from the garden, brought out before you ask.</p></div></li>
+        <li class="tl" data-min="750"><span class="tl__time">12:30</span><div class="tl__body"><h3 class="tl__h"><i class="ph-bold ph-swimming-pool tl__hicon" aria-hidden="true"></i>The pool, the shade</h3><p>Swim, read, do nothing with intent — lunch whenever you feel like it.</p></div></li>
+        <li class="tl tl--gold" data-min="1094"><span class="tl__time">18:14</span><div class="tl__body"><h3 class="tl__h"><i class="ph-bold ph-sun-horizon tl__hicon" aria-hidden="true"></i>Senja</h3><p>The gold hour from the west deck — the dusk this place is named for.</p></div></li>
+        <li class="tl" data-min="1200"><span class="tl__time">20:00</span><div class="tl__body"><h3 class="tl__h"><i class="ph-bold ph-fork-knife tl__hicon" aria-hidden="true"></i>A private dinner</h3><p>Balinese plates from the open kitchen, then frogs, lanterns and an absurd number of stars.</p></div></li>
+      </ol>
+      <p class="day__close">…then the valley goes dark and loud with frogs — and tomorrow you do it all again, or nothing at all.</p>
+    </div>
+  </section>
+
+  <!-- ───── EXPERIENCES — horizontal drag carousel ───── -->
+  <section class="exp" id="rituals" data-theme="dark">
+    <div class="wrap exp__head">
+      <div>
+        <p class="eyebrow eyebrow--gold">Rooted in Balinese ritual</p>
+        <h2 class="exp__title" data-split>Days, gently shaped</h2>
+      </div>
+      <p class="exp__lede" data-fade>Nothing is scheduled — everything is simply offered. Slide through and take up what you like.</p>
+    </div>
+    <div class="exp__track" data-drag id="exp-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Experiences — drag, or use arrow keys">
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1500" height="2250" src="images/pavilion.jpg" alt="Yoga on the deck at first light" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">01</span>
+          <h3 class="exp-card__title">Sunrise yoga</h3>
+          <p>A mat on the deck before the valley wakes — breath, a stretch, the first light through the palms.</p>
+          <span class="exp-card__meta">06:00 · open deck</span>
+        </div>
+      </article>
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1000" height="1510" src="images/detail.jpg" alt="A warm stone bath" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">02</span>
+          <h3 class="exp-card__title">Jungle bath</h3>
+          <p>A warm soak in stone, ringed by ferns, with lemongrass and a pot of ginger tea steeping beside you.</p>
+          <span class="exp-card__meta">anytime · private</span>
+        </div>
+      </article>
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1100" height="1467" src="images/dining.jpg" alt="A private Balinese spread" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">03</span>
+          <h3 class="exp-card__title">Private chef</h3>
+          <p>Market-fresh plates cooked in the open kitchen — sambal pounded by hand, eaten wherever you like.</p>
+          <span class="exp-card__meta">on request · nightly</span>
+        </div>
+      </article>
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1000" height="1500" src="images/linen.jpg" alt="An in-villa massage" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">04</span>
+          <h3 class="exp-card__title">A massage, in-villa</h3>
+          <p>A Balinese therapist comes to you — frangipani oil, the sound of the valley, no spa lobby in sight.</p>
+          <span class="exp-card__meta">2 hrs · on the deck</span>
+        </div>
+      </article>
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1600" height="2000" src="images/valley.jpg" alt="A walk through the rice terraces" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">05</span>
+          <h3 class="exp-card__title">A walk in the green</h3>
+          <p>A guided wander through the terraces with a farmer who actually works them. Back before the heat.</p>
+          <span class="exp-card__meta">morning · guided</span>
+        </div>
+      </article>
+      <article class="exp-card reveal">
+        <div class="exp-card__img"><img width="1500" height="2249" src="images/pool.jpg" alt="The pool" loading="lazy" /></div>
+        <div class="exp-card__body">
+          <span class="exp-card__no">06</span>
+          <h3 class="exp-card__title">Absolutely nothing</h3>
+          <p>The pool, a book, the shade, repeat. The most-requested experience we offer, by some distance.</p>
+          <span class="exp-card__meta">all day · recommended</span>
+        </div>
+      </article>
+    </div>
+    <div class="wrap exp__controls">
+      <div class="exp__progress" aria-hidden="true"><span class="exp__progress-fill"></span></div>
+      <div class="exp__nav">
+        <button type="button" class="exp__nav-btn" data-exp-prev aria-controls="exp-track" aria-label="Previous experiences">&#8592;</button>
+        <button type="button" class="exp__nav-btn" data-exp-next aria-controls="exp-track" aria-label="Next experiences">&#8594;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── LOCATION — getting here (horizontal journey strip) ───── -->
+  <section class="location" id="setting">
+    <div class="wrap">
+      <div class="location__top">
+        <div class="location__head">
+          <p class="eyebrow">The setting</p>
+          <div class="rule rule--patra rule--hero draw-wipe" style="margin-inline:0"></div>
+          <h2 class="location__title" data-split>Deep in the Ubud green</h2>
+          <p class="location__p" data-fade>Far enough up the valley to hear nothing but water and frogs — close enough that the market, the temples and a very good warung are a short ride away. We meet you at the airport and bring you in ourselves.</p>
+          <p class="location__coords" data-fade><i class="ph-bold ph-map-pin" aria-hidden="true"></i>8°31′S · 115°15′E<span> · Ubud, Bali</span></p>
+        </div>
+        <figure class="location__media reveal">
+          <img width="1600" height="2000" src="images/valley.jpg" alt="The rice-terrace valley the villa looks over" loading="lazy" />
+        </figure>
+      </div>
+      <ol class="journey" data-fade>
+        <li class="journey__stop"><i class="ph-bold ph-fork-knife journey__icon" aria-hidden="true"></i><span class="journey__d">4 min</span><span class="journey__rail"><span class="journey__dot"></span></span><span class="journey__p">to the nearest warung</span></li>
+        <li class="journey__stop"><i class="ph-bold ph-plant journey__icon" aria-hidden="true"></i><span class="journey__d">10 min</span><span class="journey__rail"><span class="journey__dot"></span></span><span class="journey__p">Tegallalang rice terraces</span></li>
+        <li class="journey__stop"><i class="ph-bold ph-storefront journey__icon" aria-hidden="true"></i><span class="journey__d">15 min</span><span class="journey__rail"><span class="journey__dot"></span></span><span class="journey__p">central Ubud &amp; the art market</span></li>
+        <li class="journey__stop"><i class="ph-bold ph-tree journey__icon" aria-hidden="true"></i><span class="journey__d">20 min</span><span class="journey__rail"><span class="journey__dot"></span></span><span class="journey__p">the Sacred Monkey Forest</span></li>
+        <li class="journey__stop"><i class="ph-bold ph-airplane-tilt journey__icon" aria-hidden="true"></i><span class="journey__d">90 min</span><span class="journey__rail"><span class="journey__dot"></span></span><span class="journey__p">Denpasar airport — we drive you</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ───── WHAT’S INCLUDED — price + tag cloud ───── -->
+  <section class="included">
+    <div class="wrap included__inner">
+      <p class="eyebrow eyebrow--gold">No fine print</p>
+      <h2 class="included__title" data-split>It’s all included</h2>
+      <p class="included__price"><span class="included__from">from</span> <span class="included__amt">$420</span> <span class="included__per">/ night</span></p>
+      <div class="rule rule--patra included__rule draw-wipe"></div>
+      <p class="included__sub" data-fade>Two-night minimum · the whole villa, every single time — only ever one booking.</p>
+      <ul class="incl-tags" data-fade>
+        <li><i class="ph-bold ph-coffee" aria-hidden="true"></i>Daily breakfast, made to order</li>
+        <li><i class="ph-bold ph-sparkle" aria-hidden="true"></i>Private host &amp; daily housekeeping</li>
+        <li><i class="ph-bold ph-airplane-tilt" aria-hidden="true"></i>Airport transfer, both ways</li>
+        <li><i class="ph-bold ph-bicycle" aria-hidden="true"></i>Bikes, sarongs &amp; a beach kit</li>
+        <li><i class="ph-bold ph-drop" aria-hidden="true"></i>Laundry, water &amp; fast wi-fi</li>
+        <li><i class="ph-bold ph-chef-hat" aria-hidden="true"></i>A chef on call — market run on us</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───── FAQ — the practical bits (accordion, sticky head) ───── -->
+  <section class="faq" id="faq">
+    <div class="wrap faq__grid">
+      <div class="faq__head">
+        <svg class="draw draw--faq faq__vine" viewBox="0 0 90 360" aria-hidden="true" focusable="false" preserveAspectRatio="xMinYMin meet">
+          <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M64 360 C 52 320 80 300 74 256 C 70 218 50 210 64 170 C 76 138 100 134 88 100 C 80 78 62 84 68 58 C 73 38 92 36 86 6"/>
+            <path stroke-width="2.4" d="M74 256 C 102 254 108 226 86 222 C 73 220 73 240 86 238"/>
+            <path stroke-width="2.4" d="M88 112 C 60 110 54 86 76 81 C 89 78 90 98 78 98"/>
+            <path stroke-width="2" d="M70 306 L80 301 L73 296"/>
+            <path stroke-width="2" d="M66 190 L56 186 L63 181"/>
+          </g>
+        </svg>
+        <p class="eyebrow">Good to know</p>
+        <h2 class="faq__title" data-split>Before you ask</h2>
+        <p class="faq__lede" data-fade>The practical bits. Anything else, just message us — a real person replies, usually within the day.</p>
+      </div>
+      <ul class="faq__list" data-fade>
+        <li class="faq__item is-open">
+          <button type="button" class="faq__q" aria-expanded="true" aria-controls="faq-a1"><span>Is it really only for two?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a1"><div class="faq__a-inner"><p>Yes. One booking at a time, the whole villa, up to two guests — no other rooms, no other guests, ever. That’s the entire point of the place.</p></div></div>
+        </li>
+        <li class="faq__item">
+          <button type="button" class="faq__q" aria-expanded="false" aria-controls="faq-a2"><span>How do we get there?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a2"><div class="faq__a-inner"><p>About 90 minutes up from Denpasar airport. We collect you and drive you in ourselves — both ways, included — and the last stretch is a quiet valley lane.</p></div></div>
+        </li>
+        <li class="faq__item">
+          <button type="button" class="faq__q" aria-expanded="false" aria-controls="faq-a3"><span>When can we check in and out?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a3"><div class="faq__a-inner"><p>Check-in from 2pm, check-out by 11am. Since it’s only ever one booking, we’ll usually flex both ways when the calendar allows — just ask.</p></div></div>
+        </li>
+        <li class="faq__item">
+          <button type="button" class="faq__q" aria-expanded="false" aria-controls="faq-a4"><span>Can you cater for dietary needs?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a4"><div class="faq__a-inner"><p>Easily. The cook shops the market each morning, so vegetarian, vegan, gluten-free and allergies are no trouble at all — tell us beforehand and it’s handled.</p></div></div>
+        </li>
+        <li class="faq__item">
+          <button type="button" class="faq__q" aria-expanded="false" aria-controls="faq-a5"><span>Is there wi-fi — could I work?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a5"><div class="faq__a-inner"><p>Fast fibre throughout and a shaded desk nook on the deck. You could absolutely work — though the valley has a way of talking you out of it.</p></div></div>
+        </li>
+        <li class="faq__item">
+          <button type="button" class="faq__q" aria-expanded="false" aria-controls="faq-a6"><span>What’s the cancellation policy?</span><span class="faq__icon" aria-hidden="true"></span></button>
+          <div class="faq__a" id="faq-a6"><div class="faq__a-inner"><p>Free cancellation up to 30 days before arrival. Within 30 days we hold 50%. Nothing is taken just to enquire about dates.</p></div></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───── GUEST WORDS + PRESS ───── -->
+  <section class="guests" data-theme="dark">
+    <span class="guests__mark" aria-hidden="true">“</span>
+    <div class="wrap">
+      <header class="section-head">
+        <p class="eyebrow eyebrow--gold">In their words</p>
+        <h2 class="guests__title" data-split>Worth the<br>whole trip</h2>
+        <p class="guests__rating" data-fade><span class="guests__rating-stars" aria-hidden="true">★★★★★</span><strong>4.98</strong><span class="guests__rating-sub">from 126 verified stays</span></p>
+      </header>
+      <div class="testimonials">
+        <figure class="tcard reveal">
+          <div class="tcard__head"><img width="400" height="400" class="tcard__avatar" src="images/people/p1.jpg" alt="Eleanor" loading="lazy" /><figcaption class="tcard__who"><strong>Eleanor &amp; Tom</strong><span>London</span></figcaption></div>
+          <div class="tcard__stars" aria-label="Rated 5 out of 5" title="5 / 5">★★★★★</div>
+          <blockquote>“We didn’t leave the property for three days, and didn’t want to. The staff appear exactly when you need them and disappear the rest of the time.”</blockquote>
+          <p class="tcard__src"><i class="ph-bold ph-seal-check" aria-hidden="true"></i>Mr &amp; Mrs Smith · Jan 2026</p>
+        </figure>
+        <figure class="tcard reveal">
+          <div class="tcard__head"><img width="400" height="400" class="tcard__avatar" src="images/people/p5.jpg" alt="Amara" loading="lazy" /><figcaption class="tcard__who"><strong>Amara</strong><span>Lagos</span></figcaption></div>
+          <div class="tcard__stars" aria-label="Rated 5 out of 5" title="5 / 5">★★★★★</div>
+          <blockquote>“The most we’ve ever paid to do the very least — and worth every rupiah. We’re already trying to book it again.”</blockquote>
+          <p class="tcard__src"><i class="ph-bold ph-seal-check" aria-hidden="true"></i>Google review · Nov 2025</p>
+        </figure>
+        <figure class="tcard reveal">
+          <div class="tcard__head"><img width="400" height="400" class="tcard__avatar" src="images/people/p3.jpg" alt="Maja" loading="lazy" /><figcaption class="tcard__who"><strong>Maja</strong><span>Copenhagen</span></figcaption></div>
+          <div class="tcard__stars" aria-label="Rated 5 out of 5" title="5 / 5">★★★★★</div>
+          <blockquote>“That stone bath, open to the ferns, at six in the morning with the mist coming up. I still think about it.”</blockquote>
+          <p class="tcard__src"><i class="ph-bold ph-seal-check" aria-hidden="true"></i>Verified stay · Sep 2025</p>
+        </figure>
+        <figure class="tcard reveal">
+          <div class="tcard__head"><img width="400" height="400" class="tcard__avatar" src="images/people/p2.jpg" alt="Sofia" loading="lazy" /><figcaption class="tcard__who"><strong>Sofia &amp; Marco</strong><span>Lisbon</span></figcaption></div>
+          <div class="tcard__stars" aria-label="Rated 5 out of 5" title="5 / 5">★★★★★</div>
+          <blockquote>“One booking at a time is the whole point. It felt like our own house — with someone quietly making it perfect.”</blockquote>
+          <p class="tcard__src"><i class="ph-bold ph-seal-check" aria-hidden="true"></i>Booked direct · Jun 2025</p>
+        </figure>
+      </div>
+      <div class="press" data-fade>
+        <span class="press__label">As featured in</span>
+        <ul class="press__list">
+          <li><a href="https://www.cntraveller.com/" target="_blank" rel="noopener">Condé Nast Traveller</a></li>
+          <li><a href="https://www.mrandmrssmith.com/" target="_blank" rel="noopener">Mr &amp; Mrs Smith</a></li>
+          <li><a href="https://www.travelandleisure.com/" target="_blank" rel="noopener">Travel + Leisure</a></li>
+          <li><a href="https://suitcasemag.com/" target="_blank" rel="noopener">Suitcase</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── GALLERY ───── -->
+  <section class="gallery" id="gallery">
+    <div class="gallery__pin">
+      <div class="wrap">
+        <header class="section-head section-head--center">
+          <p class="eyebrow">The look of it</p>
+          <h2 class="gallery__title" data-split>See for yourself</h2>
+          <div class="rule rule--weave draw-wipe"></div>
+        </header>
+      </div>
+      <div class="gallery__track">
+        <figure class="gallery__item"><img width="1000" height="1510" src="images/detail.jpg" alt="Teak doors and sheer curtains" loading="lazy" /></figure>
+        <figure class="gallery__item"><img width="1000" height="1500" src="images/linen.jpg" alt="Soft linen against jungle greenery" loading="lazy" /></figure>
+        <figure class="gallery__item"><img width="1000" height="1500" src="images/bedroom.jpg" alt="A warm Balinese bedroom at dusk" loading="lazy" /></figure>
+        <figure class="gallery__item"><img width="1500" height="2250" src="images/pavilion.jpg" alt="Rattan loungers by the plunge pool" loading="lazy" /></figure>
+        <figure class="gallery__item"><img width="1500" height="2249" src="images/pool.jpg" alt="Infinity pool over the rice terraces" loading="lazy" /></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── FULL-BLEED CTA (real photo) ───────────────────────── -->
+  <section class="cta" id="stay">
+    <div class="cta__art" aria-hidden="true">
+      <img width="1600" height="1200" class="cta__photo" src="images/terrace.jpg" alt="" />
+      <div class="cta__overlay"></div>
+    </div>
+    <div class="cta__inner">
+      <svg class="draw draw--gate cta__gate" viewBox="0 0 200 100" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">
+        <g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+          <path class="draw__fill" d="M92 92 L92 20 L84 20 L84 12 L92 12 L92 14 L80 14 L80 26 L66 26 L66 38 L52 38 L52 50 L38 50 L38 62 L24 62 L24 74 L12 74 L12 92 Z"/>
+          <path class="draw__fill" d="M108 92 L108 20 L116 20 L116 12 L108 12 L108 14 L120 14 L120 26 L134 26 L134 38 L148 38 L148 50 L162 50 L162 62 L176 62 L176 74 L188 74 L188 92 Z"/>
+          <path d="M8 93 L192 93"/>
+        </g>
+      </svg>
+      <p class="eyebrow eyebrow--gold">Two guests · one villa · whole valley</p>
+      <h2 class="cta__title" data-split>Stay with us</h2>
+      <p class="cta__lede" data-fade>The whole of Villa Senja — three pavilions, the pool, the valley, and a team who quietly tend to all of it — given over to just the two of you.</p>
+      <ul class="cta__pillars" data-fade>
+        <li><i class="ph-bold ph-key cta__pillar-icon" aria-hidden="true"></i><span class="cta__pillar-k">Exclusively yours</span><span class="cta__pillar-v">One booking at a time — never shared</span></li>
+        <li><i class="ph-bold ph-fork-knife cta__pillar-icon" aria-hidden="true"></i><span class="cta__pillar-k">Private chef &amp; host</span><span class="cta__pillar-v">Market-fresh, cooked to your day</span></li>
+        <li><i class="ph-bold ph-airplane-tilt cta__pillar-icon" aria-hidden="true"></i><span class="cta__pillar-k">Seamless arrival</span><span class="cta__pillar-v">Private airport transfer, both ways</span></li>
+        <li><i class="ph-bold ph-tree cta__pillar-icon" aria-hidden="true"></i><span class="cta__pillar-k">Utterly secluded</span><span class="cta__pillar-v">Gated, high above the rice terraces</span></li>
+      </ul>
+      <div class="cta__actions">
+        <a href="#book" class="btn btn--lg">
+          <span class="btn__txt">Check available dates</span>
+          <span class="btn__fill"></span>
+        </a>
+        <a href="#contact" class="cta__talk">or speak with our host →</a>
+      </div>
+      <div class="cta__trust" data-fade>
+        <span class="cta__stars" aria-label="Rated 4.98 out of 5">★★★★★</span>
+        <span class="cta__trust-txt">4.98 from 126 stays · featured in Condé Nast Traveller &amp; Mr &amp; Mrs Smith</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── BOOKING — live nights × rate widget ───── -->
+  <section class="booking bg-foliage" id="book">
+    <div class="wrap booking__grid">
+      <div class="booking__intro">
+        <p class="eyebrow">Reserve</p>
+        <h2 class="booking__title" data-split>Hold your dates</h2>
+        <p class="booking__lede" data-fade>The whole villa, only ever yours. Pick your nights below — a real person replies within the day, usually before senja.</p>
+        <ul class="booking__assure" data-fade>
+          <li><i class="ph-bold ph-check" aria-hidden="true"></i>Free cancellation up to 30 days before</li>
+          <li><i class="ph-bold ph-check" aria-hidden="true"></i>No deposit just to enquire</li>
+          <li><i class="ph-bold ph-check" aria-hidden="true"></i>Private airport transfer, both ways</li>
+        </ul>
+        <p class="booking__avail" data-fade hidden><span class="booking__avail-dot" aria-hidden="true"></span>Earliest open: <strong data-bk-earliest>—</strong></p>
+      </div>
+      <form class="booking__card reveal" data-booking novalidate>
+        <p class="bk-rate"><span class="bk-rate__amt">$420</span> <span class="bk-rate__per">/ night</span> <span class="bk-rate__fee">+ $60 service · all-in</span></p>
+
+        <div class="bk-cal" data-bk-cal>
+          <div class="bk-cal__head">
+            <button type="button" class="bk-cal__nav" data-bk-prev aria-label="Previous month"><i class="ph-bold ph-caret-left" aria-hidden="true"></i></button>
+            <span class="bk-cal__month" data-bk-month aria-live="polite">—</span>
+            <button type="button" class="bk-cal__nav" data-bk-next aria-label="Next month"><i class="ph-bold ph-caret-right" aria-hidden="true"></i></button>
+          </div>
+          <div class="bk-cal__dow" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+          <div class="bk-cal__grid" data-bk-grid role="grid" aria-label="Choose check-in, then check-out"></div>
+        </div>
+
+        <div class="bk-selected" data-bk-selected hidden>
+          <div class="bk-selected__col"><span class="bk-label">Check in</span><strong data-bk-in-label>—</strong></div>
+          <span class="bk-selected__arrow" aria-hidden="true"><i class="ph-bold ph-arrow-right"></i></span>
+          <div class="bk-selected__col"><span class="bk-label">Check out</span><strong data-bk-out-label>—</strong></div>
+        </div>
+
+        <div class="bk-field bk-field--row">
+          <span class="bk-label" id="bk-guests-label"><i class="ph-bold ph-users" aria-hidden="true"></i>Guests</span>
+          <div class="bk-static" role="note" aria-labelledby="bk-guests-label">Up to 2 · the whole villa</div>
+        </div>
+
+        <div class="bk-summary" data-bk-summary aria-live="polite" hidden>
+          <div class="bk-row"><span data-bk-calc>—</span><span data-bk-sub>—</span></div>
+          <div class="bk-row"><span>Service &amp; cleaning</span><span>$60</span></div>
+          <div class="bk-row bk-row--total"><span>Total</span><span data-bk-total>—</span></div>
+        </div>
+
+        <div class="bk-contact" data-bk-contact hidden>
+          <div class="bk-field">
+            <label for="bk-name">Your name</label>
+            <input type="text" id="bk-name" name="name" class="bk-input" autocomplete="name" />
+          </div>
+          <div class="bk-field">
+            <label for="bk-email">Email</label>
+            <input type="email" id="bk-email" name="email" class="bk-input" autocomplete="email" inputmode="email" />
+          </div>
+          <div class="bk-field">
+            <label for="bk-msg">Anything we should know? <span class="bk-opt">(optional)</span></label>
+            <textarea id="bk-msg" name="message" class="bk-input bk-input--area" rows="2"></textarea>
+          </div>
+        </div>
+
+        <p class="bk-note" data-bk-note aria-live="polite">Two-night minimum — pick your dates for a total.</p>
+        <button type="submit" class="btn btn--lg bk-submit" data-bk-submit disabled>
+          <span class="btn__txt">Request these dates</span><span class="btn__fill"></span>
+        </button>
+        <p class="bk-confirm" data-bk-confirm role="status" hidden>Noted — we’ll write back within the day, usually before senja.</p>
+      </form>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- Sticky mobile booking bar -->
+  <div class="book-bar" data-book-bar aria-hidden="true">
+    <p class="book-bar__price"><span>from</span> <strong>$420</strong> / night</p>
+    <a href="#book" class="btn book-bar__cta"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a>
+  </div>
+
+  <!-- ───────────────────────── FOOTER ───────────────────────── -->
+  <footer class="footer" id="contact" data-theme="dark">
+    <div class="wrap">
+      <div class="footer__lockup">Villa <em>Senja</em></div>
+      <div class="footer__grid">
+        <div class="footer__col">
+          <span class="footer__h">Visit</span>
+          <a href="https://maps.google.com/?q=Villa+Senja,+Ubud,+Bali" target="_blank" rel="noopener"><i class="ph-bold ph-map-pin" aria-hidden="true"></i>Jalan Raya, Ubud</a>
+          <a href="https://maps.google.com/?q=Villa+Senja,+Ubud,+Bali" target="_blank" rel="noopener">Bali, Indonesia 80571</a>
+        </div>
+        <div class="footer__col">
+          <span class="footer__h">Reach</span>
+          <a href="mailto:stay@villasenja.id"><i class="ph-bold ph-envelope-simple" aria-hidden="true"></i>stay@villasenja.id</a>
+          <a href="https://instagram.com/villa.senja" target="_blank" rel="noopener"><i class="ph-bold ph-instagram-logo" aria-hidden="true"></i>@villa.senja</a>
+        </div>
+        <div class="footer__col footer__col--book">
+          <span class="footer__h">Reserve your dates</span>
+          <form class="subscribe" onsubmit="return false;">
+            <input type="email" class="subscribe__input" placeholder="your email" aria-label="Email" />
+            <button class="btn btn--sm subscribe__btn"><span class="btn__txt">Enquire</span><span class="btn__fill"></span></button>
+          </form>
+          <p class="footer__fine">We reply within a day. No lists, no spam.</p>
+        </div>
+      </div>
+      <div class="rule rule--weave rule--gold draw-wipe"></div>
+      <div class="footer__base">
+        <span>© <span data-year>2026</span> Villa Senja</span>
+        <span>Designed by Godwin</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DEV ONLY (shown with ?tweaks) — try header directions live -->
+  <div class="descent-veil" aria-hidden="true"></div><!-- DESCENT hero direction: page warms to dusk with scroll -->
+
+  <aside class="tweaks" data-tweaks hidden aria-label="Direction tweaks">
+    <div class="tweaks__head">
+      <p class="tweaks__title">Try a direction</p>
+      <button type="button" class="tweaks__x" data-tweaks-close aria-label="Close panel">×</button>
+    </div>
+    <p class="tweaks__lbl">Header</p>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Header direction">
+      <button type="button" class="tweaks__opt is-on" data-hv="current">Current</button>
+      <button type="button" class="tweaks__opt" data-hv="brass">Brass plate</button>
+      <button type="button" class="tweaks__opt" data-hv="index">Index</button>
+      <button type="button" class="tweaks__opt" data-hv="gate">Gate</button>
+    </div>
+    <p class="tweaks__lbl">Hero</p>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Hero direction">
+      <button type="button" class="tweaks__opt is-on" data-hero="current">SENJA</button>
+      <button type="button" class="tweaks__opt" data-hero="editorial">Editorial</button>
+      <button type="button" class="tweaks__opt" data-hero="cover">Cover</button>
+      <button type="button" class="tweaks__opt" data-hero="live">Live grade</button>
+      <button type="button" class="tweaks__opt" data-hero="descent">Descent</button>
+    </div>
+    <p class="tweaks__lbl">Logo mark</p>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Logo mark">
+      <button type="button" class="tweaks__opt is-on" data-mark="current">Sun</button>
+      <button type="button" class="tweaks__opt" data-mark="vs">VS</button>
+      <button type="button" class="tweaks__opt" data-mark="frangipani">Frangipani</button>
+      <button type="button" class="tweaks__opt" data-mark="gate">Gate</button>
+      <button type="button" class="tweaks__opt" data-mark="boldsun">Bold sun</button>
+      <button type="button" class="tweaks__opt" data-mark="patra">Patra</button>
+      <button type="button" class="tweaks__opt" data-mark="lockup">Lockup</button>
+    </div>
+    <label class="tweaks__check"><input type="checkbox" data-hv-clock checked> Living senja clock</label>
+  </aside>
+  <button type="button" class="tweaks__tab" data-tweaks-tab hidden aria-label="Open tweaks">⚙ tweaks</button>
+
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script><!-- v2: physics for the 089 jelly hero -->
+  <script src="v2.js?v=1"></script>
+</body>
+</html>

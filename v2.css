@@ -1,0 +1,33 @@
+/* ============================================================
+   VILLA SENJA — v2 effect layer (Made With GSAP picks)
+   Loads ON TOP of styles.css. Only adds what the new effects need;
+   the base design system (tokens, type, components) is untouched.
+   ============================================================ */
+
+/* ---- 089 · physics "jelly" hero -------------------------------------------
+   Each letter becomes a Matter.js body, so they need to be inline-block and
+   solid-filled — the terrace bg-clip fill can't survive per-letter transforms. */
+.hero__senja .letter {
+  display: inline-block;
+  will-change: transform;
+}
+html .hero__senja {                 /* solid cream so the swinging letters read */
+  -webkit-text-fill-color: var(--cream);
+  color: var(--cream);
+  background: none;
+  white-space: nowrap;              /* per-letter spans must not wrap to a second line */
+}
+
+/* ---- 067 · blur-to-sharp headings -----------------------------------------
+   Hint the compositor; words start blurred and resolve as the heading enters. */
+[data-split] .word {
+  will-change: filter, opacity;
+}
+
+/* ---- 024 · velocity-skew marquee ------------------------------------------
+   Skew the groups (not the track, which CSS translates) so the ticker shears
+   with scroll speed without fighting its scroll animation. */
+.marquee__group {
+  transform-origin: center center;
+  will-change: transform;
+}
