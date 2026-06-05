@@ -581,43 +581,43 @@
   /* ---------- Hero: choreographed entrance (fromTo so it can be pre-hidden under
      the loader, then rise in as the gate doors open) ---------- */
   function playHeroIntro() {
-    gsap.timeline()
-      .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0.1)
-      .fromTo(".hero__title .line", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 1.1, ease: EASE, stagger: 0.12 }, 0.18)
-      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0.6)
-      .fromTo(".hero__cue, .hero__book", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.8, ease: EASE, stagger: 0.08 }, 0.75);
+    gsap.timeline({ defaults: { ease: "expo.out" } })
+      .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
+      .fromTo(".hero__title .line__in", { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.14 }, 0.2)   // MASKED per-line rise (not a flat fade)
+      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.7)
+      .fromTo(".hero__cta", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.9);
   }
 
-  /* ---------- Loader: "first light through the gate" — the candi bentar sits as a
-     silhouette in shadow; dawn light climbs UP through it (base first, finials last);
-     the wordmark rises at its foot; then the whole scene dissolves THROUGH the gate
-     into the hero (a slow zoom + fade) — like stepping out of the dark into the light. ---------- */
+  /* ---------- Loader: "through the gate, into senja" — two dusk-stone doors carry the
+     lit candi bentar; the carved gate halves catch first light (base→finials), the
+     wordmark rises, then the doors PART to uncover the REAL valley behind — one
+     continuous move from dusk-shadow into golden hour, no separate splash. ---------- */
   function initLoader(done) {
     if (!loaderEl) { done(); return; }
-    const gatelight = loaderEl.querySelector(".loader__gatelight");
-    const wm        = loaderEl.querySelector(".loader__mark-line");
-    const field     = loaderEl.querySelector(".loader__field");
-    const gate      = loaderEl.querySelector(".loader__gate2");
+    const lights = loaderEl.querySelectorAll(".loader__ghlight");
+    const wm     = loaderEl.querySelector(".loader__mark-line");
+    const dL     = loaderEl.querySelector(".loader__door--l");
+    const dR     = loaderEl.querySelector(".loader__door--r");
 
-    gsap.set(gatelight, { "--lit": "0%" });                           // gate starts in shadow
-    gsap.set(wm, { yPercent: 120 });                                  // wordmark masked below its baseline
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // hero waits behind
+    gsap.set(lights, { "--lit": "0%" });                              // gate halves start in shadow
+    gsap.set(wm, { yPercent: 120 });                                 // wordmark masked below its baseline
+    gsap.set([".hero .eyebrow", ".hero__sub", ".hero__cta"], { opacity: 0 });   // hero waits behind the doors
+    gsap.set(".hero__title .line__in", { yPercent: 110 });
 
     gsap.timeline()
-      // 1) first light climbs the gate — the base catches it first, the finials last
-      .to(gatelight, { "--lit": "100%", duration: 1.6, ease: "power2.inOut" }, 0.2)
+      // 1) first light climbs the carved gate — base first, finials last (left a beat ahead of right)
+      .to(lights, { "--lit": "100%", duration: 1.5, ease: "power2.inOut", stagger: 0.1 }, 0.2)
       // 2) the wordmark rises at the gate's foot — masked, quiet
-      .to(wm, { yPercent: 0, duration: 0.9, ease: "power3.out" }, "-=0.85")
-      // a held breath — the still moment before you step through
-      .addLabel("through", "+=0.45")
-      // 3) move THROUGH the gate into the light: the whole scene zooms gently toward us,
-      //    the wordmark fades first, then the field + lit gate fade away, uncovering the hero
-      .to(loaderEl, { scale: 1.18, duration: 1.3, ease: "power2.in" }, "through")
-      .to(".loader__center", { opacity: 0, duration: 0.55, ease: "power1.in" }, "through")
-      .to([field, gate], { opacity: 0, duration: 0.95, ease: "power2.in" }, "through+=0.45")
-      // 4) hand off — the hero is uncovered as the scene clears (not popped after)
-      .add(done, "through+=0.6")
-      .add(() => { loaderEl.style.display = "none"; }, "through+=1.45");
+      .to(wm, { yPercent: 0, duration: 0.9, ease: "power3.out" }, "-=0.8")
+      // a held breath before the gate opens
+      .addLabel("open", "+=0.4")
+      // 3) the gate OPENS — the two dusk-stone doors part on a heavy expo, uncovering the REAL valley
+      .to(".loader__center", { opacity: 0, duration: 0.5, ease: "power1.in" }, "open")
+      .to(dL, { xPercent: -100, duration: 1.4, ease: "expo.inOut" }, "open")
+      .to(dR, { xPercent: 100,  duration: 1.4, ease: "expo.inOut" }, "open+=0.08")   // right door lags ~80ms
+      // 4) hand off mid-open — the editorial lockup rises as the gap widens (uncovered, not popped)
+      .add(done, "open+=0.7")
+      .add(() => { loaderEl.style.display = "none"; }, "open+=1.6");
   }
   initLoader(playHeroIntro);
 

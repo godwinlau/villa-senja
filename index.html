@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=86" />
+  <link rel="stylesheet" href="styles.css?v=87" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -77,9 +77,13 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <!-- LOADER — "through the gate, into dusk": the candi bentar draws itself, then the two doors slide apart to reveal the hero -->
   <div class="loader" data-loader aria-hidden="true">
-    <!-- "first light through the gate": a candi bentar in shadow that dawn light climbs (base→finials), then the scene dissolves through into the hero -->
-    <div class="loader__field" aria-hidden="true"></div>
-    <div class="loader__gate2" aria-hidden="true"><div class="loader__gatelight"></div></div>
+    <!-- "through the gate, into senja": two dusk-stone doors carry the lit candi bentar halves; they PART to uncover the real valley behind -->
+    <div class="loader__door loader__door--l" aria-hidden="true">
+      <div class="loader__gh loader__gh--l"><span class="loader__ghlight"></span></div>
+    </div>
+    <div class="loader__door loader__door--r" aria-hidden="true">
+      <div class="loader__gh loader__gh--r"><span class="loader__ghlight"></span></div>
+    </div>
     <div class="loader__center">
       <p class="loader__mark"><span class="loader__mark-line">villa <em>senja</em></span></p>
     </div>
@@ -169,7 +173,7 @@
   <main id="main">
 
   <!-- ───────────────────────── HERO (real photo) ───────────────────────── -->
-  <section class="hero" id="top">
+  <section class="hero hero--editorial" id="top">
     <div class="hero__art">
       <video class="hero__photo" autoplay muted loop playsinline preload="auto"
              poster="images/valley.jpg" aria-hidden="true">
@@ -181,22 +185,15 @@
     <div class="hero__inner">
       <p class="eyebrow">A hidden villa · Ubud, Bali</p>
       <h1 class="hero__title">
-        <span class="line">Wake</span>
-        <span class="line line--gold">slowly</span>
+        <span class="line"><span class="line__in">Wake</span></span>
+        <span class="line line--gold"><span class="line__in">slowly</span></span>
       </h1>
-      <div class="rule rule--patra rule--hero draw-wipe"></div>
       <p class="hero__sub">Open-air living above the rice fields, where the day ends in <em lang="id">senja</em> — the warm Balinese dusk.</p>
+      <a href="#book" class="hero__cta">
+        <span class="hero__cta-txt">Book your stay</span>
+        <span class="hero__cta-line" aria-hidden="true"></span>
+      </a>
     </div>
-
-    <a href="#intro" class="hero__cue" aria-label="Scroll">
-      <span>scroll</span>
-      <span class="hero__cue-line"></span>
-    </a>
-
-    <a href="#book" class="hero__book btn">
-      <span class="btn__txt">Book your stay</span>
-      <span class="btn__fill"></span>
-    </a>
 
     <button type="button" class="hero__motion" data-hero-motion aria-pressed="true" aria-label="Pause background video">
       <i class="ph-bold ph-pause" aria-hidden="true"></i>
@@ -750,6 +747,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=44"></script>
+  <script src="main.js?v=45"></script>
 </body>
 </html>
