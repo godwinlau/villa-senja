@@ -50,6 +50,10 @@
       else if (y < lastY - 4 || y < 260) header.classList.remove("is-hidden");
       lastY = y;
 
+      // warm paper scrim once we've left the hero (transparent over the hero photo)
+      const heroH = (document.querySelector(".hero")?.offsetHeight) || window.innerHeight;
+      header.classList.toggle("is-scrolled", y > heroH - header.offsetHeight - 24);
+
       const mid = header.offsetHeight * 0.5;
       let dark = false;
       for (const s of darkSections) {
