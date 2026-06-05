@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=80" />
+  <link rel="stylesheet" href="styles.css?v=81" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -77,17 +77,25 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <!-- LOADER — "through the gate, into dusk": the candi bentar draws itself, then the two doors slide apart to reveal the hero -->
   <div class="loader" data-loader aria-hidden="true">
-    <div class="loader__panel loader__panel--l"></div>
-    <div class="loader__panel loader__panel--r"></div>
-    <div class="loader__glow" aria-hidden="true"></div>
-    <div class="loader__center">
-      <svg class="loader__gate" viewBox="0 0 200 280" aria-hidden="true" focusable="false">
+    <!-- each door carries HALF the candi bentar — so the gate itself parts L/R, not just the panels -->
+    <div class="loader__panel loader__panel--l">
+      <svg class="loader__half loader__half--l" viewBox="0 0 100 280" aria-hidden="true" focusable="false">
         <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-          <path d="M14 276 L14 232 L30 232 L30 196 L44 196 L44 160 L56 160 L56 124 L68 124 L68 90 L78 90 L78 58 L86 58 L86 30 L92 30 L92 18 L96 18 L96 276 Z"/>
-          <path d="M186 276 L186 232 L170 232 L170 196 L156 196 L156 160 L144 160 L144 124 L132 124 L132 90 L122 90 L122 58 L114 58 L114 30 L108 30 L108 18 L104 18 L104 276 Z"/>
-          <path d="M8 277 L192 277"/>
+          <path class="g" d="M8 277 L100 277"/>
+          <path class="t" d="M14 276 L14 232 L30 232 L30 196 L44 196 L44 160 L56 160 L56 124 L68 124 L68 90 L78 90 L78 58 L86 58 L86 30 L92 30 L92 18 L96 18 L96 276 Z"/>
         </g>
       </svg>
+    </div>
+    <div class="loader__panel loader__panel--r">
+      <svg class="loader__half loader__half--r" viewBox="100 0 100 280" aria-hidden="true" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+          <path class="g" d="M100 277 L192 277"/>
+          <path class="t" d="M186 276 L186 232 L170 232 L170 196 L156 196 L156 160 L144 160 L144 124 L132 124 L132 90 L122 90 L122 58 L114 58 L114 30 L108 30 L108 18 L104 18 L104 276 Z"/>
+        </g>
+      </svg>
+    </div>
+    <div class="loader__glow" aria-hidden="true"></div>
+    <div class="loader__center">
       <p class="loader__mark">villa <span>senja</span></p>
     </div>
   </div>
@@ -758,6 +766,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=39"></script>
+  <script src="main.js?v=40"></script>
 </body>
 </html>
