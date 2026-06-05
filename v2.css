@@ -18,11 +18,12 @@ html .hero__senja {                 /* solid cream so the swinging letters read 
   white-space: nowrap;              /* per-letter spans must not wrap to a second line */
 }
 
-/* ---- 067 · blur-to-sharp headings -----------------------------------------
-   Hint the compositor; words start blurred and resolve as the heading enters. */
-[data-split] .word {
-  will-change: filter, opacity;
-}
+/* ---- 087 · testimonials marquee -------------------------------------------
+   The guest cards scroll as one continuous row instead of a static grid
+   (the row + clones are assembled in v2.js). */
+.testimonials.is-marquee { display: block; overflow: hidden; width: 100%; }
+.testimonials .tmarquee { display: flex; flex-wrap: nowrap; align-items: stretch; gap: clamp(1rem, 2vw, 1.6rem); width: max-content; will-change: transform; }
+.testimonials.is-marquee .tcard { flex: 0 0 clamp(280px, 26vw, 380px); margin: 0; }
 
 /* ---- 024 · velocity-skew marquee ------------------------------------------
    Skew the groups (not the track, which CSS translates) so the ticker shears

@@ -541,18 +541,17 @@
   /* Weighty, expressive easing + a helper that wraps each RENDERED line in an
      overflow-hidden mask, so lines rise up from behind the edge. This masked
      line-reveal is the thing that separates designed motion from amateur fades. */
-  /* ---------- 067 · Headlines resolve from blur ----------
-     each word starts blurred + transparent and sharpens as the heading enters,
-     staggered word-by-word. (Replaces the old opacity scrub.) */
+  /* ---------- Headlines: Hungry Tiger's exact scrub-each-word reveal ----------
+     each word rides 0.2 → 1 opacity, staggered 0.4, scrubbed to scroll. */
   if (hasSplit) {
     document.querySelectorAll("[data-split]").forEach((el) => {
       const split = new SplitType(el, { types: "words", tagName: "span" });
       gsap.set(el, { opacity: 1 });
-      gsap.fromTo(split.words,
-        { opacity: 0, filter: "blur(14px)", yPercent: 18 },
-        { opacity: 1, filter: "blur(0px)", yPercent: 0, duration: 0.75, ease: "power2.out",
-          stagger: { each: 0.08 },
-          scrollTrigger: { trigger: el, start: "top 85%" } });
+      gsap.from(split.words, {
+        opacity: 0.2, duration: 0.2, ease: "power1.out",
+        stagger: { each: 0.4 },
+        scrollTrigger: { trigger: el, start: "top 90%", end: "top center", scrub: true },
+      });
     });
   } else {
     document.querySelectorAll("[data-split]").forEach((el) => (el.style.opacity = 1));
@@ -568,7 +567,7 @@
   });
 
   /* ---------- Cards / blocks ---------- */
-  gsap.utils.toArray(".reveal:not(.sides__media)").forEach((el) => {
+  gsap.utils.toArray(".reveal:not(.sides__media):not(.exp-card)").forEach((el) => {
     gsap.fromTo(el, { opacity: 0, y: 40 },
       { opacity: 1, y: 0, duration: 1.1, ease: EASE,
         scrollTrigger: { trigger: el, start: "top 86%" } });
@@ -879,6 +878,74 @@
       });
     });
   }
+
+  /* ============================================================
+     v2 — SECTION EFFECTS (Made With GSAP picks, applied per section)
+     ============================================================ */
+
+  /* Experiences → 068 "postcard deck": the cards deal in with an alternating tilt +
+     rise as the rail enters (on top of the existing drag-to-browse). */
+  (function expPostcards() {
+    const cards = gsap.utils.toArray(".exp-card");
+    if (!cards.length) return;
+    gsap.set(cards, { transformOrigin: "50% 100%" });
+    gsap.fromTo(cards,
+      { opacity: 0, y: 80, scale: 0.9, rotation: (i) => (i % 2 ? 6 : -6) },
+      { opacity: 1, y: 0, scale: 1, rotation: 0, duration: 0.9, ease: "back.out(1.4)",
+        stagger: 0.12, scrollTrigger: { trigger: ".exp__track", start: "top 80%" } });
+  })();
+
+  /* "See for yourself" gallery pan → velocity lean (082 / 024 feel): the photos
+     shear a touch with scroll speed, then ease back. */
+  (function galleryVelocity() {
+    const items = gsap.utils.toArray(".gallery__item");
+    if (!items.length) return;
+    const setters = items.map((el) => gsap.quickTo(el, "skewX", { duration: 0.5, ease: "power3" }));
+    const clamp = gsap.utils.clamp(-9, 9);
+    let vel = 0;
+    ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
+    gsap.ticker.add(() => { const s = clamp(vel / 220); setters.forEach((fn) => fn(s)); vel *= 0.9; });
+  })();
+
+  /* A day at Senja → 073-lite: the timeline stops deal in one after another. */
+  (function timelineReveal() {
+    const stops = gsap.utils.toArray(".timeline .tl");
+    if (!stops.length) return;
+    gsap.fromTo(stops, { opacity: 0, x: -50 },
+      { opacity: 1, x: 0, duration: 0.7, ease: "power3.out", stagger: 0.14,
+        scrollTrigger: { trigger: ".timeline", start: "top 80%" } });
+  })();
+
+  /* Footer → 050: the giant SENJA lockup rises in, then drifts on a slow parallax. */
+  (function footerWordmark() {
+    const lockup = document.querySelector(".footer__lockup");
+    if (!lockup) return;
+    gsap.fromTo(lockup, { opacity: 0, yPercent: 45 },
+      { opacity: 1, yPercent: 0, duration: 1.1, ease: "power3.out",
+        scrollTrigger: { trigger: ".footer", start: "top 85%" } });
+    gsap.to(lockup, { yPercent: -14, ease: "none",
+      scrollTrigger: { trigger: ".footer", start: "top bottom", end: "bottom bottom", scrub: true } });
+  })();
+
+  /* Guest words → 087 marquee: the testimonial cards become a slow, velocity-reactive
+     row instead of a static grid (desktop only; mobile keeps the readable stack). */
+  (function testimonialsMarquee() {
+    const wrap = document.querySelector(".testimonials");
+    if (!wrap || window.matchMedia("(max-width: 760px)").matches) return;
+    const cards = Array.from(wrap.children);
+    if (cards.length < 2) return;
+    const track = document.createElement("div");
+    track.className = "tmarquee";
+    cards.forEach((c) => track.appendChild(c));
+    cards.forEach((c) => track.appendChild(c.cloneNode(true)));   // duplicate for a seamless loop
+    wrap.appendChild(track);
+    wrap.classList.add("is-marquee");
+    const half = () => track.scrollWidth / 2;
+    const tl = gsap.to(track, { x: () => -half(), duration: half() / 38, ease: "none", repeat: -1, invalidateOnRefresh: true });
+    let vel = 0;
+    ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
+    gsap.ticker.add(() => { tl.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(vel) / 400)); vel *= 0.92; });
+  })();
 
   window.addEventListener("resize", () => ScrollTrigger.refresh());
   ScrollTrigger.refresh();
