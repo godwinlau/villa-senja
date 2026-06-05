@@ -8,15 +8,16 @@
   <style>
     body { margin: 0; background: var(--clay); color: var(--cream); font-family: "Hanken Grotesk", sans-serif; }
     .lab-note { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 0.6rem 1rem; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); background: rgba(20,10,4,0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-    .lab-spacer { height: 70vh; display: flex; align-items: center; justify-content: center; color: color-mix(in srgb, var(--cream) 55%, transparent); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; }
+    .lab-spacer { height: 60vh; display: flex; align-items: center; justify-content: center; color: color-mix(in srgb, var(--cream) 55%, transparent); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; }
     .lab-tag { display: block; text-align: center; padding-top: 3rem; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ochre); }
 
-    /* ── EFFECT A: jelly headline — PER-CHARACTER velocity-reactive bend ── */
-    .jelly-stage { min-height: 150vh; display: flex; align-items: center; justify-content: center; }
-    /* the lab demo uses solid letters so the per-char transforms read clearly
-       (the terraces-in-letters fill needs per-char image slices — separate step) */
-    .jelly-stage .hero__senja { -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; white-space: nowrap; }
-    .jelly-stage .char { display: inline-block; will-change: transform; transform-origin: 50% 100%; }   /* squash/stretch from the baseline */
+    /* ── EFFECT A: jelly headline 089 — Matter.js physics (letters = soft-spring bodies, chained) ── */
+    .mwg_effect089 { padding: 100vh 0; }
+    .mwg_effect089 .scroll { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 35%, transparent); }
+    .mwg_effect089 .container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 25px; }
+    /* solid letters in the lab so the physics motion reads (terraces-in-letters fill = separate step) */
+    .mwg_effect089 .text { margin: 0; text-align: center; white-space: nowrap; -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; font-size: clamp(80px, 16vw, 300px); }
+    .mwg_effect089 .letter { display: inline-block; }
 
     /* ── EFFECT B: upward image flow (082) ── */
     .flow { position: relative; background: var(--espresso); }
@@ -27,13 +28,16 @@
   </style>
 </head>
 <body>
-  <div class="lab-note">Villa Senja · motion lab — 089 jelly headline (squash & stretch jiggle) · 082 upward image flow</div>
+  <div class="lab-note">Villa Senja · motion lab — 089 jelly headline (Matter.js physics) · 082 upward image flow</div>
 
-  <div class="lab-spacer">scroll down ↓ — scroll through SENJA, then stop to feel it jiggle</div>
+  <div class="lab-spacer">scroll down ↓</div>
 
-  <span class="lab-tag">089 · jelly headline (squash &amp; stretch jiggle)</span>
-  <section class="jelly-stage">
-    <h1 class="hero__senja"><span class="char">S</span><span class="char">E</span><span class="char">N</span><span class="char">J</span><span class="char">A</span></h1>
+  <span class="lab-tag">089 · jelly headline (Matter.js physics — exact reference)</span>
+  <section class="mwg_effect089">
+    <p class="scroll">Scroll</p>
+    <div class="container">
+      <h1 class="hero__senja text">Senja</h1>
+    </div>
   </section>
 
   <span class="lab-tag">082 · upward image flow</span>
@@ -54,44 +58,120 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    /* EFFECT A — JELLY HEADLINE (squash & stretch jiggle, per character).
-       Each letter is a damped spring. Scroll SPEED kicks the spring (the faster you
-       scroll, the harder the kick), stretching the letter tall (scaleY up / scaleX in).
-       When you stop, the spring overshoots and oscillates back to rest with damping =>
-       the jello jiggle. A per-letter lag on the kick makes the wobble ripple across the
-       word so the letters are slightly out of sync. Pure deformation, no bending. */
-    (function jellyHeadline() {
-      const word = document.querySelector(".hero__senja");
-      const chars = gsap.utils.toArray(word ? word.querySelectorAll(".char") : []);
-      if (!chars.length) return;
-      const N = chars.length;
-      const sxSet = chars.map((c) => gsap.quickSetter(c, "scaleX"));
-      const sySet = chars.map((c) => gsap.quickSetter(c, "scaleY"));
-      const pos = new Array(N).fill(0);   // stretch displacement from rest (0 = scale 1)
-      const sv  = new Array(N).fill(0);   // spring velocity
-      const buf = [];                     // recent scroll-speed samples -> per-letter lag
-      let speed = 0;
-      const STIFF = 0.14, DAMP = 0.78, KICK = 0.00008, STRETCH = 0.55, LAG = 2;
-      const clampPos = gsap.utils.clamp(-0.55, 1.0);
-      ScrollTrigger.create({ onUpdate: (self) => { speed = Math.abs(self.getVelocity()); } });
-      gsap.ticker.add(() => {
-        buf.unshift(speed);
-        if (buf.length > N * LAG + 4) buf.pop();
-        speed *= 0.82;                                            // source decays when you stop scrolling
-        for (let i = 0; i < N; i++) {
-          const kick = buf[Math.min(buf.length - 1, i * LAG)] || 0;  // later letters lag -> ripple
-          sv[i] += kick * KICK;                                  // scroll speed stretches the letter
-          sv[i] += -STIFF * pos[i];                              // spring pulls back to rest
-          sv[i] *= DAMP;                                         // damping -> a few wobbles then settle
-          pos[i] = clampPos(pos[i] + sv[i]);
-          const p = pos[i];
-          sySet[i](1 + p * STRETCH);                             // stretch tall (squash < 1 on overshoot)
-          sxSet[i](1 - p * STRETCH * 0.55);                      // thin while tall, widen while squashed
+    /* EFFECT A — JELLY HEADLINE 089 (the actual reference technique).
+       Each letter is a Matter.js rigid body held to its home position by a very soft
+       spring constraint, and adjacent letters are linked together (a chain). Scroll
+       velocity displaces the spring ANCHORS (ends most, middle least) so the word
+       swings/sways on its springs and the motion ripples through the chain, then
+       settles via physics damping + gravity. Verbatim reference, selectors adapted. */
+    (function jellyHeadline089() {
+      const root = document.querySelector('.mwg_effect089');
+      if (!root || !window.Matter) return;
+      const text = root.querySelector('.text');
+      let isTouch = false;
+      gsap.matchMedia().add("(hover: none)", () => { isTouch = true; });
+
+      wrapLettersInSpan(text);
+      const spans = text.querySelectorAll('.letter');
+
+      const { Engine, World, Bodies, Body, Constraint } = Matter;
+      const engine = Engine.create();
+      engine.world.gravity.y = 0.5;
+
+      const group = Body.nextGroup(true);
+      const scrollY = window.scrollY;
+      const mid = (spans.length - 1) / 2;
+      const letters = [];
+
+      spans.forEach((span, index) => {
+        const rect = span.getBoundingClientRect();
+        if (rect.width === 0) return;
+
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + scrollY + rect.height / 2;
+
+        const body = Bodies.rectangle(cx, cy, rect.width, rect.height, {
+          frictionAir: 0.05, restitution: 0.3, density: 0.001,
+          collisionFilter: { group }
+        });
+
+        const constraint = Constraint.create({
+          pointA: { x: cx, y: cy }, bodyB: body,
+          stiffness: 0.005, damping: 0.004, length: 0
+        });
+
+        const normDist = mid === 0 ? 0 : Math.abs(index - mid) / mid;
+
+        letters.push({
+          dom: span, body, constraint,
+          initialX: cx, initialY: cy,
+          weight: normDist * 1,
+          width: rect.width
+        });
+
+        World.add(engine.world, [body, constraint]);
+      });
+
+      for (let i = 0; i < letters.length - 1; i++) {
+        World.add(engine.world, Constraint.create({
+          bodyA: letters[i].body,
+          bodyB: letters[i + 1].body,
+          pointA: { x: letters[i].width / 2, y: 0 },
+          pointB: { x: -letters[i + 1].width / 2, y: 0 },
+          stiffness: 0.6, length: 0
+        }));
+      }
+
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 150%',
+        end: 'bottom -50%',
+        onEnter: () => gsap.ticker.add(tick),
+        onEnterBack: () => gsap.ticker.add(tick),
+        onLeave: () => gsap.ticker.remove(tick),
+        onLeaveBack: () => gsap.ticker.remove(tick),
+        onUpdate: (self) => {
+          const velocity = self.getVelocity();
+          letters.forEach(l => {
+            l.constraint.pointA.y = l.initialY + velocity * 0.08 * l.weight;
+          });
         }
       });
+
+      function tick() {
+        Engine.update(engine, 1000 / 60);
+        letters.forEach(l => {
+          Body.setAngle(l.body, l.body.angle * 0.97);
+          Body.setAngularVelocity(l.body, l.body.angularVelocity * 0.95);
+
+          const dx = l.body.position.x - l.initialX;
+          const dy = l.body.position.y - l.initialY;
+          l.dom.style.transform = `translate(${dx}px, ${dy}px) rotate(${l.body.angle}rad)`;
+        });
+      }
+
+      function wrapLettersInSpan(element) {
+        const textStr = element.textContent;
+        element.innerHTML = textStr
+          .split('')
+          .map(char => char === ' ' ? '<span class="letter">&nbsp;</span>' : '<span class="letter">' + char + '</span>')
+          .join('');
+      }
+
+      function realign() {
+        letters.forEach(l => {
+          gsap.to(l.constraint.pointA, { y: l.initialY, duration: 0.35, ease: "power3.out", overwrite: true });
+        });
+      }
+      function handleTouchEnd() { realign(); }
+      if (isTouch) {
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
+        window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+      }
     })();
 
     /* EFFECT B — UPWARD IMAGE FLOW: bounce in at centre, then suction up + shrink on scroll. */
