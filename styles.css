@@ -269,6 +269,8 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
 .header.is-dark .wordmark { color: var(--cream); }
 .header.is-dark .wordmark em { color: var(--ochre); }
 .header.is-hidden { transform: translateY(-110%); }
+/* legibility for the transparent header over the hero footage */
+.header:not(.is-scrolled) .nav__link, .header:not(.is-scrolled) .wordmark, .header:not(.is-scrolled) .nav__meta { text-shadow: 0 1px 12px rgba(28,13,5,0.55); }
 
 /* ============================================================
    HERO
@@ -286,7 +288,7 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
   isolation: isolate;
 }
 .hero__art { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
-.hero__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85) brightness(0.97); }   /* pull the raw green toward the warm dusk world */
+.hero__photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.4) contrast(1.06) brightness(0.92) sepia(0.42); }   /* graphic warm-monochrome grade — out of "raw green drone clip" into the terracotta world */
 .hero__overlay {
   position: absolute; inset: 0;
   /* directional scrim — weight the shadow into the lower-left lockup, leave the upper-right valley clear (no blanket darken, no radial vignette) */
@@ -297,8 +299,8 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
 /* warm wash — grades the cool-green drone footage toward the terracotta/marigold palette */
 .hero__overlay::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(165deg, rgba(232,124,40,0.46), rgba(150,58,20,0.28) 52%, rgba(40,16,6,0.2));
-  mix-blend-mode: soft-light;
+  background: linear-gradient(160deg, rgba(210,95,30,0.5) 0%, rgba(140,52,18,0.42) 50%, rgba(40,16,6,0.5) 100%);
+  mix-blend-mode: multiply;
 }
 
 .hero__inner { position: relative; max-width: min(90vw, 56rem); }
@@ -343,7 +345,10 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
 .hero--editorial { justify-content: flex-end; align-items: flex-start; text-align: left; padding: 7rem var(--pad) clamp(4.5rem, 9vh, 7rem); }
 .hero--editorial .hero__inner { margin: 0; max-width: min(94vw, 64rem); }
 .hero--editorial .eyebrow { margin-left: 0; }
-.hero--editorial .hero__title { font-size: min(16.5vw, 208px); line-height: 0.8; }
+.hero--editorial .hero__title { font-size: min(17.5vw, 220px); line-height: 0.78; }
+/* ornamental flank on the eyebrow — characterful, not a plain label */
+.hero--editorial .eyebrow { display: inline-flex; align-items: center; }
+.hero--editorial .eyebrow::before { content: ""; width: 2.4rem; height: 1.5px; background: var(--ochre); margin-right: 0.85rem; flex: none; }
 .hero--editorial .hero__sub { margin-inline: 0; max-width: 42ch; margin-top: clamp(1.4rem, 2.6vw, 2rem); }
 
 /* ============================================================
