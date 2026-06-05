@@ -589,8 +589,9 @@
     gsap.timeline({ defaults: { ease: "expo.out" } })
       .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
       .fromTo(".hero__title .line__in", { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.14 }, 0.2)   // MASKED per-line rise (not a flat fade)
-      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.7)
-      .fromTo(".hero__cta", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.9);
+      .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)                          // the patra divider, with the lockup
+      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74)
+      .fromTo(".hero__btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.92);
   }
 
   /* ---------- Loader: "through the gate, into senja" — two dusk-stone doors carry the
@@ -606,7 +607,7 @@
 
     gsap.set(lights, { "--lit": "0%" });                              // gate halves start in shadow
     gsap.set(wm, { yPercent: 120 });                                 // wordmark masked below its baseline
-    gsap.set([".hero .eyebrow", ".hero__sub", ".hero__cta"], { opacity: 0 });   // hero waits behind the doors
+    gsap.set([".hero .eyebrow", ".hero .rule--hero", ".hero__sub", ".hero__btn"], { opacity: 0 });   // hero waits behind the doors
     gsap.set(".hero__title .line__in", { yPercent: 110 });
 
     gsap.timeline()

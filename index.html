@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=89" />
+  <link rel="stylesheet" href="styles.css?v=90" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -123,7 +123,10 @@
         <a href="#rituals" class="nav__link">Rituals</a>
         <a href="#stay" class="nav__link">Stay</a>
       </div>
-      <a href="#top" class="wordmark">Villa <em>Senja</em></a>
+      <a href="#top" class="wordmark" aria-label="Villa Senja — home">
+        <svg class="wordmark__mark" viewBox="0 0 44 32" aria-hidden="true" focusable="false"><path d="M5 30 L5 23 L10 23 L10 17 L14 17 L14 11 L17 11 L17 5 L20 5 L20 30 Z"/><path d="M39 30 L39 23 L34 23 L34 17 L30 17 L30 11 L27 11 L27 5 L24 5 L24 30 Z"/><rect x="3" y="28" width="38" height="3"/></svg>
+        <span class="wordmark__txt">Villa <em>Senja</em></span>
+      </a>
       <div class="nav__links nav__links--right">
         <span class="nav__meta" aria-label="Local time in Ubud, Bali">Ubud, Bali <span class="nav__meta-dot" aria-hidden="true"></span> <span data-clock>18:42</span><span class="nav__meta-word" data-clock-word></span></span>
         <a href="#book" class="btn btn--sm">
@@ -188,11 +191,9 @@
         <span class="line"><span class="line__in">Wake</span></span>
         <span class="line line--gold"><span class="line__in">slowly</span></span>
       </h1>
+      <div class="rule rule--patra rule--hero" style="margin-inline:0"></div>
       <p class="hero__sub">Open-air living above the rice fields, where the day ends in <em lang="id">senja</em> — the warm Balinese dusk.</p>
-      <a href="#book" class="hero__cta">
-        <span class="hero__cta-txt">Book your stay</span>
-        <span class="hero__cta-line" aria-hidden="true"></span>
-      </a>
+      <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Book your stay</span><span class="btn__fill"></span></a>
     </div>
 
     <button type="button" class="hero__motion" data-hero-motion aria-pressed="true" aria-label="Pause background video">
@@ -764,6 +765,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=46"></script>
+  <script src="main.js?v=47"></script>
 </body>
 </html>
