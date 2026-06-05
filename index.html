@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=91" />
+  <link rel="stylesheet" href="styles.css?v=92" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -183,9 +183,11 @@
         <source src="videos/hero.mp4" type="video/mp4" />
       </video>
       <div class="hero__overlay"></div>
+      <div class="hero__tod" aria-hidden="true"></div><!-- LIVE-SENJA direction: time-of-day grade -->
     </div>
 
     <div class="hero__inner">
+      <p class="hero__live" data-hero-live aria-hidden="true">Right now in Ubud — <em>senja</em></p>
       <p class="eyebrow">A hidden villa · Ubud, Bali</p>
       <h1 class="hero__title">
         <span class="line">Wake</span>
@@ -194,6 +196,12 @@
       <div class="rule rule--patra rule--hero" style="margin-inline:0"></div>
       <p class="hero__sub">Open-air living above the rice fields, where the day ends in <em lang="id">senja</em> — the warm Balinese dusk.</p>
       <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Book your stay</span><span class="btn__fill"></span></a>
+    </div>
+
+    <!-- SENJA-WORD direction: the native word at architectural scale -->
+    <div class="hero__word" aria-hidden="true">
+      <span class="hero__word-mark">senja</span>
+      <span class="hero__word-gloss">the warm Balinese dusk · <span lang="id">villa senja</span>, ubud</span>
     </div>
 
     <button type="button" class="hero__motion" data-hero-motion aria-pressed="true" aria-label="Pause background video">
@@ -745,26 +753,35 @@
   </footer>
 
   <!-- DEV ONLY (shown with ?tweaks) — try header directions live -->
-  <aside class="tweaks" data-tweaks hidden aria-label="Header tweaks">
+  <div class="descent-veil" aria-hidden="true"></div><!-- DESCENT hero direction: page warms to dusk with scroll -->
+
+  <aside class="tweaks" data-tweaks hidden aria-label="Direction tweaks">
     <div class="tweaks__head">
-      <p class="tweaks__title">Header · try a direction</p>
+      <p class="tweaks__title">Try a direction</p>
       <button type="button" class="tweaks__x" data-tweaks-close aria-label="Close panel">×</button>
     </div>
-    <div class="tweaks__seg" role="radiogroup" aria-label="Header layout">
+    <p class="tweaks__lbl">Header</p>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Header direction">
       <button type="button" class="tweaks__opt is-on" data-hv="current">Current</button>
-      <button type="button" class="tweaks__opt" data-hv="concierge">Concierge</button>
-      <button type="button" class="tweaks__opt" data-hv="gatehouse">Gatehouse</button>
-      <button type="button" class="tweaks__opt" data-hv="inkwash">Ink-wash</button>
+      <button type="button" class="tweaks__opt" data-hv="brass">Brass plate</button>
+      <button type="button" class="tweaks__opt" data-hv="index">Index</button>
+      <button type="button" class="tweaks__opt" data-hv="gate">Gate</button>
     </div>
-    <p class="tweaks__note" data-tweaks-note>The centred wordmark — links left, clock + Book right (today).</p>
+    <p class="tweaks__lbl">Hero</p>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Hero direction">
+      <button type="button" class="tweaks__opt is-on" data-hero="current">Current</button>
+      <button type="button" class="tweaks__opt" data-hero="live">Live senja</button>
+      <button type="button" class="tweaks__opt" data-hero="word">SENJA</button>
+      <button type="button" class="tweaks__opt" data-hero="descent">Descent</button>
+    </div>
     <label class="tweaks__check"><input type="checkbox" data-hv-clock checked> Living senja clock</label>
   </aside>
-  <button type="button" class="tweaks__tab" data-tweaks-tab hidden aria-label="Open header tweaks">⚙ tweaks</button>
+  <button type="button" class="tweaks__tab" data-tweaks-tab hidden aria-label="Open tweaks">⚙ tweaks</button>
 
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=48"></script>
+  <script src="main.js?v=49"></script>
 </body>
 </html>

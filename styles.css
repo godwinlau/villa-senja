@@ -1195,25 +1195,64 @@ html.nav-open, html.nav-open body { overflow: hidden; }
 @keyframes loaderSafety { to { opacity: 0; visibility: hidden; } }
 
 /* ============================================================
-   HEADER DIRECTION VARIANTS (driven by the dev tweaks panel, ?tweaks)
+   DIRECTION VARIANTS (driven by the dev tweaks panel, ?tweaks)
    ============================================================ */
-/* CONCIERGE — wordmark left, links + living clock + Book pushed right; no underline cliché; clock always shown */
-html[data-hv="concierge"] .nav { display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.4rem); }
-html[data-hv="concierge"] .wordmark { order: -1; margin-right: auto; text-align: left; }
-html[data-hv="concierge"] .nav__link::after { display: none; }
-html[data-hv="concierge"] .nav__link:hover { color: var(--ochre); }
-html[data-hv="concierge"] .nav__meta { display: inline-flex !important; }
-/* GATEHOUSE — near-empty bar: wordmark left, clock + Book + a "Menu" word right; links hidden, Menu opens the full overlay */
-html[data-hv="gatehouse"] .nav { display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.4rem); }
-html[data-hv="gatehouse"] .wordmark { order: -1; margin-right: auto; text-align: left; }
-html[data-hv="gatehouse"] .nav__links--left { display: none; }
-html[data-hv="gatehouse"] .nav__meta { display: inline-flex !important; }
-html[data-hv="gatehouse"] .nav__toggle { display: inline-flex; align-items: center; width: auto; height: auto; border: none; background: none; padding: 0.3rem 0; }
-html[data-hv="gatehouse"] .nav__toggle i { display: none; }
-html[data-hv="gatehouse"] .nav__toggle::after { content: "Menu"; font-family: "Hanken Grotesk", sans-serif; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; color: currentColor; }
-/* INK-WASH — today's layout, but blend-mode legibility over the hero video + an ochre ink underline */
-html[data-hv="inkwash"] .header:not(.is-scrolled) .nav { mix-blend-mode: difference; isolation: isolate; }
-html[data-hv="inkwash"] .nav__link::after { background: var(--ochre); height: 2px; }
+
+/* ── HEADER ── */
+/* BRASS PLATE — the bar as an engraved crest: uppercase wordmark, near-invisible nav that inks in on hover, no line */
+html[data-hv="brass"] .wordmark { text-transform: uppercase; letter-spacing: 0.14em; }
+html[data-hv="brass"] .nav__link { opacity: 0.5; letter-spacing: 0.08em; transition: opacity 0.45s var(--ease), color 0.45s var(--ease); }
+html[data-hv="brass"] .nav__link:hover { opacity: 1; color: var(--ochre); }
+html[data-hv="brass"] .nav__link::after { display: none; }
+html[data-hv="brass"] .nav__meta { opacity: 0.6; }
+
+/* CONCIERGE INDEX — nav as a numbered editorial index in Salmond; the CURRENT section's number fills ochre */
+html[data-hv="index"] .nav__link { font-family: "Salmond", serif; font-weight: 500; letter-spacing: 0.05em; }
+html[data-hv="index"] .nav__link::after { display: none; }
+html[data-hv="index"] .nav__link:hover { color: var(--ochre); }
+html[data-hv="index"] .nav__links--left .nav__link { display: inline-flex; align-items: baseline; gap: 0.5em; }
+html[data-hv="index"] .nav__links--left .nav__link::before { font-family: "Hanken Grotesk", sans-serif; font-size: 0.58em; font-weight: 700; letter-spacing: 0.1em; color: color-mix(in srgb, var(--ochre) 60%, transparent); transition: color 0.4s var(--ease); }
+html[data-hv="index"] .nav__links--left .nav__link:nth-child(1)::before { content: "01"; }
+html[data-hv="index"] .nav__links--left .nav__link:nth-child(2)::before { content: "02"; }
+html[data-hv="index"] .nav__links--left .nav__link:nth-child(3)::before { content: "03"; }
+html[data-hv="index"] .nav__link.is-current { color: var(--ochre); }
+html[data-hv="index"] .nav__link.is-current::before { color: var(--ochre); }
+html[data-hv="index"] .nav__meta { display: inline-flex !important; }
+
+/* GATE — near-empty bar (crest + Reserve + MENU); links hidden, MENU opens the full-screen candi-bentar overlay */
+html[data-hv="gate"] .nav__links--left { display: none; }
+html[data-hv="gate"] .nav__meta { display: none !important; }
+html[data-hv="gate"] .nav__toggle { display: inline-flex; align-items: center; width: auto; height: auto; border: none; background: none; padding: 0.3rem 0; }
+html[data-hv="gate"] .nav__toggle i { display: none; }
+html[data-hv="gate"] .nav__toggle::after { content: "Menu"; font-family: "Hanken Grotesk", sans-serif; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.16em; color: currentColor; }
+
+/* ── HERO ── */
+/* LIVE SENJA — the hero light tracks the real Ubud time of day; a live line replaces the eyebrow */
+.hero__tod { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.4s var(--ease), background 1.4s var(--ease); }
+html[data-hero="live"] .hero__tod { opacity: 1; }
+html[data-hero="live"][data-tod="dawn"]  .hero__tod { background: linear-gradient(180deg, rgba(150,165,180,0.30), rgba(120,120,140,0.16) 60%, transparent); }
+html[data-hero="live"][data-tod="day"]   .hero__tod { background: linear-gradient(180deg, rgba(250,230,180,0.10), transparent 60%); }
+html[data-hero="live"][data-tod="senja"] .hero__tod { background: linear-gradient(180deg, rgba(250,174,51,0.34), rgba(209,37,92,0.22) 55%, rgba(40,16,6,0.30)); }
+html[data-hero="live"][data-tod="night"] .hero__tod { background: linear-gradient(180deg, rgba(18,18,50,0.62), rgba(8,8,26,0.72)); }
+.hero__live { display: none; font-family: "Hanken Grotesk", sans-serif; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: #f4d9a6; margin-bottom: clamp(1rem, 2vw, 1.8rem); }
+.hero__live em { color: var(--ochre); font-style: normal; }
+html[data-hero="live"] .hero__live { display: block; }
+html[data-hero="live"] .eyebrow { display: none; }
+
+/* SENJA — the native word at architectural scale becomes the whole hero */
+.hero__word { display: none; position: absolute; inset: 0; z-index: 1; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 7rem var(--pad) clamp(4.5rem, 9vh, 7rem); pointer-events: none; }
+html[data-hero="word"] .hero__inner { display: none; }
+html[data-hero="word"] .hero__word { display: flex; }
+.hero__word-mark { font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; font-size: clamp(5rem, 27vw, 22rem); line-height: 0.78; letter-spacing: -0.02em; color: var(--cream); text-shadow: 0 0.03em 0.5em rgba(18,10,4,0.3); }
+.hero__word-gloss { margin-top: clamp(0.8rem, 1.6vw, 1.4rem); font-family: "Hanken Grotesk", sans-serif; font-size: clamp(0.78rem, 1vw, 0.95rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+.hero__word-gloss span { color: var(--ochre); }
+
+/* DESCENT — a warm dusk veil over the whole page that deepens as you scroll (opacity driven by JS) */
+.descent-veil { display: none; position: fixed; inset: 0; z-index: 905; pointer-events: none; opacity: 0; mix-blend-mode: multiply;
+  background: linear-gradient(180deg, transparent 0%, rgba(250,174,51,0.12) 42%, rgba(209,37,92,0.18) 72%, rgba(40,16,6,0.34) 100%); }
+html[data-hero="descent"] .descent-veil { display: block; }
+
+.tweaks__lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: color-mix(in srgb, var(--cream) 52%, transparent); margin: 0.85rem 0 0.45rem; }
 
 /* living senja clock — the dot warms by time of day; the word shows at dusk */
 .nav__meta-dot { transition: background 0.6s var(--ease), box-shadow 0.6s var(--ease); }

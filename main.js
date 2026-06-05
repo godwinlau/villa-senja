@@ -92,8 +92,12 @@
       // living senja clock — colour the header dot by time of day, show the word at dusk
       let tod = "day";
       if (h < 6) tod = "night"; else if (h < 9) tod = "dawn"; else if (h >= 17 && h < 19) tod = "senja"; else if (h >= 19) tod = "night";
+      document.documentElement.setAttribute("data-tod", tod);   // also drives the Live-senja hero grade
       document.querySelectorAll(".nav__meta").forEach((mEl) => mEl.setAttribute("data-tod", tod));
       document.querySelectorAll("[data-clock-word]").forEach((wEl) => (wEl.textContent = tod === "senja" ? "· senja" : ""));
+      const todWord = { dawn: "first light", day: "midday", senja: "senja", night: "night" }[tod] || "senja";
+      const liveEm = document.querySelector("[data-hero-live] em");
+      if (liveEm) liveEm.textContent = todWord;
       if (stops.length) {
         const nowMin = h * 60 + m;
         const firstMin = +stops[0].dataset.min;
@@ -632,30 +636,47 @@
     const panel = document.querySelector("[data-tweaks]");
     const tab = document.querySelector("[data-tweaks-tab]");
     if (!panel || !tab) return;
-    const opts = panel.querySelectorAll("[data-hv]");
-    const noteEl = panel.querySelector("[data-tweaks-note]");
-    const notes = {
-      current: "The centred wordmark — links left, clock + Book right (today).",
-      concierge: "Wordmark left; links + living clock + Book right; no underline hover.",
-      gatehouse: "Near-empty bar — wordmark + Book + “Menu” (opens the full-screen index).",
-      inkwash: "Today’s layout, but blend-mode legibility over the video + an ink underline.",
-    };
-    const apply = (hv) => {
-      if (hv === "current") document.documentElement.removeAttribute("data-hv");
-      else document.documentElement.setAttribute("data-hv", hv);
-      opts.forEach((o) => o.classList.toggle("is-on", o.dataset.hv === hv));
-      if (noteEl) noteEl.textContent = notes[hv] || "";
-      try { localStorage.setItem("vs_hv", hv); } catch (e) {}
-    };
-    opts.forEach((o) => o.addEventListener("click", () => apply(o.dataset.hv)));
+    const root = document.documentElement;
+    [{ attr: "data-hv", key: "hv" }, { attr: "data-hero", key: "hero" }].forEach((g) => {
+      const opts = panel.querySelectorAll(`[data-${g.key}]`);
+      if (!opts.length) return;
+      const apply = (val) => {
+        if (val === "current") root.removeAttribute(g.attr); else root.setAttribute(g.attr, val);
+        opts.forEach((o) => o.classList.toggle("is-on", o.dataset[g.key] === val));
+        try { localStorage.setItem("vs_" + g.key, val); } catch (e) {}
+      };
+      opts.forEach((o) => o.addEventListener("click", () => apply(o.dataset[g.key])));
+      let saved = "current"; try { saved = localStorage.getItem("vs_" + g.key) || "current"; } catch (e) {}
+      apply(saved);
+    });
     const clk = panel.querySelector("[data-hv-clock]");
-    if (clk) clk.addEventListener("change", () => document.documentElement.classList.toggle("hv-clock-off", !clk.checked));
+    if (clk) clk.addEventListener("change", () => root.classList.toggle("hv-clock-off", !clk.checked));
     const closeBtn = panel.querySelector("[data-tweaks-close]");
     if (closeBtn) closeBtn.addEventListener("click", () => { panel.hidden = true; tab.hidden = false; });
     tab.addEventListener("click", () => { panel.hidden = false; tab.hidden = true; });
-    let saved = "current"; try { saved = localStorage.getItem("vs_hv") || "current"; } catch (e) {}
-    apply(saved);
     panel.hidden = false; tab.hidden = true;   // start open so it's discoverable
+  })();
+
+  /* DESCENT hero direction: a warm dusk veil that deepens as you scroll (only visible when data-hero=descent) */
+  (function initDescent() {
+    const veil = document.querySelector(".descent-veil");
+    if (!veil || !hasGSAP) return;
+    gsap.to(veil, { opacity: 1, ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: true } });
+  })();
+
+  /* nav active-section marker (used by the Index header direction — the current number fills ochre) */
+  (function initNavActive() {
+    const links = Array.from(document.querySelectorAll(".nav__links--left .nav__link[href^='#']"));
+    if (!links.length || !("IntersectionObserver" in window)) return;
+    const map = new Map();
+    links.forEach((a) => { const t = document.querySelector(a.getAttribute("href")); if (t) map.set(t, a); });
+    if (!map.size) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { links.forEach((l) => l.classList.remove("is-current")); const a = map.get(e.target); if (a) a.classList.add("is-current"); }
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    map.forEach((a, t) => obs.observe(t));
   })();
 
   /* slow push-in on the photo backgrounds as they scroll */
