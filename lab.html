@@ -16,7 +16,7 @@
     .mwg_effect089 .scroll { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 35%, transparent); }
     .mwg_effect089 .container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 25px; }
     /* reference phrase in our on-brand display serif; solid letters so the physics motion reads */
-    .mwg_effect089 .text { margin: 8vh 0; text-align: center; white-space: nowrap; font-family: "Salmond", Georgia, serif; color: var(--cream); text-transform: none; font-size: clamp(50px, 10vw, 140px); }
+    .mwg_effect089 .text { margin: 8vh 0; text-align: center; white-space: nowrap; font-family: "Salmond", Georgia, serif; color: var(--cream); text-transform: none; font-size: max(50px, 10vw); }
     .mwg_effect089 .letter { display: inline-block; }
 
     /* ── EFFECT B: upward image flow (082) ── */
@@ -56,11 +56,25 @@
 
   <div class="lab-spacer">end of lab</div>
 
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
     gsap.registerPlugin(ScrollTrigger);
+
+    /* Smooth scroll (Lenis) wired into the GSAP ticker — identical to the live site.
+       The 089 physics is driven by ScrollTrigger.getVelocity(); on raw native scroll
+       that velocity is spiky and the letters get violent erratic kicks. Lenis feeds a
+       smooth velocity, which is what the reference swing actually rides on. */
+    let lenis = null;
+    if (window.Lenis) {
+      lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      window.__lenis = lenis;
+      lenis.on("scroll", () => ScrollTrigger.update());
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
 
     /* EFFECT A — JELLY HEADLINE 089 (the actual reference technique).
        Each letter is a Matter.js rigid body held to its home position by a very soft
