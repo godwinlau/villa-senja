@@ -238,14 +238,15 @@ h1, h2, h3, h4 {
   white-space: nowrap;
   text-transform: lowercase;
 }
+.wordmark__txt { display: none; }   /* mark-only header logo (icon, no text) */
 .wordmark__mark { display: inline-flex; align-items: center; flex: none; }
-.wordmark__mark .wm-v { display: none; height: 1.2em; width: auto; }
+.wordmark__mark .wm-v { display: none; height: 2.6rem; width: auto; }
 .wordmark__mark .wm-v--sun { display: block; }   /* default mark */
 .wordmark__mark .wm-acc { fill: var(--ochre); }
 .wordmark__mark .wm-rays line { stroke: var(--ochre); stroke-width: 1.8; stroke-linecap: round; }
-.wm-v--vs { font-family: "Salmond", serif; font-weight: 700; font-size: 1.35em; line-height: 1; align-items: center; }
+.wm-v--vs { font-family: "Salmond", serif; font-weight: 700; font-size: 2.5rem; line-height: 1; align-items: center; }
 .wm-v--vs em { color: var(--ochre); font-style: normal; margin-left: -0.12em; }
-.wm-v--frangi, .wm-v--gate, .wm-v--boldsun, .wm-v--patra { height: 1.5em; }
+.wm-v--frangi, .wm-v--gate, .wm-v--boldsun, .wm-v--patra { height: 2.9rem; }
 /* mark variant switch (panel data-mark) */
 html[data-mark] .wordmark__mark .wm-v { display: none; }
 html[data-mark="vs"] .wordmark__mark .wm-v--vs { display: inline-flex; }
@@ -1280,6 +1281,15 @@ html[data-hero="word"] .hero__word { display: flex; }
 .descent-veil { display: none; position: fixed; inset: 0; z-index: 905; pointer-events: none; opacity: 0; mix-blend-mode: multiply;
   background: linear-gradient(180deg, transparent 0%, rgba(250,174,51,0.12) 42%, rgba(209,37,92,0.18) 72%, rgba(40,16,6,0.34) 100%); }
 html[data-hero="descent"] .descent-veil { display: block; }
+
+/* COVER — editorial: huge type on the warm terracotta paper, the footage as a FRAMED window (the "It's all included" energy, not type-over-video) */
+html[data-hero="cover"] .hero { background: var(--clay); justify-content: center; }
+html[data-hero="cover"] .hero__inner { position: relative; z-index: 1; max-width: min(54vw, 40rem); }
+html[data-hero="cover"] .hero__art { position: absolute; left: auto; bottom: auto; right: clamp(2.5vw, 4vw, 5rem); top: 50%; transform: translateY(-50%); width: min(40vw, 34rem); height: min(70vh, 40rem); border-radius: 16px; overflow: hidden; z-index: 0; box-shadow: 0 40px 90px -42px rgba(20,10,4,0.65); }
+html[data-hero="cover"] .hero__photo { filter: saturate(0.6) contrast(1.03) sepia(0.28); }
+html[data-hero="cover"] .hero__overlay { background: linear-gradient(0deg, rgba(28,14,7,0.4), transparent 45%); }
+html[data-hero="cover"] .hero__overlay::after { opacity: 0.6; }
+@media (max-width: 860px) { html[data-hero="cover"] .hero__art { position: relative; inset: auto; transform: none; width: 100%; height: 40vh; margin-top: 2rem; } html[data-hero="cover"] .hero { justify-content: flex-end; } html[data-hero="cover"] .hero__inner { max-width: 100%; } }
 
 .tweaks__lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.16em; color: color-mix(in srgb, var(--cream) 52%, transparent); margin: 0.85rem 0 0.45rem; }
 
