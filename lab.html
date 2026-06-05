@@ -65,24 +65,24 @@
        jelly and wobbles flat. Per-CHAR, not a whole-block skew. */
     (function jellyHeadline() {
       const word = document.querySelector(".hero__senja");
-      if (!word) return;
-      const chars = gsap.utils.toArray(word.querySelectorAll(".char"));
+      const chars = gsap.utils.toArray(word ? word.querySelectorAll(".char") : []);
       if (!chars.length) return;
       const N = chars.length;
-      const arch  = chars.map((c, i) => Math.sin(Math.PI * (i + 0.5) / N));   // 0 at ends, 1 in the middle
-      const slope = chars.map((c, i) => Math.cos(Math.PI * (i + 0.5) / N));   // curve tangent -> per-char tilt
-      const MAXY = 80, MAXROT = 10;
-      const proxy = { amp: 0 };
-      const clampAmp = gsap.utils.clamp(-1, 1);
-      const render = () => chars.forEach((c, i) => gsap.set(c, { y: proxy.amp * arch[i] * MAXY, rotation: -proxy.amp * slope[i] * MAXROT }));
-      ScrollTrigger.create({
-        onUpdate: (self) => {
-          const amp = clampAmp(self.getVelocity() / 1600);   // faster flick -> deeper bend
-          if (Math.abs(amp) > Math.abs(proxy.amp)) {
-            proxy.amp = amp;
-            gsap.to(proxy, { amp: 0, duration: 1.15, ease: "elastic.out(1, 0.3)", overwrite: true, onUpdate: render });
-          }
-        },
+      const arch  = chars.map((c, i) => Math.sin(Math.PI * (i + 0.5) / N));   // 0 at ends, 1 in the middle (the curve)
+      const slope = chars.map((c, i) => Math.cos(Math.PI * (i + 0.5) / N));   // tangent -> each char tilts along the curve
+      const ySet  = chars.map((c) => gsap.quickSetter(c, "y", "px"));
+      const rSet  = chars.map((c) => gsap.quickSetter(c, "rotation", "deg"));
+      const MAXY = 95, MAXROT = 14;
+      const clamp = gsap.utils.clamp(-1, 1);
+      let vel = 0, cur = 0;
+      // read live scroll velocity
+      ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
+      // CONTINUOUS loop: the bend follows current scroll speed and smoothly flattens when you stop (jelly)
+      gsap.ticker.add(() => {
+        const target = clamp(vel / 1400);     // how deep the line bends, by live scroll speed
+        cur += (target - cur) * 0.12;         // smoothed follow = the jelly lag
+        vel *= 0.9;                           // decay so it returns to flat once scrolling stops
+        for (let i = 0; i < N; i++) { ySet[i](cur * arch[i] * MAXY); rSet[i](-cur * slope[i] * MAXROT); }
       });
     })();
 
