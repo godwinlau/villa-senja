@@ -13,9 +13,9 @@
 
     /* 037 — the EXPANDING MASK: the opaque band of this gradient starts below the box
        (valley hidden) and animates up to cover it, uncovering the dusk valley bottom→top. */
-    .gh__reveal { position: absolute; inset: 0; overflow: hidden;
-      -webkit-mask-image: linear-gradient(transparent 100%, #000 125%, #000 225%);
-              mask-image: linear-gradient(transparent 100%, #000 125%, #000 225%); }
+    .gh__reveal { position: absolute; inset: 0; overflow: hidden; --ms: 14%;
+      -webkit-mask: url("gate-aperture.svg") center / var(--ms) no-repeat;
+              mask: url("gate-aperture.svg") center / var(--ms) no-repeat; }
     .gh__media { position: absolute; inset: 0; width: 100%; height: calc(100% + 80px); object-fit: cover;
       /* warm the (cool/green) valley toward dusk + sink it for text contrast */
       filter: saturate(1.16) contrast(1.03) sepia(0.2) hue-rotate(-12deg) brightness(0.86); }
@@ -35,7 +35,7 @@
   </style>
 </head>
 <body>
-  <div class="lab-note">Hero mask-expand lab — 037 (gradient mask grows to uncover the dusk valley) + 046 (SENJA letters rise from clip masks)</div>
+  <div class="lab-note">Hero — candi-bentar GATE APERTURE grows (mask-size) to uncover the dusk valley + 046 SENJA letters rise</div>
   <section class="gh">
     <div class="gh__reveal">
       <img class="gh__media" src="images/valley.jpg" alt="" />
@@ -50,14 +50,13 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script>
-    const revealed = "linear-gradient(transparent -25%, #000 0%, #000 100%)";
     const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } });
-    // 037: the mask expands up to uncover the valley + the photo settles its push-in
-    tl.to(".gh__reveal", { maskImage: revealed, webkitMaskImage: revealed, duration: 1.8 }, 0)
-      .from(".gh__media", { scale: 1.14, yPercent: 4, duration: 2.2, ease: "power3.out" }, 0)
-      // 046: SENJA letters rise from behind their clip masks, staggered
-      .from(".gh__senja .l > span", { yPercent: 118, duration: 1.0, ease: "expo.out", stagger: 0.08 }, 0.55)
-      .from([".gh__sub", ".gh__cue"], { opacity: 0, y: 12, duration: 0.8, ease: "power2.out" }, 1.5);
+    // the candi-bentar GATE APERTURE grows (mask-size) to uncover the dusk valley
+    tl.fromTo(".gh__reveal", { "--ms": "14%" }, { "--ms": "1400%", duration: 2.0 }, 0)
+      .from(".gh__media", { scale: 1.16, duration: 2.4, ease: "power3.out" }, 0)
+      // 046: SENJA letters rise from behind their clip masks as the gate opens
+      .from(".gh__senja .l > span", { yPercent: 118, duration: 1.0, ease: "expo.out", stagger: 0.08 }, 0.7)
+      .from([".gh__sub", ".gh__cue"], { opacity: 0, y: 12, duration: 0.8, ease: "power2.out" }, 1.7);
   </script>
 </body>
 </html>
