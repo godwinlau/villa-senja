@@ -621,24 +621,8 @@
      AWWWARDS-LEVEL MOTION — time-of-day grade · pinned horizontal gallery
      ============================================================ */
 
-  /* 1) Time-of-day — the Day section's sticky image grades dawn → midday → senja → night */
-  (function timeOfDay() {
-    const day = document.querySelector(".day");
-    const dawn = document.querySelector(".day__tod--dawn");
-    if (!day || !dawn) return;
-    const midday = document.querySelector(".day__tod--midday");
-    const senja = document.querySelector(".day__tod--senja");
-    const night = document.querySelector(".day__tod--night");
-    gsap.set(dawn, { opacity: 1 });
-    gsap.set([midday, senja, night], { opacity: 0 });
-    gsap.timeline({ scrollTrigger: { trigger: day, start: "top top", end: "bottom bottom", scrub: 1 } })
-      .to(dawn,   { opacity: 0, duration: 1 }, 0.0)
-      .to(midday, { opacity: 1, duration: 1 }, 0.0)
-      .to(midday, { opacity: 0, duration: 1 }, 1.2)
-      .to(senja,  { opacity: 1, duration: 1 }, 1.2)
-      .to(senja,  { opacity: 0, duration: 1 }, 2.4)
-      .to(night,  { opacity: 1, duration: 1 }, 2.4);
-  })();
+  /* 1) Time-of-day grade REMOVED (Godwin: the scroll-darkening read off). The
+     .day__tod overlays stay at their CSS default (opacity:0) so the Day photo shows clean. */
 
   /* 2) Pinned horizontal gallery — vertical scroll pans the photos sideways (desktop only) */
   (function horizontalGallery() {

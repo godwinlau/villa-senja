@@ -1017,8 +1017,7 @@ html.nav-open, html.nav-open body { overflow: hidden; }
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 980;
   display: none; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.7rem max(var(--pad), 1rem); padding-bottom: max(0.7rem, env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--espresso) 92%, transparent);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  background: var(--espresso);   /* solid — backdrop-filter:blur on a fixed bar tanks mobile scroll */
   border-top: 1px solid color-mix(in srgb, var(--ochre) 30%, transparent);
   color: var(--cream); transform: translateY(130%); transition: transform 0.5s var(--ease);
 }
