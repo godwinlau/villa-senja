@@ -13,11 +13,10 @@
 
     /* ── EFFECT A: jelly headline — PER-CHARACTER velocity-reactive bend ── */
     .jelly-stage { min-height: 150vh; display: flex; align-items: center; justify-content: center; }
-    .jelly-stage .hero__senja { display: flex; }                 /* lay the chars in a row */
     /* the lab demo uses solid letters so the per-char transforms read clearly
        (the terraces-in-letters fill needs per-char image slices — separate step) */
-    .jelly-stage .hero__senja { -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; }
-    .jelly-stage .char { display: inline-block; will-change: transform; transform-origin: 50% 50%; }
+    .jelly-stage .hero__senja { -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; white-space: nowrap; }
+    .jelly-stage .char { display: inline-block; will-change: transform; transform-origin: 50% 100%; }   /* squash/stretch from the baseline */
 
     /* ── EFFECT B: upward image flow (082) ── */
     .flow { position: relative; background: var(--espresso); }
@@ -28,11 +27,11 @@
   </style>
 </head>
 <body>
-  <div class="lab-note">Villa Senja · motion lab — 089 jelly headline (PER-CHAR velocity bend) · 082 upward image flow</div>
+  <div class="lab-note">Villa Senja · motion lab — 089 jelly headline (squash & stretch jiggle) · 082 upward image flow</div>
 
-  <div class="lab-spacer">scroll down ↓ — then flick fast to see the jelly bend</div>
+  <div class="lab-spacer">scroll down ↓ — scroll through SENJA, then stop to feel it jiggle</div>
 
-  <span class="lab-tag">089 · jelly headline (per-character velocity bend)</span>
+  <span class="lab-tag">089 · jelly headline (squash &amp; stretch jiggle)</span>
   <section class="jelly-stage">
     <h1 class="hero__senja"><span class="char">S</span><span class="char">E</span><span class="char">N</span><span class="char">J</span><span class="char">A</span></h1>
   </section>
@@ -58,31 +57,40 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    /* EFFECT A — JELLY HEADLINE (per-character).
-       Each char is displaced along an arch curve (middle lags most) by an amplitude
-       driven by scroll velocity; chars also tilt along the curve's tangent. The
-       amplitude springs back to 0 with an elastic ease => the whole line bends like
-       jelly and wobbles flat. Per-CHAR, not a whole-block skew. */
+    /* EFFECT A — JELLY HEADLINE (squash & stretch jiggle, per character).
+       Each letter is a damped spring. Scroll SPEED kicks the spring (the faster you
+       scroll, the harder the kick), stretching the letter tall (scaleY up / scaleX in).
+       When you stop, the spring overshoots and oscillates back to rest with damping =>
+       the jello jiggle. A per-letter lag on the kick makes the wobble ripple across the
+       word so the letters are slightly out of sync. Pure deformation, no bending. */
     (function jellyHeadline() {
       const word = document.querySelector(".hero__senja");
       const chars = gsap.utils.toArray(word ? word.querySelectorAll(".char") : []);
       if (!chars.length) return;
       const N = chars.length;
-      const arch  = chars.map((c, i) => Math.sin(Math.PI * (i + 0.5) / N));   // 0 at ends, 1 in the middle (the curve)
-      const slope = chars.map((c, i) => Math.cos(Math.PI * (i + 0.5) / N));   // tangent -> each char tilts along the curve
-      const ySet  = chars.map((c) => gsap.quickSetter(c, "y", "px"));
-      const rSet  = chars.map((c) => gsap.quickSetter(c, "rotation", "deg"));
-      const MAXY = 95, MAXROT = 14;
-      const clamp = gsap.utils.clamp(-1, 1);
-      let vel = 0, cur = 0;
-      // read live scroll velocity
-      ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
-      // CONTINUOUS loop: the bend follows current scroll speed and smoothly flattens when you stop (jelly)
+      const sxSet = chars.map((c) => gsap.quickSetter(c, "scaleX"));
+      const sySet = chars.map((c) => gsap.quickSetter(c, "scaleY"));
+      const pos = new Array(N).fill(0);   // stretch displacement from rest (0 = scale 1)
+      const sv  = new Array(N).fill(0);   // spring velocity
+      const buf = [];                     // recent scroll-speed samples -> per-letter lag
+      let speed = 0;
+      const STIFF = 0.14, DAMP = 0.78, KICK = 0.00008, STRETCH = 0.55, LAG = 2;
+      const clampPos = gsap.utils.clamp(-0.55, 1.0);
+      ScrollTrigger.create({ onUpdate: (self) => { speed = Math.abs(self.getVelocity()); } });
       gsap.ticker.add(() => {
-        const target = clamp(vel / 1400);     // how deep the line bends, by live scroll speed
-        cur += (target - cur) * 0.12;         // smoothed follow = the jelly lag
-        vel *= 0.9;                           // decay so it returns to flat once scrolling stops
-        for (let i = 0; i < N; i++) { ySet[i](cur * arch[i] * MAXY); rSet[i](-cur * slope[i] * MAXROT); }
+        buf.unshift(speed);
+        if (buf.length > N * LAG + 4) buf.pop();
+        speed *= 0.82;                                            // source decays when you stop scrolling
+        for (let i = 0; i < N; i++) {
+          const kick = buf[Math.min(buf.length - 1, i * LAG)] || 0;  // later letters lag -> ripple
+          sv[i] += kick * KICK;                                  // scroll speed stretches the letter
+          sv[i] += -STIFF * pos[i];                              // spring pulls back to rest
+          sv[i] *= DAMP;                                         // damping -> a few wobbles then settle
+          pos[i] = clampPos(pos[i] + sv[i]);
+          const p = pos[i];
+          sySet[i](1 + p * STRETCH);                             // stretch tall (squash < 1 on overshoot)
+          sxSet[i](1 - p * STRETCH * 0.55);                      // thin while tall, widen while squashed
+        }
       });
     })();
 
