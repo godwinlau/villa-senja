@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="favicon.svg" />
+<title>Villa Senja · Texture Lab</title>
+<style>
+  :root{--sand:#ecdcb6;--cream:#f8efd6;--clay:#823513;--teak:#402011;--espresso:#281006;--ochre:#faae33;--ember:#d1255c}
+  *{box-sizing:border-box;margin:0}
+  body{font-family:"Hanken Grotesk",system-ui,Arial,sans-serif;background:#160d06;color:#f3e7c8;display:grid;grid-template-columns:340px 1fr;height:100vh;overflow:hidden}
+  .panel{background:#21130a;border-right:1px solid rgba(243,231,200,.12);padding:1.1rem 1.2rem;overflow-y:auto}
+  .panel h1{font-family:Georgia,serif;font-size:1.15rem;letter-spacing:.01em}
+  .panel .sub{font-size:.72rem;opacity:.55;margin:.25rem 0 1rem;line-height:1.4}
+  .group{border-top:1px solid rgba(243,231,200,.1);padding:.85rem 0}
+  .group h2{font-size:.68rem;text-transform:uppercase;letter-spacing:.18em;color:var(--ochre);margin-bottom:.55rem}
+  label{font-size:.74rem;opacity:.85;margin:.55rem 0 .25rem;display:flex;justify-content:space-between;align-items:baseline}
+  label .val{opacity:.55;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--ochre)}
+  select,input[type=color]{width:100%;background:#150e07;color:#f3e7c8;border:1px solid rgba(243,231,200,.18);border-radius:6px;padding:.4rem;font:inherit;font-size:.8rem}
+  input[type=color]{height:34px;padding:.2rem;cursor:pointer}
+  .swatches{display:flex;gap:.4rem;flex-wrap:wrap;margin:.1rem 0 .4rem}
+  .sw{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.15);cursor:pointer;transition:transform .15s}
+  .sw:hover{transform:scale(1.12)}
+  .sw.active{border-color:#fff}
+  .stage{position:relative;display:grid;place-items:center;padding:2.5rem;background:
+    repeating-conic-gradient(#1b110a 0% 25%,#160d06 0% 50%) 0/28px 28px}
+  .frame{width:min(100%,940px)}
+  .preview{width:100%;aspect-ratio:16/9;border-radius:12px;box-shadow:0 40px 90px -45px #000;position:relative;overflow:hidden}
+  .demo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(1.5rem,4vw,3rem);gap:.5rem;pointer-events:none}
+  .demo .eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase}
+  .demo h3{font-family:Georgia,serif;font-weight:700;font-size:clamp(2rem,5vw,3.6rem);line-height:.95}
+  .demo p{font-size:.9rem;max-width:34ch;opacity:.85}
+  .bar{display:flex;gap:.6rem;align-items:center;margin-top:.9rem;flex-wrap:wrap}
+  button{background:var(--ochre);color:var(--espresso);border:0;border-radius:999px;padding:.6rem 1.1rem;font:inherit;font-weight:700;font-size:.8rem;cursor:pointer}
+  button.ghost{background:transparent;color:#f3e7c8;border:1px solid rgba(243,231,200,.3)}
+  button:active{transform:translateY(1px)}
+  .toggle{font-size:.72rem;opacity:.8;display:inline-flex;gap:.35rem;align-items:center;margin-left:auto}
+  .cssout{margin-top:.7rem;font-family:ui-monospace,SFMono-Regular,monospace;font-size:.64rem;line-height:1.5;background:#150e07;border:1px solid rgba(243,231,200,.15);border-radius:8px;padding:.6rem .7rem;white-space:pre-wrap;word-break:break-all;max-height:34vh;overflow:auto;opacity:.9}
+  .hint{font-size:.66rem;opacity:.5;margin-top:.4rem}
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Texture Lab</h1>
+    <div class="sub">Compose a textured background — base · Balinese motif · film grain — like the Hungry Tiger paper. Copy the CSS or bake a PNG for the site.</div>
+
+    <div class="group">
+      <h2>Base colour</h2>
+      <div class="swatches" data-sw="baseColor"></div>
+      <input type="color" id="baseColor" value="#ecdcb6" />
+    </div>
+
+    <div class="group">
+      <h2>Motif</h2>
+      <select id="motif">
+        <option value="none">None</option>
+        <option value="poleng">Poleng — sacred check</option>
+        <option value="songket" selected>Songket — diamond weave</option>
+        <option value="kawung">Kawung — lattice</option>
+        <option value="patra">Patra — fern band</option>
+      </select>
+      <label>Colour</label>
+      <div class="swatches" data-sw="motifColor"></div>
+      <input type="color" id="motifColor" value="#823513" />
+      <label>Opacity <span class="val" id="motifOpV"></span></label>
+      <input type="range" id="motifOp" min="0" max="0.6" step="0.01" value="0.1" />
+      <label>Tile size <span class="val" id="motifScaleV"></span></label>
+      <input type="range" id="motifScale" min="16" max="240" step="2" value="72" />
+      <label>Blend</label>
+      <select id="motifBlend"><option>normal</option><option selected>soft-light</option><option>overlay</option><option>multiply</option><option>screen</option></select>
+    </div>
+
+    <div class="group">
+      <h2>Grain</h2>
+      <label>Intensity <span class="val" id="grainOpV"></span></label>
+      <input type="range" id="grainOp" min="0" max="0.7" step="0.01" value="0.14" />
+      <label>Fineness <span class="val" id="grainFreqV"></span></label>
+      <input type="range" id="grainFreq" min="0.2" max="2" step="0.05" value="0.9" />
+      <label>Blend</label>
+      <select id="grainBlend"><option selected>soft-light</option><option>overlay</option><option>multiply</option><option>normal</option></select>
+    </div>
+
+    <div class="group">
+      <h2>Vignette</h2>
+      <label>Strength <span class="val" id="vigV"></span></label>
+      <input type="range" id="vig" min="0" max="0.6" step="0.01" value="0" />
+    </div>
+
+    <div class="bar">
+      <button id="copyBtn">Copy CSS</button>
+      <button class="ghost" id="pngBtn">Download PNG</button>
+    </div>
+    <div class="cssout" id="cssout"></div>
+    <div class="hint">PNG bakes a 1600×1000 tile-able texture. CSS is resolution-independent (SVG) — paste onto any section.</div>
+  </div>
+
+  <div class="stage">
+    <div class="frame">
+      <div class="preview" id="preview"></div>
+      <div class="bar">
+        <span style="font-size:.72rem;opacity:.6">Preview</span>
+        <label class="toggle"><input type="checkbox" id="demoToggle" checked /> demo text</label>
+      </div>
+    </div>
+  </div>
+
+<script>
+const $ = s => document.querySelector(s);
+const PALETTE = {sand:'#ecdcb6',cream:'#f8efd6',clay:'#823513',teak:'#402011',espresso:'#281006',ochre:'#faae33',ember:'#d1255c'};
+
+/* ---- motif SVG generators (opacity baked in so layers compose in one CSS rule) ---- */
+function motifSVG(kind,color,op){
+  const st = `stroke='${color}' stroke-opacity='${op}'`;
+  const fl = `fill='${color}' fill-opacity='${op}'`;
+  if(kind==='poleng') return `<svg xmlns='http://www.w3.org/2000/svg' width='2' height='2' viewBox='0 0 2 2'><g ${fl}><rect width='1' height='1'/><rect x='1' y='1' width='1' height='1'/></g></svg>`;
+  if(kind==='songket') return `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><g fill='none' ${st} stroke-width='1'><path d='M32 0 64 32 32 64 0 32Z'/><path d='M32 23 41 32 32 41 23 32Z'/></g><g ${fl}><circle cx='32' cy='32' r='1.5'/><circle cx='0' cy='0' r='1.5'/><circle cx='64' cy='0' r='1.5'/><circle cx='0' cy='64' r='1.5'/><circle cx='64' cy='64' r='1.5'/></g></svg>`;
+  if(kind==='kawung') return `<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'><g fill='none' ${st} stroke-width='1.2'><circle cx='0' cy='0' r='26'/><circle cx='72' cy='0' r='26'/><circle cx='0' cy='72' r='26'/><circle cx='72' cy='72' r='26'/><circle cx='36' cy='36' r='26'/></g><g ${fl}><circle cx='36' cy='36' r='2.4'/></g></svg>`;
+  if(kind==='patra') return `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='24' viewBox='0 0 64 24'><g fill='none' ${st} stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><path d='M0 12c8 0 11-7 17-7 4 0 6 3 6 6 0 4-3 6-6 5-2-1-2-4 0-4'/><path d='M64 12c-8 0-11 7-17 7-4 0-6-3-6-6 0-4 3-6 6-5 2 1 2 4 0 4'/><path d='M23 11c3-1 6 1 6 5 0 3 3 5 6 4'/><path d='M32 6c-2 2-2 5 0 7s5 2 7 0'/></g><g ${fl}><circle cx='32' cy='12' r='1.6'/></g></svg>`;
+  return '';
+}
+function grainSVG(freq,op){
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(#n)' opacity='${op}'/></svg>`;
+}
+const dataURI = svg => 'data:image/svg+xml,' + encodeURIComponent(svg);
+const cssURL = svg => `url("${dataURI(svg)}")`;
+
+const motifAspect = {poleng:1,songket:1,kawung:1,patra:24/64};
+
+function compose(){
+  const base=$('#baseColor').value;
+  const motif=$('#motif').value, mC=$('#motifColor').value, mO=+$('#motifOp').value, mS=+$('#motifScale').value, mB=$('#motifBlend').value;
+  const gO=+$('#grainOp').value, gF=+$('#grainFreq').value, gB=$('#grainBlend').value;
+  const vig=+$('#vig').value;
+  const imgs=[],sizes=[],reps=[],blends=[];
+  if(vig>0){imgs.push(`radial-gradient(130% 125% at 50% 42%, transparent 55%, rgba(20,10,4,${vig}) 100%)`);sizes.push('100% 100%');reps.push('no-repeat');blends.push('normal');}
+  if(motif!=='none'){imgs.push(cssURL(motifSVG(motif,mC,mO)));sizes.push(`${mS}px ${Math.round(mS*motifAspect[motif])}px`);reps.push('repeat');blends.push(mB);}
+  if(gO>0){imgs.push(cssURL(grainSVG(gF,gO)));sizes.push('140px 140px');reps.push('repeat');blends.push(gB);}
+  return {
+    base,
+    image: imgs.join(', '),
+    size: sizes.join(', '),
+    repeat: reps.join(', '),
+    blend: blends.join(', '),
+    raw: {motif,mC,mO,mS,mB,gO,gF,gB,vig}
+  };
+}
+
+function lum(hex){const n=hex.replace('#','');const r=parseInt(n.substr(0,2),16),g=parseInt(n.substr(2,2),16),b=parseInt(n.substr(4,2),16);return (0.299*r+0.587*g+0.114*b)/255;}
+
+function render(){
+  const c=compose();
+  const pv=$('#preview');
+  pv.style.backgroundColor=c.base;
+  pv.style.backgroundImage=c.image||'none';
+  pv.style.backgroundSize=c.size||'auto';
+  pv.style.backgroundRepeat=c.repeat||'repeat';
+  pv.style.backgroundBlendMode=c.blend||'normal';
+  // demo
+  pv.querySelector('.demo')?.remove();
+  if($('#demoToggle').checked){
+    const dark=lum(c.base)<0.5;
+    const ink=dark?'#f8efd6':'#281006', gold='#faae33';
+    const d=document.createElement('div');d.className='demo';
+    d.innerHTML=`<div class="eyebrow" style="color:${gold}">A hidden villa · Ubud, Bali</div>`+
+      `<h3 style="color:${ink}">Wake <span style="color:${gold}">slowly</span></h3>`+
+      `<p style="color:${ink}">Open-air living above the rice fields, where the day ends in senja.</p>`;
+    pv.appendChild(d);
+  }
+  // value labels
+  $('#motifOpV').textContent=(+$('#motifOp').value).toFixed(2);
+  $('#motifScaleV').textContent=$('#motifScale').value+'px';
+  $('#grainOpV').textContent=(+$('#grainOp').value).toFixed(2);
+  $('#grainFreqV').textContent=(+$('#grainFreq').value).toFixed(2);
+  $('#vigV').textContent=(+$('#vig').value).toFixed(2);
+  // css output
+  const lines=[`background-color: ${c.base};`];
+  if(c.image){lines.push(`background-image:\n  ${c.image.replace(/, /g,',\n  ')};`,`background-size: ${c.size};`,`background-repeat: ${c.repeat};`,`background-blend-mode: ${c.blend};`);}
+  $('#cssout').textContent=lines.join('\n');
+}
+
+/* ---- swatches ---- */
+function buildSwatches(){
+  document.querySelectorAll('[data-sw]').forEach(box=>{
+    const target=box.getAttribute('data-sw');
+    Object.entries(PALETTE).forEach(([name,hex])=>{
+      const b=document.createElement('button');b.className='sw';b.style.background=hex;b.title=name;
+      b.onclick=()=>{$('#'+target).value=hex;render();};
+      box.appendChild(b);
+    });
+  });
+}
+
+/* ---- PNG bake ---- */
+const loadImg=uri=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=uri;});
+const mapBlend=b=>b==='normal'?'source-over':b;
+function tile(ctx,img,w,h,W,H){for(let y=0;y<H;y+=h){for(let x=0;x<W;x+=w){ctx.drawImage(img,x,y,w,h);}}}
+async function bakePNG(){
+  const c=compose();const W=1600,H=1000;const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  ctx.fillStyle=c.base;ctx.fillRect(0,0,W,H);
+  try{
+    if(c.raw.gO>0){const gi=await loadImg(dataURI(grainSVG(c.raw.gF,c.raw.gO)));ctx.globalCompositeOperation=mapBlend(c.raw.gB);tile(ctx,gi,140,140,W,H);}
+    if(c.raw.motif!=='none'){const mi=await loadImg(dataURI(motifSVG(c.raw.motif,c.raw.mC,c.raw.mO)));ctx.globalCompositeOperation=mapBlend(c.raw.mB);const w=c.raw.mS,h=Math.round(c.raw.mS*motifAspect[c.raw.motif]);tile(ctx,mi,w,h,W,H);}
+    ctx.globalCompositeOperation='source-over';
+    if(c.raw.vig>0){const g=ctx.createRadialGradient(W/2,H*0.42,0,W/2,H*0.42,Math.max(W,H)*0.72);g.addColorStop(0.55,'rgba(20,10,4,0)');g.addColorStop(1,`rgba(20,10,4,${c.raw.vig})`);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  }catch(e){alert('PNG bake failed (SVG filter rasterization): '+e.message);return;}
+  const a=document.createElement('a');a.download='villa-texture.png';a.href=cv.toDataURL('image/png');a.click();
+}
+
+/* ---- wire up ---- */
+buildSwatches();
+['baseColor','motif','motifColor','motifOp','motifScale','motifBlend','grainOp','grainFreq','grainBlend','vig','demoToggle']
+  .forEach(id=>$('#'+id).addEventListener('input',render));
+$('#copyBtn').onclick=async()=>{const t=$('#cssout').textContent;try{await navigator.clipboard.writeText(t);$('#copyBtn').textContent='Copied ✓';setTimeout(()=>$('#copyBtn').textContent='Copy CSS',1200);}catch(e){}};
+$('#pngBtn').onclick=bakePNG;
+render();
+</script>
+</body>
+</html>
