@@ -15,8 +15,8 @@
     .mwg_effect089 { padding: 100vh 0; }
     .mwg_effect089 .scroll { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 35%, transparent); }
     .mwg_effect089 .container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 25px; }
-    /* solid letters in the lab so the physics motion reads (terraces-in-letters fill = separate step) */
-    .mwg_effect089 .text { margin: 0; text-align: center; white-space: nowrap; -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; font-size: clamp(80px, 16vw, 300px); }
+    /* reference phrase in our on-brand display serif; solid letters so the physics motion reads */
+    .mwg_effect089 .text { margin: 8vh 0; text-align: center; white-space: nowrap; font-family: "Salmond", Georgia, serif; color: var(--cream); text-transform: none; font-size: clamp(50px, 10vw, 140px); }
     .mwg_effect089 .letter { display: inline-block; }
 
     /* ── EFFECT B: upward image flow (082) ── */
@@ -32,11 +32,11 @@
 
   <div class="lab-spacer">scroll down ↓</div>
 
-  <span class="lab-tag">089 · jelly headline (Matter.js physics — exact reference)</span>
+  <span class="lab-tag">089 · jelly headline (Matter.js physics — reference phrase, same length)</span>
   <section class="mwg_effect089">
     <p class="scroll">Scroll</p>
     <div class="container">
-      <h1 class="hero__senja text">Senja</h1>
+      <p class="text">Italian Negroni</p>
     </div>
   </section>
 
