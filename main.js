@@ -588,7 +588,7 @@
   function playHeroIntro() {
     gsap.timeline({ defaults: { ease: "expo.out" } })
       .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
-      .fromTo(".hero__title .line__in", { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.14 }, 0.2)   // MASKED per-line rise (not a flat fade)
+      .fromTo(".hero__title .line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.14 }, 0.2)   // per-line rise + fade (matches the site's word-opacity reveal; no clip)
       .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)                          // the patra divider, with the lockup
       .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74)
       .fromTo(".hero__btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.92);
@@ -607,8 +607,7 @@
 
     gsap.set(lights, { "--lit": "0%" });                              // gate halves start in shadow
     gsap.set(wm, { yPercent: 120 });                                 // wordmark masked below its baseline
-    gsap.set([".hero .eyebrow", ".hero .rule--hero", ".hero__sub", ".hero__btn"], { opacity: 0 });   // hero waits behind the doors
-    gsap.set(".hero__title .line__in", { yPercent: 110 });
+    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__btn"], { opacity: 0 });   // hero waits behind the doors
 
     gsap.timeline()
       // 1) first light climbs the carved gate — base first, finials last (left a beat ahead of right)

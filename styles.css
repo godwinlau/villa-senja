@@ -291,8 +291,7 @@ h1, h2, h3, h4 {
      emphasis stays colour-only ("SLOWLY" ochre), the house convention (Salmond has no italic) */
   text-shadow: 0 0.04em 0.6em rgba(18, 10, 4, 0.3);
 }
-.hero__title .line { display: block; overflow: hidden; padding-bottom: 0.06em; }   /* clip box for the masked line rise */
-.hero__title .line__in { display: block; will-change: transform; }
+.hero__title .line { display: block; }   /* no overflow clip — the tight 0.82 line-height was cutting the caps */
 .hero__title .line--gold { color: #faae33; font-weight: 700; }
 .rule--hero { max-width: 14rem; margin: clamp(1.2rem, 2.4vw, 2.4rem) auto; }
 .hero__sub {
