@@ -588,42 +588,36 @@
       .fromTo(".hero__cue, .hero__book", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.8, ease: EASE, stagger: 0.08 }, 0.75);
   }
 
-  /* ---------- Loader: "through the gate" — the candi bentar strokes itself in
-     (threshold first, then both towers rise together), then the gate SPLITS:
-     each half is mounted on its door, so the left tower parts left and the right
-     tower parts right, the hero rising in behind as the doors open. ---------- */
+  /* ---------- Loader: "first light through the gate" — the candi bentar sits as a
+     silhouette in shadow; dawn light climbs UP through it (base first, finials last);
+     the wordmark rises at its foot; then the whole scene dissolves THROUGH the gate
+     into the hero (a slow zoom + fade) — like stepping out of the dark into the light. ---------- */
   function initLoader(done) {
     if (!loaderEl) { done(); return; }
-    const paths = loaderEl.querySelectorAll(".loader__half path");
-    paths.forEach((p) => { const len = p.getTotalLength(); if (len && isFinite(len)) gsap.set(p, { strokeDasharray: len, strokeDashoffset: len }); });
-    const towerL  = loaderEl.querySelector(".loader__half--l .t");
-    const towerR  = loaderEl.querySelector(".loader__half--r .t");
-    const grounds = loaderEl.querySelectorAll(".loader__half .g");
-    const wm      = loaderEl.querySelector(".loader__mark-line");
-    const pL      = loaderEl.querySelector(".loader__panel--l");
-    const pR      = loaderEl.querySelector(".loader__panel--r");
+    const gatelight = loaderEl.querySelector(".loader__gatelight");
+    const wm        = loaderEl.querySelector(".loader__mark-line");
+    const field     = loaderEl.querySelector(".loader__field");
+    const gate      = loaderEl.querySelector(".loader__gate2");
 
-    gsap.set(wm, { yPercent: 120 });                                  // wordmark waits below its own clip edge (masked rise, not a fade)
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // pre-hide hero behind the doors (the existing ken-burns scrub owns .hero__photo scale)
+    gsap.set(gatelight, { "--lit": "0%" });                           // gate starts in shadow
+    gsap.set(wm, { yPercent: 120 });                                  // wordmark masked below its baseline
+    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // hero waits behind
 
     gsap.timeline()
-      // 1) threshold — the first confident stroke
-      .to(grounds, { strokeDashoffset: 0, duration: 0.45, ease: "circ.out" }, 0)
-      // 2) towers rise hand-laid — LEFT leads, RIGHT follows (breaks the machine-stamped time-symmetry), long expo glide
-      .to(towerL, { strokeDashoffset: 0, duration: 1.05, ease: "expo.out" }, 0.24)
-      .to(towerR, { strokeDashoffset: 0, duration: 1.05, ease: "expo.out" }, 0.36)
-      // 3) wordmark rises from behind its own baseline — MASKED, not a fade
-      .to(wm, { yPercent: 0, duration: 0.85, ease: "power3.out" }, "-=0.66")
-      // one deliberate hold — the beat that sells "slow luxury"
-      .addLabel("open", "+=0.42")
-      // 4) the gate opens: a hair of inward anticipation (the doors "load"), then part on a heavy expo.inOut with R lagging L
-      .to([pL, pR], { xPercent: (i) => (i === 0 ? 1.4 : -1.4), duration: 0.34, ease: "power2.in" }, "open")
-      .to(".loader__center", { yPercent: -7, opacity: 0, duration: 0.6, ease: "power2.in" }, "open+=0.34")    // wordmark lifts away as the doors commit
-      .to(pL, { xPercent: -100, duration: 1.15, ease: "expo.inOut" }, "open+=0.36")                           // left door + its half-gate, with weight
-      .to(pR, { xPercent: 100,  duration: 1.15, ease: "expo.inOut" }, "open+=0.44")                           // right door lags ~80ms (not dead lockstep)
-      // 5) hand off mid-part — the hero is UNCOVERED (already settling), not popped after the doors
-      .add(done, "open+=0.92")
-      .add(() => { loaderEl.style.display = "none"; }, "open+=1.7");
+      // 1) first light climbs the gate — the base catches it first, the finials last
+      .to(gatelight, { "--lit": "100%", duration: 1.6, ease: "power2.inOut" }, 0.2)
+      // 2) the wordmark rises at the gate's foot — masked, quiet
+      .to(wm, { yPercent: 0, duration: 0.9, ease: "power3.out" }, "-=0.85")
+      // a held breath — the still moment before you step through
+      .addLabel("through", "+=0.45")
+      // 3) move THROUGH the gate into the light: the whole scene zooms gently toward us,
+      //    the wordmark fades first, then the field + lit gate fade away, uncovering the hero
+      .to(loaderEl, { scale: 1.18, duration: 1.3, ease: "power2.in" }, "through")
+      .to(".loader__center", { opacity: 0, duration: 0.55, ease: "power1.in" }, "through")
+      .to([field, gate], { opacity: 0, duration: 0.95, ease: "power2.in" }, "through+=0.45")
+      // 4) hand off — the hero is uncovered as the scene clears (not popped after)
+      .add(done, "through+=0.6")
+      .add(() => { loaderEl.style.display = "none"; }, "through+=1.45");
   }
   initLoader(playHeroIntro);
 

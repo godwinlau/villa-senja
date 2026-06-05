@@ -1156,30 +1156,19 @@ html.nav-open, html.nav-open body { overflow: hidden; }
    Visible by default. Reduced-motion hides it; a CSS safety lifts it if JS
    never runs (so the page is never stuck behind it).
    ============================================================ */
-.loader { position: fixed; inset: 0; z-index: 10000; display: flex; overflow: hidden; }
-.loader__panel { position: relative; flex: 1 1 50%; z-index: 2; overflow: hidden; will-change: transform;
-  /* the SAME stack as "It's all included": warm clay + tone-on-tone botanical watermark (multiply) + paper + grain */
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='720' viewBox='0 0 720 720'%3E%3Cg opacity='0.45'%3E%3Cg fill='%23281006'%3E%3Cg transform='translate(8 18) rotate(20) scale(0.5)'%3E%3Cpath d='M100 432 C 150 372 180 300 175 210 C 170 130 140 60 100 8 C 60 60 30 130 25 210 C 20 300 50 372 100 432 Z'/%3E%3C/g%3E%3Cg transform='translate(700 510) rotate(205) scale(0.42)'%3E%3Cpath d='M100 432 C 150 372 180 300 175 210 C 170 130 140 60 100 8 C 60 60 30 130 25 210 C 20 300 50 372 100 432 Z'/%3E%3C/g%3E%3Cg transform='translate(556 44) rotate(36) scale(1.5)'%3E%3Cpath d='M30 116 C 52 90 58 50 32 4 C 31 2 29 2 28 4 C 2 50 8 90 30 116 Z'/%3E%3C/g%3E%3Cg transform='translate(64 384) rotate(-44) scale(1.25)'%3E%3Cpath d='M30 116 C 52 90 58 50 32 4 C 31 2 29 2 28 4 C 2 50 8 90 30 116 Z'/%3E%3C/g%3E%3Cg transform='translate(384 604) rotate(12) scale(1.4)'%3E%3Cpath d='M30 116 C 52 90 58 50 32 4 C 31 2 29 2 28 4 C 2 50 8 90 30 116 Z'/%3E%3C/g%3E%3Cg transform='translate(520 388) rotate(-72) scale(0.95)'%3E%3Cpath d='M30 116 C 52 90 58 50 32 4 C 31 2 29 2 28 4 C 2 50 8 90 30 116 Z'/%3E%3C/g%3E%3C/g%3E%3Cg fill='none' stroke='%23281006' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg transform='translate(296 232) scale(2.4)'%3E%3Cpath d='M11 11 C 45 11 57 30 39 45 C 29 53 16 47 21 35 C 24 29 32 30 31 38'/%3E%3C/g%3E%3Cg transform='translate(150 560) rotate(180) scale(1.9)'%3E%3Cpath d='M11 11 C 45 11 57 30 39 45 C 29 53 16 47 21 35 C 24 29 32 30 31 38'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(180deg, var(--clay) 0%, var(--clay) 50%, var(--espresso) 100%);
-  background-size: 30rem auto, cover;
-  background-position: center -1rem, center;
-  background-repeat: repeat, no-repeat;
-  background-blend-mode: multiply, normal;
-}
-/* each door is textured paper stock — paper fibre + film grain, riding away with it as the gate parts */
-.loader__panel::before, .loader__panel::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
-.loader__panel::before {  /* coarse paper fibre */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.016' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.9'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
-  background-size: 340px 340px; opacity: 0.22; mix-blend-mode: multiply; }
-.loader__panel::after {  /* fine film grain, sits above the carved gate */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.8' intercept='-0.35'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px; opacity: 0.5; mix-blend-mode: overlay; z-index: 3; }
-/* loader glow removed (read as slop) — the doors now part to reveal the hero directly */
-.loader__half { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; height: clamp(20rem, 82vh, 46rem); width: auto; aspect-ratio: 100 / 280; color: var(--ochre); display: block; }
-.loader__half--l { right: 0; }   /* anchored to the centre seam */
-.loader__half--r { left: 0; }
-.loader__half path { fill: none; stroke: currentColor; }
+.loader { position: fixed; inset: 0; z-index: 10000; overflow: hidden; }
+/* "First light through the gate" — a candi bentar in shadow; dawn light climbs UP through it (base→finials), then the scene dissolves through into the hero */
+.loader__field { position: absolute; inset: 0; z-index: 0; background: radial-gradient(125% 105% at 50% 60%, #2c1408 0%, #1b0d05 58%, #120802 100%); }
+/* fine film grain over the dark field (separate layer so it composites cleanly) */
+.loader__field::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.32; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='ln'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.6' intercept='-0.3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ln)'/%3E%3C/svg%3E"); background-size: 170px 170px; }
+.loader__gate2 { position: absolute; left: 50%; top: 47%; transform: translate(-50%, -50%); z-index: 1;
+  height: clamp(20rem, 82vh, 46rem); aspect-ratio: 200 / 280; background: #34190d;   /* the gate, in shadow — barely distinct until light climbs it */
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 280'%3E%3Cpath fill='%23fff' d='M14 276 L14 232 L30 232 L30 196 L44 196 L44 160 L56 160 L56 124 L68 124 L68 90 L78 90 L78 58 L86 58 L86 30 L92 30 L92 18 L96 18 L96 276 Z'/%3E%3Cpath fill='%23fff' d='M186 276 L186 232 L170 232 L170 196 L156 196 L156 160 L144 160 L144 124 L132 124 L132 90 L122 90 L122 58 L114 58 L114 30 L108 30 L108 18 L104 18 L104 276 Z'/%3E%3Crect fill='%23fff' x='6' y='268' width='188' height='12'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 280'%3E%3Cpath fill='%23fff' d='M14 276 L14 232 L30 232 L30 196 L44 196 L44 160 L56 160 L56 124 L68 124 L68 90 L78 90 L78 58 L86 58 L86 30 L92 30 L92 18 L96 18 L96 276 Z'/%3E%3Cpath fill='%23fff' d='M186 276 L186 232 L170 232 L170 196 L156 196 L156 160 L144 160 L144 124 L132 124 L132 90 L122 90 L122 58 L114 58 L114 30 L108 30 L108 18 L104 18 L104 276 Z'/%3E%3Crect fill='%23fff' x='6' y='268' width='188' height='12'/%3E%3C/svg%3E") center / contain no-repeat; }
+.loader__gatelight { position: absolute; inset: 0; will-change: clip-path;
+  background: linear-gradient(0deg, var(--ochre) 0%, #ffe6a8 40%, var(--cream) 72%, var(--sand) 100%);
+  clip-path: inset(calc(100% - var(--lit, 0%)) 0 0 0); }   /* reveals BASE→up: finials catch light last */
 .loader__center { position: absolute; inset: 0; z-index: 4; pointer-events: none; will-change: opacity; }
 .loader__mark { position: absolute; left: 0; right: 0; bottom: clamp(9%, 13vh, 17%); text-align: center; overflow: hidden; padding-bottom: 0.14em;
   font-family: "Salmond", serif; font-weight: 700; font-size: clamp(1.6rem, 3.2vw, 2.3rem); letter-spacing: 0.08em; color: var(--cream); }
