@@ -947,6 +947,34 @@
     gsap.ticker.add(() => { tl.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(vel) / 400)); vel *= 0.92; });
   })();
 
+  /* Custom cursor — warm dot lerps to the pointer, grows to an ochre disc with a
+     "drag"/"view" label over interactive targets. Desktop fine-pointer only. */
+  (function initCursor() {
+    if (!window.matchMedia("(hover: hover)").matches || !window.matchMedia("(pointer: fine)").matches) return;
+    const cur = document.createElement("div");
+    cur.className = "v-cursor"; cur.setAttribute("aria-hidden", "true");
+    const lbl = document.createElement("span"); lbl.className = "v-cursor__label"; cur.appendChild(lbl);
+    document.body.appendChild(cur);
+    document.documentElement.classList.add("has-cursor");
+    const xTo = gsap.quickTo(cur, "x", { duration: 0.4, ease: "power3" });
+    const yTo = gsap.quickTo(cur, "y", { duration: 0.4, ease: "power3" });
+    window.addEventListener("pointermove", (e) => { xTo(e.clientX); yTo(e.clientY); }, { passive: true });
+    const HOT = "a, button, [data-drag], .exp__track, .gallery__track, .gallery__item, .bk-day, .faq__q";
+    const labelFor = (el) => el.closest("[data-drag], .exp__track, .gallery__track") ? "drag"
+      : el.closest(".gallery__item, .sides__media, .suite, .dining__media") ? "view" : "";
+    document.addEventListener("pointerover", (e) => {
+      if (!e.target.closest(HOT)) return;
+      cur.classList.add("is-hover");
+      const t = labelFor(e.target);
+      if (t) { lbl.textContent = t; cur.classList.add("is-label"); }
+    });
+    document.addEventListener("pointerout", (e) => {
+      if (!e.target.closest(HOT)) return;
+      const into = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(HOT);
+      if (!into) { cur.classList.remove("is-hover", "is-label"); lbl.textContent = ""; }
+    });
+  })();
+
   window.addEventListener("resize", () => ScrollTrigger.refresh());
   ScrollTrigger.refresh();
 })();

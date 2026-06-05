@@ -25,6 +25,17 @@ html .hero__senja {                 /* solid cream so the swinging letters read 
 .testimonials .tmarquee { display: flex; flex-wrap: nowrap; align-items: stretch; gap: clamp(1rem, 2vw, 1.6rem); width: max-content; will-change: transform; }
 .testimonials.is-marquee .tcard { flex: 0 0 clamp(280px, 26vw, 380px); margin: 0; }
 
+/* ---- custom cursor (Awwwards staple) — warm dot that grows to an ochre disc
+   with a drag/view label on interactive hover; desktop pointers only ---------- */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+.v-cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;
+  width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
+  background: var(--cream); display: grid; place-items: center; will-change: transform;
+  transition: width .35s var(--ease, ease), height .35s var(--ease, ease), margin .35s var(--ease, ease), background-color .35s; }
+.v-cursor.is-hover { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: color-mix(in srgb, var(--ochre) 88%, var(--cream)); }
+.v-cursor__label { font: 600 0.58rem "Hanken Grotesk", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teak); opacity: 0; transition: opacity .25s; }
+.v-cursor.is-label .v-cursor__label { opacity: 1; }
+
 /* ---- 024 · velocity-skew marquee ------------------------------------------
    Skew the groups (not the track, which CSS translates) so the ticker shears
    with scroll speed without fighting its scroll animation. */
