@@ -4,39 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Villa Senja — motion lab (GSAP effects prototype)</title>
-  <!-- same fonts + palette tokens as the site -->
   <link rel="stylesheet" href="styles.css?v=100" />
   <style>
-    /* ── lab scaffolding (not shipped to the site) ── */
     body { margin: 0; background: var(--clay); color: var(--cream); font-family: "Hanken Grotesk", sans-serif; }
     .lab-note { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 0.6rem 1rem; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); background: rgba(20,10,4,0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
     .lab-spacer { height: 70vh; display: flex; align-items: center; justify-content: center; color: color-mix(in srgb, var(--cream) 55%, transparent); font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; }
     .lab-tag { display: block; text-align: center; padding-top: 3rem; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ochre); }
 
-    /* ── EFFECT A: jelly headline (whole-word velocity wobble) — uses the real .hero__senja so it ports straight to the hero ── */
-    .jelly-stage { min-height: 130vh; display: flex; align-items: center; justify-content: center; }
-    .jelly-stage .hero__senja { will-change: transform; transform-origin: 50% 50%; }
+    /* ── EFFECT A: jelly headline — PER-CHARACTER velocity-reactive bend ── */
+    .jelly-stage { min-height: 150vh; display: flex; align-items: center; justify-content: center; }
+    .jelly-stage .hero__senja { display: flex; }                 /* lay the chars in a row */
+    /* the lab demo uses solid letters so the per-char transforms read clearly
+       (the terraces-in-letters fill needs per-char image slices — separate step) */
+    .jelly-stage .hero__senja { -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; }
+    .jelly-stage .char { display: inline-block; will-change: transform; transform-origin: 50% 50%; }
 
-    /* ── EFFECT B: upward image flow (082) — reusable .flow* classes ── */
+    /* ── EFFECT B: upward image flow (082) ── */
     .flow { position: relative; background: var(--espresso); }
     .flow__hint { position: absolute; top: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 3; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); }
-    .flow__pin { height: 600vh; }                 /* scrub length: ~1 viewport per image */
+    .flow__pin { height: 600vh; }
     .flow__stage { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .flow__media { position: absolute; width: min(38vw, 26rem); aspect-ratio: 4 / 5; object-fit: cover; border-radius: 14px; box-shadow: 0 50px 110px -45px rgba(0,0,0,0.7); will-change: transform, opacity; }
   </style>
 </head>
 <body>
-  <div class="lab-note">Villa Senja · motion lab — prototyping GSAP effects (089 jelly headline · 082 upward image flow) before porting into the site</div>
+  <div class="lab-note">Villa Senja · motion lab — 089 jelly headline (PER-CHAR velocity bend) · 082 upward image flow</div>
 
-  <div class="lab-spacer">scroll down ↓</div>
+  <div class="lab-spacer">scroll down ↓ — then flick fast to see the jelly bend</div>
 
-  <!-- EFFECT A -->
-  <span class="lab-tag">089 · jelly headline (whole-word velocity wobble)</span>
+  <span class="lab-tag">089 · jelly headline (per-character velocity bend)</span>
   <section class="jelly-stage">
-    <h1 class="hero__senja">Senja</h1>
+    <h1 class="hero__senja"><span class="char">S</span><span class="char">E</span><span class="char">N</span><span class="char">J</span><span class="char">A</span></h1>
   </section>
 
-  <!-- EFFECT B -->
   <span class="lab-tag">082 · upward image flow</span>
   <section class="flow">
     <p class="flow__hint">scroll</p>
@@ -58,27 +58,35 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    /* EFFECT A — jelly headline: whole-word skew driven by scroll velocity, springing back (elastic).
-       Targets .hero__senja directly so the exact JS ports onto the site hero. */
+    /* EFFECT A — JELLY HEADLINE (per-character).
+       Each char is displaced along an arch curve (middle lags most) by an amplitude
+       driven by scroll velocity; chars also tilt along the curve's tangent. The
+       amplitude springs back to 0 with an elastic ease => the whole line bends like
+       jelly and wobbles flat. Per-CHAR, not a whole-block skew. */
     (function jellyHeadline() {
       const word = document.querySelector(".hero__senja");
       if (!word) return;
-      const proxy = { skew: 0 };
-      const clamp = gsap.utils.clamp(-14, 14);
-      const setSkew = gsap.quickSetter(word, "skewY", "deg");
+      const chars = gsap.utils.toArray(word.querySelectorAll(".char"));
+      if (!chars.length) return;
+      const N = chars.length;
+      const arch  = chars.map((c, i) => Math.sin(Math.PI * (i + 0.5) / N));   // 0 at ends, 1 in the middle
+      const slope = chars.map((c, i) => Math.cos(Math.PI * (i + 0.5) / N));   // curve tangent -> per-char tilt
+      const MAXY = 80, MAXROT = 10;
+      const proxy = { amp: 0 };
+      const clampAmp = gsap.utils.clamp(-1, 1);
+      const render = () => chars.forEach((c, i) => gsap.set(c, { y: proxy.amp * arch[i] * MAXY, rotation: -proxy.amp * slope[i] * MAXROT }));
       ScrollTrigger.create({
         onUpdate: (self) => {
-          const skew = clamp(self.getVelocity() / -160);   // faster scroll -> more wobble
-          if (Math.abs(skew) > Math.abs(proxy.skew)) {
-            proxy.skew = skew;
-            gsap.to(proxy, { skew: 0, duration: 1.0, ease: "elastic.out(1, 0.35)", overwrite: true, onUpdate: () => setSkew(proxy.skew) });
+          const amp = clampAmp(self.getVelocity() / 1600);   // faster flick -> deeper bend
+          if (Math.abs(amp) > Math.abs(proxy.amp)) {
+            proxy.amp = amp;
+            gsap.to(proxy, { amp: 0, duration: 1.15, ease: "elastic.out(1, 0.3)", overwrite: true, onUpdate: render });
           }
         },
       });
     })();
 
-    /* EFFECT B — upward image flow: each media bounces in at centre, holds, then suctions up + shrinks + fades.
-       Sequenced + scrubbed to scroll across a tall pin-height. */
+    /* EFFECT B — UPWARD IMAGE FLOW: bounce in at centre, then suction up + shrink on scroll. */
     (function upwardImageFlow() {
       const medias = gsap.utils.toArray(".flow__media");
       if (!medias.length) return;
