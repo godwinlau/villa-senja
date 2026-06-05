@@ -1270,12 +1270,25 @@ html[data-hero="live"] .hero__live { display: block; }
 html[data-hero="live"] .eyebrow { display: none; }
 
 /* SENJA — the native word at architectural scale becomes the whole hero */
-.hero__word { display: none; position: absolute; inset: 0; z-index: 1; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 7rem var(--pad) clamp(4.5rem, 9vh, 7rem); pointer-events: none; }
-html[data-hero="word"] .hero__inner { display: none; }
-html[data-hero="word"] .hero__word { display: flex; }
-.hero__word-mark { font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; font-size: clamp(5rem, 27vw, 22rem); line-height: 0.78; letter-spacing: -0.02em; color: var(--cream); text-shadow: 0 0.03em 0.5em rgba(18,10,4,0.3); }
-.hero__word-gloss { margin-top: clamp(0.8rem, 1.6vw, 1.4rem); font-family: "Hanken Grotesk", sans-serif; font-size: clamp(0.78rem, 1vw, 0.95rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+/* SENJA hero (DEFAULT) — the word is a window into the terraces, on terracotta paper, sun behind */
+.hero { background: var(--clay); }
+.hero__art { display: none; }
+.hero__inner { display: none; }
+.hero__word { display: flex; position: absolute; inset: 0; z-index: 1; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 7rem var(--pad); pointer-events: none; }
+.hero__senja { margin: 0; position: relative; z-index: 1; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; font-size: clamp(5.5rem, 30vw, 26rem); line-height: 0.82; letter-spacing: -0.01em; will-change: transform;
+  background-image: linear-gradient(160deg, rgba(214,98,32,0.5), rgba(40,16,6,0.32)), url("images/valley.jpg");
+  background-size: cover, 150% auto; background-position: center, 50% 34%; background-repeat: no-repeat; background-blend-mode: multiply, normal;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.hero__sun2 { position: absolute; left: 50%; bottom: 23%; transform: translateX(-50%); z-index: 0; width: clamp(18rem, 42vw, 40rem); aspect-ratio: 2 / 1; border-radius: 100% 100% 0 0; pointer-events: none;
+  background: radial-gradient(115% 200% at 50% 100%, var(--ochre) 0%, color-mix(in srgb, var(--ochre) 50%, var(--ember)) 50%, transparent 68%); }
+.hero__word-gloss { position: relative; z-index: 1; margin-top: clamp(0.9rem, 1.8vw, 1.6rem); font-family: "Hanken Grotesk", sans-serif; font-size: clamp(0.78rem, 1vw, 0.95rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: color-mix(in srgb, var(--cream) 88%, transparent); }
 .hero__word-gloss span { color: var(--ochre); }
+.hero__word .hero__btn { position: relative; z-index: 1; pointer-events: auto; margin-top: clamp(1.6rem, 3vw, 2.4rem); }
+/* panel alternates restore the editorial / video heroes */
+html[data-hero="editorial"] .hero, html[data-hero="live"] .hero, html[data-hero="cover"] .hero, html[data-hero="descent"] .hero { background: var(--espresso); }
+html[data-hero="editorial"] .hero__art, html[data-hero="live"] .hero__art, html[data-hero="cover"] .hero__art, html[data-hero="descent"] .hero__art { display: block; }
+html[data-hero="editorial"] .hero__inner, html[data-hero="live"] .hero__inner, html[data-hero="cover"] .hero__inner, html[data-hero="descent"] .hero__inner { display: block; }
+html[data-hero="editorial"] .hero__word, html[data-hero="live"] .hero__word, html[data-hero="cover"] .hero__word, html[data-hero="descent"] .hero__word { display: none; }
 
 /* DESCENT — a warm dusk veil over the whole page that deepens as you scroll (opacity driven by JS) */
 .descent-veil { display: none; position: fixed; inset: 0; z-index: 905; pointer-events: none; opacity: 0; mix-blend-mode: multiply;

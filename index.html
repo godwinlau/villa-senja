@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=99" />
+  <link rel="stylesheet" href="styles.css?v=100" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -206,10 +206,12 @@
       <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Book your stay</span><span class="btn__fill"></span></a>
     </div>
 
-    <!-- SENJA-WORD direction: the native word at architectural scale -->
-    <div class="hero__word" aria-hidden="true">
-      <span class="hero__word-mark">senja</span>
-      <span class="hero__word-gloss">the warm Balinese dusk · <span lang="id">villa senja</span>, ubud</span>
+    <!-- SENJA hero: the word as a window into the terraces, on terracotta paper, with a setting sun behind -->
+    <div class="hero__word">
+      <span class="hero__sun2" aria-hidden="true"></span>
+      <h1 class="hero__senja">Senja</h1>
+      <p class="hero__word-gloss">the warm Balinese dusk · <span lang="id">villa senja</span>, Ubud</p>
+      <a href="#book" class="btn btn--lg hero__btn"><span class="btn__txt">Reserve the villa</span><span class="btn__fill"></span></a>
     </div>
 
     <button type="button" class="hero__motion" data-hero-motion aria-pressed="true" aria-label="Pause background video">
@@ -777,11 +779,11 @@
     </div>
     <p class="tweaks__lbl">Hero</p>
     <div class="tweaks__seg" role="radiogroup" aria-label="Hero direction">
-      <button type="button" class="tweaks__opt is-on" data-hero="current">Current</button>
-      <button type="button" class="tweaks__opt" data-hero="live">Live senja</button>
-      <button type="button" class="tweaks__opt" data-hero="word">SENJA</button>
-      <button type="button" class="tweaks__opt" data-hero="descent">Descent</button>
+      <button type="button" class="tweaks__opt is-on" data-hero="current">SENJA</button>
+      <button type="button" class="tweaks__opt" data-hero="editorial">Editorial</button>
       <button type="button" class="tweaks__opt" data-hero="cover">Cover</button>
+      <button type="button" class="tweaks__opt" data-hero="live">Live grade</button>
+      <button type="button" class="tweaks__opt" data-hero="descent">Descent</button>
     </div>
     <p class="tweaks__lbl">Logo mark</p>
     <div class="tweaks__seg" role="radiogroup" aria-label="Logo mark">
@@ -801,6 +803,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=50"></script>
+  <script src="main.js?v=51"></script>
 </body>
 </html>

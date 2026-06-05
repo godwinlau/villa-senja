@@ -591,12 +591,26 @@
      the loader, then rise in as the gate doors open) ---------- */
   function playHeroIntro() {
     gsap.timeline({ defaults: { ease: "expo.out" } })
+      // SENJA hero (default): the sun rises, the word resolves, gloss + CTA settle in
+      .fromTo(".hero__sun2", { opacity: 0, yPercent: 28 }, { opacity: 1, yPercent: 0, duration: 1.4, ease: "power2.out" }, 0.1)
+      .fromTo(".hero__senja", { opacity: 0, scale: 0.92, yPercent: 5 }, { opacity: 1, scale: 1, yPercent: 0, duration: 1.3 }, 0.28)
+      .fromTo(".hero__word-gloss", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9 }, 0.85)
+      // editorial alternate (only visible when that variant is toggled in ?tweaks)
       .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
-      .fromTo(".hero__title .line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.14 }, 0.2)   // per-line rise + fade (matches the site's word-opacity reveal; no clip)
-      .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)                          // the patra divider, with the lockup
+      .fromTo(".hero__title .line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.14 }, 0.2)
+      .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)
       .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74)
       .fromTo(".hero__btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.92);
   }
+
+  /* SENJA hero: fall THROUGH the word on scroll (the word scales up, the sun sinks) */
+  (function initSenjaScroll() {
+    const w = document.querySelector(".hero__senja");
+    if (!w || !hasGSAP) return;
+    gsap.to(w, { scale: 1.22, yPercent: -5, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+    const sun = document.querySelector(".hero__sun2");
+    if (sun) gsap.to(sun, { yPercent: 38, opacity: 0.45, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+  })();
 
   /* ---------- Loader: "through the gate, into senja" — two dusk-stone doors carry the
      lit candi bentar; the carved gate halves catch first light (base→finials), the
@@ -611,7 +625,7 @@
 
     gsap.set(lights, { "--lit": "0%" });                              // gate halves start in shadow
     gsap.set(wm, { yPercent: 120 });                                 // wordmark masked below its baseline
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__btn"], { opacity: 0 });   // hero waits behind the doors
+    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__btn", ".hero__senja", ".hero__sun2", ".hero__word-gloss"], { opacity: 0 });   // hero waits behind the doors
 
     gsap.timeline()
       // 1) first light climbs the carved gate — base first, finials last (left a beat ahead of right)
