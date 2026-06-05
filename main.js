@@ -595,13 +595,16 @@
     gsap.set(mark, { opacity: 0, y: 14 });
     gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // pre-hide hero behind the doors
     gsap.timeline()
-      .to(paths, { strokeDashoffset: 0, duration: 1.0, ease: "power2.out", stagger: 0.1 })
-      .to(mark, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.35")
-      .to(".loader__center", { opacity: 0, duration: 0.45, ease: "power1.in" }, "+=0.4")
-      .to(".loader__panel--l", { xPercent: -100, duration: 1.0, ease: "power3.inOut" }, "<")
-      .to(".loader__panel--r", { xPercent: 100, duration: 1.0, ease: "power3.inOut" }, "<")
-      .add(done, "<0.3")
-      .add(() => { loaderEl.style.display = "none"; });
+      .to(paths, { strokeDashoffset: 0, duration: 1.4, ease: "power2.out", stagger: 0.12 })
+      .to(mark, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.45")
+      .addLabel("open", "+=0.45")
+      .to(".loader__center", { opacity: 0, duration: 0.5, ease: "power1.in" }, "open")
+      .to(".loader__panel--l", { xPercent: -100, duration: 1.15, ease: "power3.inOut" }, "open")
+      .to(".loader__panel--r", { xPercent: 100, duration: 1.15, ease: "power3.inOut" }, "open")
+      .fromTo(".loader__glow", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power1.out" }, "open")
+      .to(".loader__glow", { opacity: 0, duration: 0.75, ease: "power1.in" }, "open+=0.55")
+      .add(done, "open+=0.45")
+      .add(() => { loaderEl.style.display = "none"; }, "open+=1.25");
   }
   initLoader(playHeroIntro);
 
