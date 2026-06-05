@@ -1175,18 +1175,18 @@ html.nav-open, html.nav-open body { overflow: hidden; }
 .loader__panel::after {  /* fine film grain, sits above the carved gate */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.8' intercept='-0.35'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px; opacity: 0.5; mix-blend-mode: overlay; z-index: 3; }
-.loader__glow { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; will-change: opacity;
-  background: radial-gradient(42% 58% at 50% 50%, rgba(250,174,51,0.6) 0%, rgba(209,37,92,0.22) 46%, transparent 72%); }
+/* loader glow removed (read as slop) — the doors now part to reveal the hero directly */
 .loader__half { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; height: clamp(20rem, 82vh, 46rem); width: auto; aspect-ratio: 100 / 280; color: var(--ochre); display: block; }
 .loader__half--l { right: 0; }   /* anchored to the centre seam */
 .loader__half--r { left: 0; }
 .loader__half path { fill: none; stroke: currentColor; }
 .loader__center { position: absolute; inset: 0; z-index: 4; pointer-events: none; will-change: opacity; }
-.loader__mark { position: absolute; left: 0; right: 0; bottom: clamp(9%, 13vh, 17%); text-align: center;
+.loader__mark { position: absolute; left: 0; right: 0; bottom: clamp(9%, 13vh, 17%); text-align: center; overflow: hidden; padding-bottom: 0.14em;
   font-family: "Salmond", serif; font-weight: 700; font-size: clamp(1.6rem, 3.2vw, 2.3rem); letter-spacing: 0.08em; color: var(--cream); }
-.loader__mark span { color: var(--ochre); }
+.loader__mark-line { display: inline-block; will-change: transform; }   /* the masked clip-rise element */
+.loader__mark em { color: var(--ochre); font-style: normal; }
 @media (prefers-reduced-motion: reduce) { .loader { display: none !important; } }
-.loader { animation: loaderSafety 0.6s ease 4s forwards; }   /* fail-safe: lift if JS never hides it */
+.loader { animation: loaderSafety 0.6s ease 4.8s forwards; }   /* fail-safe: lift if JS never hides it (after the ~3.7s sequence) */
 @keyframes loaderSafety { to { opacity: 0; visibility: hidden; } }
 .included__rule { max-width: 8rem; margin: clamp(1.4rem, 2.6vw, 2.2rem) auto 0; }
 .incl-tags { margin-top: clamp(2.2rem, 4.5vw, 3.2rem); }

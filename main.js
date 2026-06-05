@@ -582,38 +582,48 @@
      the loader, then rise in as the gate doors open) ---------- */
   function playHeroIntro() {
     gsap.timeline()
-      .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0)
-      .fromTo(".hero__title .line", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 1.1, ease: EASE, stagger: 0.12 }, 0.08)
-      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0.55)
-      .fromTo(".hero__cue, .hero__book", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.8, ease: EASE, stagger: 0.08 }, 0.7);
+      .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0.1)
+      .fromTo(".hero__title .line", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 1.1, ease: EASE, stagger: 0.12 }, 0.18)
+      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: EASE }, 0.6)
+      .fromTo(".hero__cue, .hero__book", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.8, ease: EASE, stagger: 0.08 }, 0.75);
   }
 
-  /* ---------- Loader: "through the gate, into dusk" — the candi bentar strokes
-     itself in (threshold first, then both towers rise together), then the gate
-     SPLITS: each half is mounted on its door, so the left tower parts left and
-     the right tower parts right, dusk light spilling through the widening gap as
-     the hero rises in behind. ---------- */
+  /* ---------- Loader: "through the gate" — the candi bentar strokes itself in
+     (threshold first, then both towers rise together), then the gate SPLITS:
+     each half is mounted on its door, so the left tower parts left and the right
+     tower parts right, the hero rising in behind as the doors open. ---------- */
   function initLoader(done) {
     if (!loaderEl) { done(); return; }
     const paths = loaderEl.querySelectorAll(".loader__half path");
     paths.forEach((p) => { const len = p.getTotalLength(); if (len && isFinite(len)) gsap.set(p, { strokeDasharray: len, strokeDashoffset: len }); });
-    const towers = loaderEl.querySelectorAll(".loader__half .t");
+    const towerL  = loaderEl.querySelector(".loader__half--l .t");
+    const towerR  = loaderEl.querySelector(".loader__half--r .t");
     const grounds = loaderEl.querySelectorAll(".loader__half .g");
-    const mark = loaderEl.querySelector(".loader__mark");
-    gsap.set(mark, { opacity: 0, y: 14 });
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // pre-hide hero behind the doors
+    const wm      = loaderEl.querySelector(".loader__mark-line");
+    const pL      = loaderEl.querySelector(".loader__panel--l");
+    const pR      = loaderEl.querySelector(".loader__panel--r");
+
+    gsap.set(wm, { yPercent: 120 });                                  // wordmark waits below its own clip edge (masked rise, not a fade)
+    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero__sub", ".hero__cue", ".hero__book"], { opacity: 0 }); // pre-hide hero behind the doors (the existing ken-burns scrub owns .hero__photo scale)
+
     gsap.timeline()
-      .to(grounds, { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, 0)            // threshold draws first
-      .to(towers, { strokeDashoffset: 0, duration: 1.3, ease: "power2.out" }, 0.2)            // both towers rise together (symmetric)
-      .to(mark, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.4")
-      .addLabel("open", "+=0.5")
-      .fromTo(".loader__glow", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.out" }, "open")   // dusk spills through the seam
-      .to(".loader__center", { opacity: 0, duration: 0.5, ease: "power1.in" }, "open")                       // wordmark fades
-      .to(".loader__panel--l", { xPercent: -100, duration: 1.25, ease: "power3.inOut" }, "open")             // left door + its half-gate part LEFT
-      .to(".loader__panel--r", { xPercent: 100, duration: 1.25, ease: "power3.inOut" }, "open")              // right door + its half-gate part RIGHT
-      .to(".loader__glow", { opacity: 0, duration: 0.85, ease: "power1.in" }, "open+=0.7")
-      .add(done, "open+=0.55")
-      .add(() => { loaderEl.style.display = "none"; }, "open+=1.35");
+      // 1) threshold — the first confident stroke
+      .to(grounds, { strokeDashoffset: 0, duration: 0.45, ease: "circ.out" }, 0)
+      // 2) towers rise hand-laid — LEFT leads, RIGHT follows (breaks the machine-stamped time-symmetry), long expo glide
+      .to(towerL, { strokeDashoffset: 0, duration: 1.05, ease: "expo.out" }, 0.24)
+      .to(towerR, { strokeDashoffset: 0, duration: 1.05, ease: "expo.out" }, 0.36)
+      // 3) wordmark rises from behind its own baseline — MASKED, not a fade
+      .to(wm, { yPercent: 0, duration: 0.85, ease: "power3.out" }, "-=0.66")
+      // one deliberate hold — the beat that sells "slow luxury"
+      .addLabel("open", "+=0.42")
+      // 4) the gate opens: a hair of inward anticipation (the doors "load"), then part on a heavy expo.inOut with R lagging L
+      .to([pL, pR], { xPercent: (i) => (i === 0 ? 1.4 : -1.4), duration: 0.34, ease: "power2.in" }, "open")
+      .to(".loader__center", { yPercent: -7, opacity: 0, duration: 0.6, ease: "power2.in" }, "open+=0.34")    // wordmark lifts away as the doors commit
+      .to(pL, { xPercent: -100, duration: 1.15, ease: "expo.inOut" }, "open+=0.36")                           // left door + its half-gate, with weight
+      .to(pR, { xPercent: 100,  duration: 1.15, ease: "expo.inOut" }, "open+=0.44")                           // right door lags ~80ms (not dead lockstep)
+      // 5) hand off mid-part — the hero is UNCOVERED (already settling), not popped after the doors
+      .add(done, "open+=0.92")
+      .add(() => { loaderEl.style.display = "none"; }, "open+=1.7");
   }
   initLoader(playHeroIntro);
 
