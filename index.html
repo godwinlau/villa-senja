@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="vendor/phosphor/style.css" />
-  <link rel="stylesheet" href="styles.css?v=87" />
+  <link rel="stylesheet" href="styles.css?v=88" />
 
   <!-- Structured data: the property as a bookable LodgingBusiness -->
   <script type="application/ld+json">
@@ -125,7 +125,7 @@
       </div>
       <a href="#top" class="wordmark">Villa <em>Senja</em></a>
       <div class="nav__links nav__links--right">
-        <span class="nav__meta" aria-label="Local time in Ubud, Bali">Ubud, Bali <span class="nav__meta-dot" aria-hidden="true"></span> <span data-clock>18:42</span></span>
+        <span class="nav__meta" aria-label="Local time in Ubud, Bali">Ubud, Bali <span class="nav__meta-dot" aria-hidden="true"></span> <span data-clock>18:42</span><span class="nav__meta-word" data-clock-word></span></span>
         <a href="#book" class="btn btn--sm">
           <span class="btn__txt">Book</span>
           <span class="btn__fill"></span>
@@ -743,10 +743,27 @@
     </div>
   </footer>
 
+  <!-- DEV ONLY (shown with ?tweaks) — try header directions live -->
+  <aside class="tweaks" data-tweaks hidden aria-label="Header tweaks">
+    <div class="tweaks__head">
+      <p class="tweaks__title">Header · try a direction</p>
+      <button type="button" class="tweaks__x" data-tweaks-close aria-label="Close panel">×</button>
+    </div>
+    <div class="tweaks__seg" role="radiogroup" aria-label="Header layout">
+      <button type="button" class="tweaks__opt is-on" data-hv="current">Current</button>
+      <button type="button" class="tweaks__opt" data-hv="concierge">Concierge</button>
+      <button type="button" class="tweaks__opt" data-hv="gatehouse">Gatehouse</button>
+      <button type="button" class="tweaks__opt" data-hv="inkwash">Ink-wash</button>
+    </div>
+    <p class="tweaks__note" data-tweaks-note>The centred wordmark — links left, clock + Book right (today).</p>
+    <label class="tweaks__check"><input type="checkbox" data-hv-clock checked> Living senja clock</label>
+  </aside>
+  <button type="button" class="tweaks__tab" data-tweaks-tab hidden aria-label="Open header tweaks">⚙ tweaks</button>
+
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/split-type@0.3.4/umd/index.min.js"></script>
-  <script src="main.js?v=45"></script>
+  <script src="main.js?v=46"></script>
 </body>
 </html>

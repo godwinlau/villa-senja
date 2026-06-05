@@ -89,6 +89,11 @@
       }
       const pad = (n) => String(n).padStart(2, "0");
       clockEls.forEach((el) => (el.textContent = pad(h) + ":" + pad(m)));
+      // living senja clock — colour the header dot by time of day, show the word at dusk
+      let tod = "day";
+      if (h < 6) tod = "night"; else if (h < 9) tod = "dawn"; else if (h >= 17 && h < 19) tod = "senja"; else if (h >= 19) tod = "night";
+      document.querySelectorAll(".nav__meta").forEach((mEl) => mEl.setAttribute("data-tod", tod));
+      document.querySelectorAll("[data-clock-word]").forEach((wEl) => (wEl.textContent = tod === "senja" ? "· senja" : ""));
       if (stops.length) {
         const nowMin = h * 60 + m;
         const firstMin = +stops[0].dataset.min;
@@ -620,6 +625,38 @@
       .add(() => { loaderEl.style.display = "none"; }, "open+=1.6");
   }
   initLoader(playHeroIntro);
+
+  /* DEV: header tweaks panel — flip header directions live (visit ?tweaks) */
+  (function initTweaks() {
+    if (!/[?&]tweaks/i.test(location.search)) return;
+    const panel = document.querySelector("[data-tweaks]");
+    const tab = document.querySelector("[data-tweaks-tab]");
+    if (!panel || !tab) return;
+    const opts = panel.querySelectorAll("[data-hv]");
+    const noteEl = panel.querySelector("[data-tweaks-note]");
+    const notes = {
+      current: "The centred wordmark — links left, clock + Book right (today).",
+      concierge: "Wordmark left; links + living clock + Book right; no underline hover.",
+      gatehouse: "Near-empty bar — wordmark + Book + “Menu” (opens the full-screen index).",
+      inkwash: "Today’s layout, but blend-mode legibility over the video + an ink underline.",
+    };
+    const apply = (hv) => {
+      if (hv === "current") document.documentElement.removeAttribute("data-hv");
+      else document.documentElement.setAttribute("data-hv", hv);
+      opts.forEach((o) => o.classList.toggle("is-on", o.dataset.hv === hv));
+      if (noteEl) noteEl.textContent = notes[hv] || "";
+      try { localStorage.setItem("vs_hv", hv); } catch (e) {}
+    };
+    opts.forEach((o) => o.addEventListener("click", () => apply(o.dataset.hv)));
+    const clk = panel.querySelector("[data-hv-clock]");
+    if (clk) clk.addEventListener("change", () => document.documentElement.classList.toggle("hv-clock-off", !clk.checked));
+    const closeBtn = panel.querySelector("[data-tweaks-close]");
+    if (closeBtn) closeBtn.addEventListener("click", () => { panel.hidden = true; tab.hidden = false; });
+    tab.addEventListener("click", () => { panel.hidden = false; tab.hidden = true; });
+    let saved = "current"; try { saved = localStorage.getItem("vs_hv") || "current"; } catch (e) {}
+    apply(saved);
+    panel.hidden = false; tab.hidden = true;   // start open so it's discoverable
+  })();
 
   /* slow push-in on the photo backgrounds as they scroll */
   gsap.utils.toArray(".hero__photo, .cta__photo, .suite__bg").forEach((photo) => {

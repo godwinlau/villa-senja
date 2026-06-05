@@ -1194,6 +1194,60 @@ html.nav-open, html.nav-open body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .loader { display: none !important; } }
 .loader { animation: loaderSafety 0.6s ease 4.8s forwards; }   /* fail-safe: lift if JS never hides it (after the ~3.7s sequence) */
 @keyframes loaderSafety { to { opacity: 0; visibility: hidden; } }
+
+/* ============================================================
+   HEADER DIRECTION VARIANTS (driven by the dev tweaks panel, ?tweaks)
+   ============================================================ */
+/* CONCIERGE — wordmark left, links + living clock + Book pushed right; no underline cliché; clock always shown */
+html[data-hv="concierge"] .nav { display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.4rem); }
+html[data-hv="concierge"] .wordmark { order: -1; margin-right: auto; text-align: left; }
+html[data-hv="concierge"] .nav__link::after { display: none; }
+html[data-hv="concierge"] .nav__link:hover { color: var(--ochre); }
+html[data-hv="concierge"] .nav__meta { display: inline-flex !important; }
+/* GATEHOUSE — near-empty bar: wordmark left, clock + Book + a "Menu" word right; links hidden, Menu opens the full overlay */
+html[data-hv="gatehouse"] .nav { display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.4rem); }
+html[data-hv="gatehouse"] .wordmark { order: -1; margin-right: auto; text-align: left; }
+html[data-hv="gatehouse"] .nav__links--left { display: none; }
+html[data-hv="gatehouse"] .nav__meta { display: inline-flex !important; }
+html[data-hv="gatehouse"] .nav__toggle { display: inline-flex; align-items: center; width: auto; height: auto; border: none; background: none; padding: 0.3rem 0; }
+html[data-hv="gatehouse"] .nav__toggle i { display: none; }
+html[data-hv="gatehouse"] .nav__toggle::after { content: "Menu"; font-family: "Hanken Grotesk", sans-serif; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; color: currentColor; }
+/* INK-WASH — today's layout, but blend-mode legibility over the hero video + an ochre ink underline */
+html[data-hv="inkwash"] .header:not(.is-scrolled) .nav { mix-blend-mode: difference; isolation: isolate; }
+html[data-hv="inkwash"] .nav__link::after { background: var(--ochre); height: 2px; }
+
+/* living senja clock — the dot warms by time of day; the word shows at dusk */
+.nav__meta-dot { transition: background 0.6s var(--ease), box-shadow 0.6s var(--ease); }
+.nav__meta[data-tod="dawn"] .nav__meta-dot { background: #f4d9a6; }
+.nav__meta[data-tod="day"] .nav__meta-dot { background: var(--ochre); }
+.nav__meta[data-tod="senja"] .nav__meta-dot { background: var(--ember); box-shadow: 0 0 9px color-mix(in srgb, var(--ember) 75%, transparent); }
+.nav__meta[data-tod="night"] .nav__meta-dot { background: color-mix(in srgb, var(--cream) 48%, transparent); }
+.nav__meta-word { color: var(--ochre); margin-left: 0.15em; font-style: normal; }
+html.hv-clock-off .nav__meta-word { display: none; }
+html.hv-clock-off .nav__meta-dot { background: var(--ochre) !important; box-shadow: none !important; }
+
+/* ── DEV tweaks panel (only shown with ?tweaks) ── */
+.tweaks { position: fixed; right: 1rem; bottom: 1rem; z-index: 11000; width: 16.5rem; padding: 0.9rem 1.05rem 1.1rem;
+  background: rgba(20,10,4,0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--cream);
+  border: 1px solid color-mix(in srgb, var(--ochre) 38%, transparent); border-radius: 13px; box-shadow: 0 24px 60px -22px rgba(0,0,0,0.7);
+  font-family: "Hanken Grotesk", sans-serif; }
+.tweaks[hidden], .tweaks__tab[hidden] { display: none; }
+.tweaks__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+.tweaks__title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ochre); }
+.tweaks__x { background: none; border: none; color: color-mix(in srgb, var(--cream) 70%, transparent); font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0 0.2rem; }
+.tweaks__x:hover { color: var(--cream); }
+.tweaks__seg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+.tweaks__opt { padding: 0.55rem 0.4rem; font-size: 0.74rem; font-weight: 600; color: color-mix(in srgb, var(--cream) 76%, transparent);
+  background: color-mix(in srgb, var(--cream) 8%, transparent); border: 1px solid transparent; border-radius: 8px; cursor: pointer; transition: background 0.25s, color 0.25s; }
+.tweaks__opt:hover { background: color-mix(in srgb, var(--cream) 15%, transparent); color: var(--cream); }
+.tweaks__opt.is-on { background: var(--ochre); color: var(--espresso); border-color: var(--ochre); }
+.tweaks__note { font-size: 0.72rem; line-height: 1.45; color: color-mix(in srgb, var(--cream) 70%, transparent); margin-top: 0.8rem; }
+.tweaks__check { display: flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; margin-top: 0.85rem; color: color-mix(in srgb, var(--cream) 82%, transparent); cursor: pointer; }
+.tweaks__check input { accent-color: var(--ochre); }
+.tweaks__tab { position: fixed; right: 1rem; bottom: 1rem; z-index: 11000; padding: 0.55rem 0.9rem; font-size: 0.72rem; font-weight: 600;
+  background: rgba(20,10,4,0.92); color: var(--ochre); border: 1px solid color-mix(in srgb, var(--ochre) 45%, transparent);
+  border-radius: 100em; cursor: pointer; font-family: "Hanken Grotesk", sans-serif; box-shadow: 0 10px 30px -12px rgba(0,0,0,0.6); }
+.tweaks__tab:hover { background: rgba(30,15,7,0.96); }
 .included__rule { max-width: 8rem; margin: clamp(1.4rem, 2.6vw, 2.2rem) auto 0; }
 .incl-tags { margin-top: clamp(2.2rem, 4.5vw, 3.2rem); }
 .incl-tags li { display: inline-flex; align-items: center; gap: 0.55em; }
