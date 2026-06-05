@@ -282,9 +282,10 @@ h1, h2, h3, h4 {
 .hero__title {
   font-size: var(--fs-hero);
   color: var(--cream);
-  line-height: 0.86;
-  letter-spacing: -0.03em;
-  text-transform: none;   /* mixed-case serif — override the global ALL-CAPS h1 */
+  line-height: 0.82;
+  letter-spacing: -0.035em;
+  /* UPPERCASE inherited from the global h1–h4 rule — matches every heading on the site;
+     emphasis stays colour-only ("SLOWLY" ochre), the house convention (Salmond has no italic) */
   text-shadow: 0 0.04em 0.6em rgba(18, 10, 4, 0.3);
 }
 .hero__title .line { display: block; overflow: hidden; padding-bottom: 0.06em; }   /* clip box for the masked line rise */
