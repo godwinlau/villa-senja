@@ -637,7 +637,7 @@
     const tab = document.querySelector("[data-tweaks-tab]");
     if (!panel || !tab) return;
     const root = document.documentElement;
-    [{ attr: "data-hv", key: "hv" }, { attr: "data-hero", key: "hero" }].forEach((g) => {
+    [{ attr: "data-hv", key: "hv" }, { attr: "data-hero", key: "hero" }, { attr: "data-mark", key: "mark" }].forEach((g) => {
       const opts = panel.querySelectorAll(`[data-${g.key}]`);
       if (!opts.length) return;
       const apply = (val) => {

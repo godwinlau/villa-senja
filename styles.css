@@ -234,9 +234,28 @@ h1, h2, h3, h4 {
   white-space: nowrap;
   text-transform: lowercase;
 }
-.wordmark__mark { height: 1.15em; width: auto; flex: none; display: block; }
-.wordmark__mark .wm-sun { fill: var(--ochre); }
+.wordmark__mark { display: inline-flex; align-items: center; flex: none; }
+.wordmark__mark .wm-v { display: none; height: 1.2em; width: auto; }
+.wordmark__mark .wm-v--sun { display: block; }   /* default mark */
+.wordmark__mark .wm-acc { fill: var(--ochre); }
 .wordmark__mark .wm-rays line { stroke: var(--ochre); stroke-width: 1.8; stroke-linecap: round; }
+.wm-v--vs { font-family: "Salmond", serif; font-weight: 700; font-size: 1.35em; line-height: 1; align-items: center; }
+.wm-v--vs em { color: var(--ochre); font-style: normal; margin-left: -0.12em; }
+.wm-v--frangi, .wm-v--gate, .wm-v--boldsun, .wm-v--patra { height: 1.5em; }
+/* mark variant switch (panel data-mark) */
+html[data-mark] .wordmark__mark .wm-v { display: none; }
+html[data-mark="vs"] .wordmark__mark .wm-v--vs { display: inline-flex; }
+html[data-mark="frangipani"] .wordmark__mark .wm-v--frangi { display: block; }
+html[data-mark="gate"] .wordmark__mark .wm-v--gate { display: block; }
+html[data-mark="boldsun"] .wordmark__mark .wm-v--boldsun { display: block; }
+html[data-mark="patra"] .wordmark__mark .wm-v--patra { display: block; }
+/* type lockup (no icon) — replaces the mark + inline text */
+.wordmark__lockup { display: none; flex-direction: column; align-items: center; line-height: 0.82; text-transform: uppercase; }
+.wordmark__lockup span { font-size: 0.72em; letter-spacing: 0.04em; }
+.wordmark__lockup span:last-child { color: var(--clay); }
+.wordmark__lockup i { width: 1.7em; height: 1.5px; background: var(--ochre); margin: 0.16em 0; }
+html[data-mark="lockup"] .wordmark__mark, html[data-mark="lockup"] .wordmark__txt { display: none; }
+html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
 .wordmark em { color: var(--clay); font-style: normal; }
 
 /* header inverted over dark sections (HT's blend trick, done with classes) */
