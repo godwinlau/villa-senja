@@ -796,6 +796,22 @@
      v2 — SECTION EFFECTS (Made With GSAP picks, applied per section)
      ============================================================ */
 
+  /* §2 Lead — 004 word-slide: the statement assembles word-by-word from the right
+     (per-line stagger, scrubbed to the section entering; no heavy pin). */
+  (function leadWordReveal() {
+    const para = document.querySelector(".lead__p[data-words]");
+    if (!para || !hasGSAP) return;
+    para.innerHTML = para.textContent.split(" ").map((w) => '<span class="word">' + w + "</span>").join(" ");
+    const words = gsap.utils.toArray(para.querySelectorAll(".word"));
+    gsap.set(words, { x: () => para.clientWidth });   // off the paragraph's right edge (clipped by overflow:hidden)
+    const lines = [[]]; let li = 0;
+    words.forEach((w, i) => { if (i > 0 && w.offsetTop !== words[i - 1].offsetTop) { lines.push([]); li++; } lines[li].push(w); });
+    lines.forEach((lineWords) => {
+      gsap.to(lineWords, { x: 0, stagger: 0.12, ease: "power1.inOut",
+        scrollTrigger: { trigger: ".lead", start: "top 78%", end: "top 28%", scrub: true, invalidateOnRefresh: true } });
+    });
+  })();
+
   /* Experiences → 068 "postcard deck": the cards deal in with an alternating tilt +
      rise as the rail enters (on top of the existing drag-to-browse). */
   (function expPostcards() {

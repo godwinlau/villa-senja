@@ -50,6 +50,11 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 .v-cursor__label { font: 600 0.58rem "Hanken Grotesk", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teak); opacity: 0; transition: opacity .25s; }
 .v-cursor.is-label .v-cursor__label { opacity: 1; }
 
+/* ---- §2 lead — 004 word-slide reveal on the statement + a quiet story line ---- */
+.lead__p[data-words] { overflow: hidden; }
+.lead__p .word { display: inline-block; will-change: transform; }
+.lead__story { margin-top: clamp(0.9rem, 1.8vw, 1.5rem); font-family: "Salmond", Georgia, serif; font-size: clamp(1.05rem, 1.5vw, 1.45rem); line-height: 1.3; color: var(--clay); max-width: 44ch; }
+
 /* ---- 024 · velocity-skew marquee ------------------------------------------
    Skew the groups (not the track, which CSS translates) so the ticker shears
    with scroll speed without fighting its scroll animation. */
