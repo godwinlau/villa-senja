@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Villa Senja — hero explorations (from real MWG effects)</title>
+  <title>Villa Senja — hero explorations (real MWG css + js)</title>
   <link rel="stylesheet" href="styles.css?v=100" />
   <style>
-    body { margin: 0; background: var(--espresso); font-family: "Hanken Grotesk", sans-serif; cursor: default; }
+    body { margin: 0; background: var(--espresso); font-family: "Hanken Grotesk", sans-serif; }
     .hx-switch { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.7rem; background: rgba(20,10,4,0.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
     .hx-switch button { font: 600 0.64rem "Hanken Grotesk", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); background: transparent; border: 1px solid color-mix(in srgb, var(--cream) 22%, transparent); border-radius: 100em; padding: 0.45em 0.85em; cursor: pointer; }
     .hx-switch button.on { color: var(--teak); background: var(--ochre); border-color: var(--ochre); }
@@ -21,35 +21,37 @@
     .hx__cue { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); z-index: 5; color: color-mix(in srgb, var(--cream) 55%, transparent); }
     .hx__senja { margin: 0; font-family: "Salmond", Georgia, serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.82; font-size: clamp(96px, 25vw, 480px); color: var(--cream); position: relative; z-index: 2; }
 
-    /* 1 · 046 — letters rise from clip masks (shuffled) */
-    .hx--1 .hx__senja { display: flex; justify-content: center; }
-    .hx--1 .l { display: inline-block; overflow: hidden; }
-    .hx--1 .l > span { display: inline-block; }
+    /* 1 · 046 (real): .letter clip-path polygon, inner span rises y:110% — letters wipe up from clip masks */
+    .hx--1 .sentence { display: flex; justify-content: center; }
+    .hx--1 .sentence span { display: inline-block; }
+    .hx--1 .letter { clip-path: polygon(-5% 5%, -5% 114%, 105% 114%, 105% 5%); }
 
-    /* 2 · 049 — scatter → converge */
-    .hx--2 .hx__senja { display: flex; justify-content: center; }
-    .hx--2 .letter { display: inline-block; }
+    /* 2 · 049 (real): .title span inline-block, each from a random y → converge */
+    .hx--2 .title { display: flex; justify-content: center; }
+    .hx--2 .title span { display: inline-block; will-change: transform; }
 
-    /* 3 · 002 — villa-photo card trails the cursor, cycling, over SENJA */
-    .hx--3 .card { position: absolute; top: 50%; left: 50%; width: clamp(150px, 16vw, 260px); aspect-ratio: 0.8; border-radius: 12px; overflow: hidden; transform: translate(-50%,-50%); z-index: 4; pointer-events: none; box-shadow: 0 40px 90px -40px rgba(0,0,0,0.6); }
+    /* 3 · 002 (real): a photo card trails the cursor, inner medias counter-parallax, cycling */
+    .hx--3 .card { position: absolute; top: 50%; left: 50%; width: clamp(150px, 18vw, 280px); aspect-ratio: 0.8; border-radius: 12px; overflow: hidden; transform: translate(-50%,-50%); z-index: 4; pointer-events: none; box-shadow: 0 40px 90px -40px rgba(0,0,0,0.6); }
     .hx--3 .medias { width: 100%; height: 100%; transform: scale(1.2); }
     .hx--3 .media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; visibility: hidden; }
     .hx--3 .media.on { visibility: visible; }
 
-    /* 4 · 093 — hovering the letters flashes villa photos into them */
-    .hx--4 .hx__senja { display: flex; justify-content: center; }
-    .hx--4 .letter { display: inline-block; position: relative; }
-    .hx--4 .created-media { position: absolute; top: 50%; left: 50%; width: 9.5vw; aspect-ratio: 1.4; object-fit: cover; border-radius: 8px; pointer-events: none; z-index: 3; }
-    .hx--4 .medias { display: none; }
+    /* 4 · 093 (real): hover a letter → photo drops in, letter goes transparent, neighbours shove */
+    .hx--4 .word { display: flex; justify-content: center; }
+    .hx--4 .letter { position: relative; }
+    .hx--4 .letter:has(.created-media) { color: transparent; }
+    .hx--4 .medias { position: absolute; top: 0; left: 0; pointer-events: none; }
+    .hx--4 .media { width: 1px; height: 1px; visibility: hidden; position: absolute; }
+    .hx--4 .created-media { position: absolute; width: 9vw; height: auto; top: 50%; left: 50%; border-radius: 1vw; }
 
-    /* 5 · 044 — cursor spotlight reveals the dusk valley through SENJA */
-    .hx--5 { --xpercent: 50; --ypercent: 50; }
+    /* 5 · 044 (real): a base + a masked duplicate; radial spotlight at --xpercent/--ypercent reveals the lit layer */
     .hx--5 .layer { position: absolute; inset: 0; display: grid; place-items: center; }
-    .hx--5 .layer--lit { background: linear-gradient(180deg, color-mix(in srgb,var(--espresso) 30%, transparent), transparent), url("images/valley.jpg"); background-size: cover; background-position: center;
-      -webkit-mask: radial-gradient(circle at calc(var(--xpercent) * 1%) calc(var(--ypercent) * 1%), #000 0%, #000 16%, transparent 24%);
-              mask: radial-gradient(circle at calc(var(--xpercent) * 1%) calc(var(--ypercent) * 1%), #000 0%, #000 16%, transparent 24%); }
-    .hx--5 .layer--lit .hx__senja { color: var(--cream); }
-    .hx--5 .layer--base .hx__senja { color: color-mix(in srgb, var(--cream) 26%, var(--clay)); }
+    .hx--5 .layer--base .hx__senja { color: color-mix(in srgb, var(--cream) 24%, var(--clay)); }
+    .hx--5 .duplicate { --xpercent: 50%; --ypercent: 50%;
+      -webkit-mask-image: radial-gradient(circle at var(--xpercent) var(--ypercent), #000 20%, transparent 25%);
+              mask-image: radial-gradient(circle at var(--xpercent) var(--ypercent), #000 20%, transparent 25%);
+      background: linear-gradient(180deg, color-mix(in srgb,var(--espresso) 20%, transparent), transparent 40%), url("images/valley.jpg"); background-size: cover; background-position: center; }
+    .hx--5 .duplicate .hx__senja { color: var(--cream); }
   </style>
 </head>
 <body data-h="1">
@@ -62,10 +64,10 @@
   </nav>
 
   <!-- 1 · 046 -->
-  <section class="hx hx--1"><h1 class="hx__senja" aria-label="Senja"><span class="l"><span>S</span></span><span class="l"><span>E</span></span><span class="l"><span>N</span></span><span class="l"><span>J</span></span><span class="l"><span>A</span></span></h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+  <section class="hx hx--1"><h1 class="hx__senja sentence" aria-label="Senja"><span class="letter"><span>S</span></span><span class="letter"><span>E</span></span><span class="letter"><span>N</span></span><span class="letter"><span>J</span></span><span class="letter"><span>A</span></span></h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
 
   <!-- 2 · 049 -->
-  <section class="hx hx--2"><h1 class="hx__senja" aria-label="Senja"><span class="letter">S</span><span class="letter">E</span><span class="letter">N</span><span class="letter">J</span><span class="letter">A</span></h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+  <section class="hx hx--2"><h1 class="hx__senja title" aria-label="Senja"><span class="letter">S</span><span class="letter">E</span><span class="letter">N</span><span class="letter">J</span><span class="letter">A</span></h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
 
   <!-- 3 · 002 -->
   <section class="hx hx--3">
@@ -78,15 +80,15 @@
 
   <!-- 4 · 093 -->
   <section class="hx hx--4">
-    <h1 class="hx__senja" aria-label="Senja"><span class="letter">S</span><span class="letter">E</span><span class="letter">N</span><span class="letter">J</span><span class="letter">A</span></h1>
-    <div class="medias"><img src="images/valley.jpg" alt=""><img src="images/pavilion.jpg" alt=""><img src="images/pool.jpg" alt=""><img src="images/suite.jpg" alt=""><img src="images/terrace.jpg" alt=""></div>
+    <h1 class="hx__senja word" aria-label="Senja"><span class="letter">S</span><span class="letter">E</span><span class="letter">N</span><span class="letter">J</span><span class="letter">A</span></h1>
+    <div class="medias" aria-hidden="true"><img class="media" src="images/valley.jpg" alt=""><img class="media" src="images/pavilion.jpg" alt=""><img class="media" src="images/pool.jpg" alt=""><img class="media" src="images/suite.jpg" alt=""><img class="media" src="images/terrace.jpg" alt=""></div>
     <p class="hx__gloss">hover the letters · the warm Balinese dusk</p><div class="hx__cue">↓</div>
   </section>
 
   <!-- 5 · 044 -->
   <section class="hx hx--5">
     <div class="layer layer--base"><h1 class="hx__senja">Senja</h1></div>
-    <div class="layer layer--lit"><h1 class="hx__senja">Senja</h1></div>
+    <div class="layer duplicate" aria-hidden="true"><h1 class="hx__senja">Senja</h1></div>
     <p class="hx__gloss">move the cursor · light the dusk</p><div class="hx__cue">↓</div>
   </section>
 
@@ -94,31 +96,29 @@
   <script>
     const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-    /* 1 · 046 — shuffled letters rise from their clip masks (load reveal) */
+    /* 1 · 046 — inner spans rise y:110% from the clip-path letters, shuffled (real mechanic, load) */
     function play046() {
-      const spans = shuffle(gsap.utils.toArray(".hx--1 .l > span"));
-      gsap.fromTo(spans, { yPercent: 115 }, { yPercent: 0, duration: 0.85, ease: "power4.inOut", stagger: 0.08 });
+      const inner = shuffle(gsap.utils.toArray(".hx--1 .letter span"));
+      gsap.fromTo(inner, { y: "110%" }, { y: "0%", duration: 0.85, ease: "power4.inOut", stagger: 0.08 });
     }
-    /* 2 · 049 — letters scatter from random offsets, converge into the word (load reveal) */
+    /* 2 · 049 — each letter from a random downward offset → converge (real mechanic, load) */
     function play049() {
-      gsap.fromTo(".hx--2 .letter", { y: () => gsap.utils.random(-220, 220), opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.1, ease: "power3.out", stagger: { each: 0.05, from: "random" } });
+      gsap.fromTo(".hx--2 .title span", { y: () => gsap.utils.random(80, 420) }, { y: 0, duration: 1.1, ease: "power3.out", stagger: { each: 0.05, from: "random" } });
     }
 
-    /* 3 · 002 — villa-photo card trails the cursor + cycles shots (verbatim mechanic) */
+    /* 3 · 002 — verbatim: card trails cursor (quickTo), inner medias counter-parallax, cycle on incr>300 */
     (function trailingCard() {
       const card = document.querySelector(".hx--3 .card"), medias = document.querySelector(".hx--3 .medias");
       if (!card) return;
-      const mEls = medias.querySelectorAll(".media"); const n = mEls.length;
+      const mEls = medias.querySelectorAll(".media"), n = mEls.length;
       const xTo = gsap.quickTo(card, "x", { duration: 1, ease: "power4" }), yTo = gsap.quickTo(card, "y", { duration: 1, ease: "power4" }), rTo = gsap.quickTo(card, "rotation", { duration: 1, ease: "power4" });
       const xM = gsap.quickTo(medias, "xPercent", { duration: 0.6, ease: "power2" }), yM = gsap.quickTo(medias, "yPercent", { duration: 0.7, ease: "power2" });
-      const W = () => innerWidth, H = () => innerHeight;
       mEls[0].classList.add("on");
       let ox = 0, oy = 0, incr = 0, idx = 0, moving;
       addEventListener("mousemove", (e) => {
         if (document.body.dataset.h !== "3") return;
         const vx = (e.clientX - ox) / 2, vy = (e.clientY - oy) / 2;
-        rTo((e.clientX - ox) / 4); xTo(e.clientX - W() / 2); yTo(e.clientY - H() / 2);
+        rTo((e.clientX - ox) / 4); xTo(e.clientX - innerWidth / 2); yTo(e.clientY - innerHeight / 2);
         xM(-gsap.utils.clamp(-8, 8, vx)); yM(-gsap.utils.clamp(-8, 8, vy));
         ox = e.clientX; oy = e.clientY; incr += Math.abs(vx) + Math.abs(vy);
         if (incr > 300) { incr = 0; document.querySelector(".hx--3 .media.on").classList.remove("on"); mEls[idx % n].classList.add("on"); idx++; }
@@ -126,16 +126,16 @@
       });
     })();
 
-    /* 4 · 093 — hover a letter → a villa photo drops in, neighbours shove aside (verbatim) */
+    /* 4 · 093 — verbatim: hover a letter → villa photo drops in, neighbours shove (back.out) */
     (function photosInLetters() {
       const root = document.querySelector(".hx--4"); if (!root) return;
-      const srcs = Array.from(root.querySelectorAll(".medias img"), (el) => el.src); let mi = 0;
-      const letters = [...root.querySelectorAll(".letter")];
+      const srcs = Array.from(root.querySelectorAll(".medias .media"), (el) => el.src); let mi = 0;
+      const letters = [...root.querySelectorAll(".word .letter")];
       const overflows = new Array(letters.length).fill(0);
-      const mediaWidth = () => 0.095 * innerWidth;
+      const mediaWidth = () => 0.09 * innerWidth;
       const apply = () => { let sl = 0; const t = overflows.map((ov, i) => { const sr = overflows.slice(i + 1).reduce((a, v) => a + v, 0); const x = sl - sr; sl += ov; return x; }); gsap.to(letters, { x: (i) => t[i], duration: 0.3, ease: "back.out(3)", overwrite: "auto" }); };
       letters.forEach((letter) => letter.addEventListener("mouseenter", () => {
-        if (letter.children.length) return;
+        if (letter.querySelector(".created-media")) return;
         const img = document.createElement("img"); img.src = srcs[mi]; img.className = "created-media"; letter.appendChild(img);
         gsap.set(img, { yPercent: -50, xPercent: -50 }); gsap.from(img, { rotation: (Math.random() - 0.5) * 20, scale: 1.05, duration: 0.3, ease: "back.out(2)" });
         mi = (mi + 1) % srcs.length;
@@ -145,14 +145,17 @@
       }));
     })();
 
-    /* 5 · 044 — cursor spotlight reveals the lit-dusk layer through a radial mask (verbatim) */
+    /* 5 · 044 — verbatim: quickTo the --xpercent/--ypercent (% unit preserved) → radial spotlight reveals the lit layer */
     (function spotlight() {
-      const el = document.querySelector(".hx--5"); if (!el) return;
-      const xTo = gsap.quickTo(el, "--xpercent", { duration: 0.4, ease: "back" }), yTo = gsap.quickTo(el, "--ypercent", { duration: 0.4, ease: "back" });
-      el.addEventListener("mousemove", (e) => { xTo(gsap.utils.mapRange(0, innerWidth, 0, 100, e.clientX)); const b = el.getBoundingClientRect(); yTo(gsap.utils.mapRange(b.top, b.top + b.height, 0, 100, e.clientY)); });
+      const dup = document.querySelector(".hx--5 .duplicate"); if (!dup) return;
+      const xTo = gsap.quickTo(dup, "--xpercent", { duration: 0.4, ease: "back" }), yTo = gsap.quickTo(dup, "--ypercent", { duration: 0.4, ease: "back" });
+      const host = document.querySelector(".hx--5");
+      host.addEventListener("mousemove", (e) => {
+        xTo(gsap.utils.mapRange(0, innerWidth, 0, 100, e.clientX));
+        const b = host.getBoundingClientRect(); yTo(gsap.utils.mapRange(b.top, b.top + b.height, 0, 100, e.clientY));
+      });
     })();
 
-    /* switcher */
     document.querySelectorAll(".hx-switch button").forEach((btn) => btn.addEventListener("click", () => {
       const n = btn.dataset.h; document.body.dataset.h = n;
       document.querySelectorAll(".hx-switch button").forEach((b) => b.classList.toggle("on", b === btn));
