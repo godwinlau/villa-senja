@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — 5 hero explorations</title>
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--espresso); font-family: "Hanken Grotesk", sans-serif; }
+    /* switcher */
+    .hx-switch { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; gap: 0.4rem; padding: 0.5rem 0.7rem; background: rgba(20,10,4,0.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+    .hx-switch button { font: 600 0.66rem "Hanken Grotesk", sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); background: transparent; border: 1px solid color-mix(in srgb, var(--cream) 22%, transparent); border-radius: 100em; padding: 0.45em 0.9em; cursor: pointer; }
+    .hx-switch button.on { color: var(--teak); background: var(--ochre); border-color: var(--ochre); }
+
+    /* shared hero shell */
+    .hx { display: none; position: relative; height: 100vh; overflow: hidden; place-items: center; text-align: center; }
+    body[data-h="1"] .hx--1, body[data-h="2"] .hx--2, body[data-h="3"] .hx--3,
+    body[data-h="4"] .hx--4, body[data-h="5"] .hx--5 { display: grid; }
+    /* film grain over every hero (HT recipe) */
+    .hx::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.4; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    .hx__gloss { position: absolute; bottom: 14%; left: 50%; transform: translateX(-50%); z-index: 5; font: 600 0.72rem "Hanken Grotesk", sans-serif; letter-spacing: 0.24em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 74%, transparent); }
+    .hx__cue { position: absolute; bottom: 6.5%; left: 50%; transform: translateX(-50%); z-index: 5; color: color-mix(in srgb, var(--cream) 55%, transparent); }
+    .hx__senja { margin: 0; font-family: "Salmond", Georgia, serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.82; font-size: clamp(96px, 25vw, 480px); }
+
+    /* ── 1 · WINDOW: terraces only inside the letters, on textured terracotta ── */
+    .hx--1 { background: radial-gradient(130% 100% at 50% 90%, color-mix(in srgb, var(--ochre) 16%, var(--clay)), var(--clay) 55%, color-mix(in srgb, var(--teak) 28%, var(--clay))); }
+    .hx--1 .hx__senja { background-image: linear-gradient(180deg, color-mix(in srgb, var(--ember) 26%, transparent), color-mix(in srgb, var(--teak) 40%, transparent)), url("images/valley.jpg");
+      background-size: 130% auto; background-position: 50% 42%; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+      filter: sepia(0.22) saturate(1.3) hue-rotate(-12deg) brightness(1.05); }
+
+    /* ── 2 · DUSK COLOR-FIELD: abstract sunset, no photo ── */
+    .hx--2 { background:
+      radial-gradient(90% 70% at 50% 118%, var(--ochre) 0%, var(--ember) 26%, transparent 60%),
+      linear-gradient(180deg, color-mix(in srgb, var(--teak) 70%, var(--espresso)) 0%, var(--clay) 60%, color-mix(in srgb, var(--ember) 70%, var(--clay)) 100%); }
+    .hx--2 .hx__sun { position: absolute; bottom: -22vh; left: 50%; transform: translateX(-50%); width: 80vh; height: 80vh; border-radius: 50%; z-index: 1;
+      background: radial-gradient(circle, color-mix(in srgb, var(--ochre) 92%, white) 0%, var(--ochre) 40%, transparent 70%); }
+    .hx--2 .hx__senja { position: relative; z-index: 3; color: var(--cream); -webkit-text-fill-color: var(--cream); }
+
+    /* ── 3 · KINETIC: SENJA 3D-flips in (MWG 102 rotateX/rotateZ) ── */
+    .hx--3 { background: radial-gradient(120% 95% at 50% 12%, color-mix(in srgb, var(--clay) 80%, var(--espresso)), var(--espresso) 70%); perspective: 1400px; }
+    .hx--3 .hx__senja { display: flex; justify-content: center; transform-style: preserve-3d; color: var(--cream); -webkit-text-fill-color: var(--cream); }
+    .hx--3 .hx__senja .l { display: inline-block; transform-origin: 50% 50% -0.2em; }
+
+    /* ── 4 · EDITORIAL LOCKUP: stacked VILLA/SENJA, asymmetric ── */
+    .hx--4 { background: var(--clay); place-items: stretch; }
+    .hx--4 .hx4 { position: relative; z-index: 3; width: 100%; height: 100%; padding: clamp(1.5rem, 5vw, 4rem); display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; }
+    .hx--4 .hx4__eyebrow { font: 600 0.78rem "Hanken Grotesk", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 72%, transparent); }
+    .hx--4 .hx4__clock { font-family: "Salmond", serif; font-weight: 700; font-size: 1.2rem; color: var(--ochre); }
+    .hx--4 .hx4__lockup { font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; line-height: 0.82; letter-spacing: -0.02em; color: var(--cream); font-size: clamp(80px, 17vw, 280px); text-align: left; }
+    .hx--4 .hx4__lockup em { display: block; color: var(--ochre); font-style: normal; }
+    .hx--4 .hx4__detail { position: absolute; right: clamp(1.5rem, 5vw, 4rem); bottom: clamp(1.5rem, 5vw, 4rem); width: clamp(120px, 16vw, 240px); aspect-ratio: 3/4; object-fit: cover; border-radius: 8px; }
+    .hx--4 .hx4__row { display: flex; justify-content: space-between; align-items: baseline; width: 100%; }
+
+    /* ── 5 · GATE → GRAPHIC: the gate aperture opens into the graphic window ── */
+    .hx--5 { background: var(--espresso); }
+    .hx--5 .hx5__reveal { position: absolute; inset: 0; z-index: 0; --ms: 14%;
+      background: radial-gradient(130% 100% at 50% 90%, color-mix(in srgb, var(--ochre) 18%, var(--clay)), var(--clay) 55%, color-mix(in srgb, var(--teak) 30%, var(--clay)));
+      -webkit-mask: url("gate-aperture.svg") center / var(--ms) no-repeat; mask: url("gate-aperture.svg") center / var(--ms) no-repeat; }
+    .hx--5 .hx__senja { position: relative; z-index: 3;
+      background-image: linear-gradient(180deg, color-mix(in srgb, var(--ember) 26%, transparent), color-mix(in srgb, var(--teak) 42%, transparent)), url("images/valley.jpg");
+      background-size: 130% auto; background-position: 50% 42%; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: sepia(0.2) saturate(1.25) hue-rotate(-12deg) brightness(1.04); }
+  </style>
+</head>
+<body data-h="1">
+  <nav class="hx-switch" aria-label="Hero explorations">
+    <button data-h="1" class="on">1 · Window</button>
+    <button data-h="2">2 · Dusk field</button>
+    <button data-h="3">3 · Kinetic</button>
+    <button data-h="4">4 · Editorial</button>
+    <button data-h="5">5 · Gate → graphic</button>
+  </nav>
+
+  <!-- 1 WINDOW -->
+  <section class="hx hx--1"><h1 class="hx__senja">Senja</h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+
+  <!-- 2 DUSK COLOR-FIELD -->
+  <section class="hx hx--2"><span class="hx__sun" aria-hidden="true"></span><h1 class="hx__senja">Senja</h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+
+  <!-- 3 KINETIC (102 flip) -->
+  <section class="hx hx--3"><h1 class="hx__senja" aria-label="Senja"><span class="l">S</span><span class="l">E</span><span class="l">N</span><span class="l">J</span><span class="l">A</span></h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+
+  <!-- 4 EDITORIAL LOCKUP -->
+  <section class="hx hx--4">
+    <div class="hx4">
+      <div class="hx4__row"><span class="hx4__eyebrow">A hidden villa · Ubud, Bali</span><span class="hx4__clock" data-clock>17:45 · senja</span></div>
+      <h1 class="hx4__lockup">Villa<em>Senja</em></h1>
+    </div>
+    <img class="hx4__detail" src="images/valley.jpg" alt="" />
+    <div class="hx__cue">↓</div>
+  </section>
+
+  <!-- 5 GATE → GRAPHIC -->
+  <section class="hx hx--5"><div class="hx5__reveal" aria-hidden="true"></div><h1 class="hx__senja">Senja</h1><p class="hx__gloss">the warm Balinese dusk · Ubud</p><div class="hx__cue">↓</div></section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    const intros = {
+      1: () => gsap.fromTo(".hx--1 .hx__senja", { opacity: 0, scale: 0.92, yPercent: 6 }, { opacity: 1, scale: 1, yPercent: 0, duration: 1.4, ease: "expo.out" }),
+      2: () => { gsap.fromTo(".hx--2 .hx__sun", { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.6, ease: "power3.out" }); gsap.fromTo(".hx--2 .hx__senja", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1.2, ease: "expo.out" }); },
+      3: () => gsap.fromTo(".hx--3 .hx__senja .l", { rotationX: -90, opacity: 0, z: -40 }, { rotationX: 0, opacity: 1, z: 0, duration: 1.0, ease: "expo.inOut", stagger: 0.09 }),   // MWG 102 mechanic
+      4: () => { gsap.fromTo(".hx--4 .hx4__lockup", { yPercent: 18, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.2, ease: "expo.out" }); gsap.fromTo([".hx--4 .hx4__row", ".hx--4 .hx4__detail"], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1, ease: "power2.out" }); },
+      5: () => { gsap.fromTo(".hx--5 .hx5__reveal", { "--ms": "14%" }, { "--ms": "1400%", duration: 1.9, ease: "power3.inOut" }); gsap.fromTo(".hx--5 .hx__senja", { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.7 }); },
+    };
+    const play = (n) => { (intros[n] || (() => {}))(); };
+    document.querySelectorAll(".hx-switch button").forEach((btn) => btn.addEventListener("click", () => {
+      const n = btn.dataset.h;
+      document.body.dataset.h = n;
+      document.querySelectorAll(".hx-switch button").forEach((b) => b.classList.toggle("on", b === btn));
+      play(n);
+    }));
+    play(1);
+  </script>
+</body>
+</html>
