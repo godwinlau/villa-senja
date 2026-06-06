@@ -591,95 +591,25 @@
      the loader, then rise in as the gate doors open) ---------- */
   function playHeroIntro() {
     gsap.timeline({ defaults: { ease: "expo.out" } })
-      // SENJA hero (default): the sun rises, the word resolves, gloss + CTA settle in
-      .fromTo(".hero__sun2", { opacity: 0, yPercent: 28 }, { opacity: 1, yPercent: 0, duration: 1.4, ease: "power2.out" }, 0.1)
-      .fromTo(".hero__senja", { opacity: 0, scale: 0.92, yPercent: 5 }, { opacity: 1, scale: 1, yPercent: 0, duration: 1.3 }, 0.28)
-      .fromTo(".hero__word-gloss", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9 }, 0.85)
+      // SENJA hero (default): the candi-bentar gate APERTURE grows to uncover the dusk valley
+      .fromTo(".hero__reveal", { "--ms": "14%" }, { "--ms": "1400%", duration: 2.0, ease: "power3.inOut" }, 0)
+      .from(".hero__valley", { scale: 1.16, duration: 2.4, ease: "power3.out" }, 0)
+      // SENJA letters rise from their per-letter clip masks as the gate opens
+      .from(".hero__senja .l > span", { yPercent: 118, duration: 1.0, stagger: 0.08 }, 0.7)
+      .fromTo([".hero__word-gloss", ".hero__btn"], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 1.7)
       // editorial alternate (only visible when that variant is toggled in ?tweaks)
       .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
       .fromTo(".hero__title .line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.14 }, 0.2)
       .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)
-      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74)
-      .fromTo(".hero__btn", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.85 }, 0.92);
+      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74);
   }
 
-  /* SENJA hero — 089 JELLY: every letter is a Matter.js body on a very soft spring
-     anchor, the letters chained together; scroll velocity yanks the anchors (ends
-     most, middle least) so the word swings on its springs and settles via physics.
-     Replaces the old scale-scrub. Letters go solid (see v2.css) since per-letter
-     transforms break the terrace bg-clip fill. The sun still sinks on scroll. */
-  (function initSenjaJelly() {
-    const w = document.querySelector(".hero__senja");
-    if (!w || !hasGSAP || typeof Matter === "undefined") return;
-    const str = w.textContent;
-    w.innerHTML = str.split("").map((c) => (c === " " ? '<span class="letter">&nbsp;</span>' : '<span class="letter">' + c + "</span>")).join("");
-    const spans = w.querySelectorAll(".letter");
-
-    // the sun still sinks on scroll (independent of the physics)
-    const sun = document.querySelector(".hero__sun2");
-    if (sun) gsap.to(sun, { yPercent: 38, opacity: 0.45, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-
-    function build() {
-      gsap.set(w, { clearProps: "transform" });   // measure the TRUE resting layout (drop any residual intro scale)
-      const { Engine, World, Bodies, Body, Constraint } = Matter;
-      const engine = Engine.create();
-      engine.world.gravity.y = 0;                  // hero at the top: rest clean & readable, only scroll moves the letters
-      const group = Body.nextGroup(true);
-      const scrollY = window.scrollY;
-      const mid = (spans.length - 1) / 2;
-      const letters = [];
-      spans.forEach((span, index) => {
-        const rect = span.getBoundingClientRect();
-        if (rect.width === 0) return;
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + scrollY + rect.height / 2;
-        const body = Bodies.rectangle(cx, cy, rect.width, rect.height, { frictionAir: 0.05, restitution: 0.3, density: 0.001, collisionFilter: { group } });
-        const constraint = Constraint.create({ pointA: { x: cx, y: cy }, bodyB: body, stiffness: 0.005, damping: 0.004, length: 0 });
-        const normDist = mid === 0 ? 0 : Math.abs(index - mid) / mid;
-        letters.push({ dom: span, body, constraint, initialX: cx, initialY: cy, weight: normDist, width: rect.width });
-        World.add(engine.world, [body, constraint]);
-      });
-      for (let i = 0; i < letters.length - 1; i++) {
-        const a = letters[i], bb = letters[i + 1];
-        // rest length = the ACTUAL gap between a's right edge and b's left edge, so the
-        // chain rests satisfied (letter-spacing won't get yanked shut → no jumble).
-        const restLen = Math.hypot((bb.initialX - bb.width / 2) - (a.initialX + a.width / 2), bb.initialY - a.initialY);
-        World.add(engine.world, Constraint.create({ bodyA: a.body, bodyB: bb.body, pointA: { x: a.width / 2, y: 0 }, pointB: { x: -bb.width / 2, y: 0 }, stiffness: 0.6, length: restLen }));
-      }
-      const tick = () => {
-        Engine.update(engine, 1000 / 60);
-        letters.forEach((l) => {
-          Body.setAngle(l.body, l.body.angle * 0.97);
-          Body.setAngularVelocity(l.body, l.body.angularVelocity * 0.95);
-          const dx = l.body.position.x - l.initialX;
-          const dy = l.body.position.y - l.initialY;
-          l.dom.style.transform = "translate(" + dx + "px, " + dy + "px) rotate(" + l.body.angle + "rad)";
-        });
-      };
-      let running = false;
-      const add = () => { if (!running) { gsap.ticker.add(tick); running = true; } };
-      const remove = () => { if (running) { gsap.ticker.remove(tick); running = false; } };
-      add();
-      ScrollTrigger.create({
-        trigger: ".hero", start: "top top", end: "bottom top",
-        onEnter: add, onEnterBack: add, onLeave: remove, onLeaveBack: remove,
-        onUpdate: (self) => { const v = self.getVelocity(); letters.forEach((l) => { l.constraint.pointA.y = l.initialY + v * 0.08 * l.weight; }); },
-      });
-      ScrollTrigger.refresh();
-    }
-
-    // Build ONLY after the loader is gone and the hero intro has settled, so the
-    // letters are measured at their final resting positions (otherwise they jumble).
-    let built = false;
-    const go = () => { if (built) return; built = true; build(); };
-    const fontsP = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-    fontsP.then(() => {
-      const poll = setInterval(() => {
-        const l = document.querySelector("[data-loader]");
-        if (!l || getComputedStyle(l).display === "none") { clearInterval(poll); setTimeout(go, 1000); }
-      }, 150);
-      setTimeout(() => { clearInterval(poll); go(); }, 6500);   // hard fallback
-    });
+  /* SENJA gate hero — scroll: ease the valley up + let the word recede ("fall through the gate").
+     (No Matter.js jelly: markup ships the .l clip-letters; the gate-aperture grow is the intro.) */
+  (function initSenjaScroll() {
+    if (!hasGSAP) return;
+    gsap.to(".hero__valley", { yPercent: -8, scale: 1.06, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+    gsap.to(".hero__senja", { scale: 1.08, yPercent: -6, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
   })();
 
   /* ---------- Loader: "through the gate, into senja" — two dusk-stone doors carry the
@@ -688,29 +618,12 @@
      continuous move from dusk-shadow into golden hour, no separate splash. ---------- */
   function initLoader(done) {
     if (!loaderEl) { done(); return; }
-    const lights = loaderEl.querySelectorAll(".loader__ghlight");
-    const wm     = loaderEl.querySelector(".loader__mark-line");
-    const dL     = loaderEl.querySelector(".loader__door--l");
-    const dR     = loaderEl.querySelector(".loader__door--r");
-
-    gsap.set(lights, { "--lit": "0%" });                              // gate halves start in shadow
-    gsap.set(wm, { yPercent: 120 });                                 // wordmark masked below its baseline
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__btn", ".hero__senja", ".hero__sun2", ".hero__word-gloss"], { opacity: 0 });   // hero waits behind the doors
-
+    loaderEl.classList.add("loader--cover");        // plain dusk cover (door sequence hidden via v2.css)
+    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__word-gloss", ".hero__btn"], { opacity: 0 });
     gsap.timeline()
-      // 1) first light climbs the carved gate — base first, finials last (left a beat ahead of right)
-      .to(lights, { "--lit": "100%", duration: 1.5, ease: "power2.inOut", stagger: 0.1 }, 0.2)
-      // 2) the wordmark rises at the gate's foot — masked, quiet
-      .to(wm, { yPercent: 0, duration: 0.9, ease: "power3.out" }, "-=0.8")
-      // a held breath before the gate opens
-      .addLabel("open", "+=0.4")
-      // 3) the gate OPENS — the two dusk-stone doors part on a heavy expo, uncovering the REAL valley
-      .to(".loader__center", { opacity: 0, duration: 0.5, ease: "power1.in" }, "open")
-      .to(dL, { xPercent: -100, duration: 1.4, ease: "expo.inOut" }, "open")
-      .to(dR, { xPercent: 100,  duration: 1.4, ease: "expo.inOut" }, "open+=0.08")   // right door lags ~80ms
-      // 4) hand off mid-open — the editorial lockup rises as the gap widens (uncovered, not popped)
-      .add(done, "open+=0.7")
-      .add(() => { loaderEl.style.display = "none"; }, "open+=1.6");
+      .add(done, 0.25)                                                            // start the gate-aperture grow
+      .to(loaderEl, { autoAlpha: 0, duration: 0.9, ease: "power2.inOut" }, 0.25)  // cover lifts as the gate opens
+      .add(() => { loaderEl.style.display = "none"; }, 1.3);
   }
   initLoader(playHeroIntro);
 

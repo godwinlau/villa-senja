@@ -4,18 +4,32 @@
    the base design system (tokens, type, components) is untouched.
    ============================================================ */
 
-/* ---- 089 · physics "jelly" hero -------------------------------------------
-   Each letter becomes a Matter.js body, so they need to be inline-block and
-   solid-filled — the terrace bg-clip fill can't survive per-letter transforms. */
-.hero__senja .letter {
-  display: inline-block;
-  will-change: transform;
-}
-html .hero__senja {                 /* solid cream so the swinging letters read */
-  -webkit-text-fill-color: var(--cream);
-  color: var(--cream);
-  background: none;
-  white-space: nowrap;              /* per-letter spans must not wrap to a second line */
+/* ---- HERO · GATE-APERTURE reveal -------------------------------------------
+   The candi-bentar gate opening (gate-aperture.svg as a mask) grows to uncover
+   the dusk valley; SENJA letters rise from per-letter clip masks over it. */
+.hero { background: radial-gradient(125% 95% at 50% 88%, color-mix(in srgb, var(--ochre) 18%, var(--clay)) 0%, var(--clay) 50%, color-mix(in srgb, var(--teak) 30%, var(--clay)) 100%); }
+.hero__reveal { position: absolute; inset: 0; overflow: hidden; z-index: 0; --ms: 14%;
+  -webkit-mask: url("gate-aperture.svg") center / var(--ms) no-repeat;
+          mask: url("gate-aperture.svg") center / var(--ms) no-repeat; }
+.hero__valley { position: absolute; inset: 0; width: 100%; height: calc(100% + 80px); object-fit: cover;
+  filter: saturate(1.16) contrast(1.03) sepia(0.2) hue-rotate(-12deg) brightness(0.86); }   /* warm to dusk */
+.hero__grade { position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--espresso) 42%, transparent) 0%, transparent 32%, color-mix(in srgb, var(--teak) 58%, transparent) 100%),
+    radial-gradient(135% 90% at 50% 22%, transparent 42%, color-mix(in srgb, var(--ember) 20%, transparent) 100%); }
+html .hero__word { position: relative; z-index: 2; }
+html .hero__senja { display: flex; justify-content: center; -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; white-space: nowrap; }
+.hero__senja .l { display: inline-block; overflow: hidden; }                 /* per-letter clip mask */
+.hero__senja .l > span { display: inline-block; will-change: transform; }    /* the rising glyph */
+
+/* v2 loader = a brief dusk cover (the hero gate-aperture is the gate moment, not the doors) */
+.loader--cover { background: var(--espresso); }
+.loader--cover .loader__door, .loader--cover .loader__center { display: none; }
+
+/* hero on narrow phones: keep SENJA + the loader gate from clipping */
+@media (max-width: 540px) {
+  html .hero__senja { font-size: clamp(4.5rem, 24vw, 8rem); }
+  .loader__gh { height: auto; width: clamp(7rem, 40vw, 12rem); aspect-ratio: 100/280; }
 }
 
 /* ---- 087 · testimonials marquee -------------------------------------------
