@@ -577,9 +577,9 @@
   gsap.utils.toArray(".sides__media").forEach((el) => {
     const img = el.querySelector("img");
     gsap.fromTo(el,
-      { clipPath: "inset(14% 11% 14% 11%)", opacity: 0 },
-      { clipPath: "inset(0% 0% 0% 0%)", opacity: 1, duration: 1.5, ease: EASE,
-        scrollTrigger: { trigger: el, start: "top 85%" } });
+      { clipPath: "inset(0% 50% 0% 50% round 0.8vw)", opacity: 0 },          // §3 086: center-out aperture
+      { clipPath: "inset(0% 0% 0% 0% round 0.8vw)", opacity: 1, duration: 1.4, ease: "power3.inOut",
+        scrollTrigger: { trigger: el, start: "top 82%" } });
     if (img) {
       gsap.fromTo(img, { objectPosition: "50% 30%" },
         { objectPosition: "50% 70%", ease: "none",
