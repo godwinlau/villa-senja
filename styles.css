@@ -43,11 +43,11 @@
   /* Type scale — Hungry Tiger's system: sized in vw so the whole scale grows
      and shrinks proportionally with the viewport (no clamp() plateaus).
      Small text is bumped per-breakpoint (see RESPONSIVE) to stay legible. */
-  --fs-hero:    min(13vw, 150px);   /* vw-fluid, capped on wide screens */
-  --fs-h2:      min(9vw, 104px);
-  --fs-h3:      min(6vw, 72px);
-  --fs-h4:      min(3vw, 36px);
-  --fs-quiet:   min(4.2vw, 50px);   /* shrunk utility-section headings (included/faq/booking) — let the content lead */
+  --fs-hero:    min(11.5vw, 116px);  /* vw-fluid, capped so it's not huge on small laptops or wide monitors */
+  --fs-h2:      min(7.4vw, 80px);
+  --fs-h3:      min(5vw, 58px);
+  --fs-h4:      min(2.8vw, 33px);
+  --fs-quiet:   min(3.7vw, 44px);   /* shrunk utility-section headings (included/faq/booking) — let the content lead */
   --fs-body:    min(1.15vw, 18px);
   --fs-eyebrow: min(0.9vw, 13.5px);
 
@@ -382,7 +382,7 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
     linear-gradient(180deg, rgba(20,11,5,0.26) 0%, rgba(20,11,5,0.2) 28%, rgba(20,11,5,0.48) 74%, rgba(20,11,5,0.72) 100%);
 }
 .cta__inner { position: relative; z-index: 2; display: grid; justify-items: center; gap: clamp(1.3rem, 2.4vw, 2rem); max-width: 62rem; }
-.cta__title { font-size: min(13vw, 132px); color: var(--cream); line-height: 0.85; text-shadow: 0 0.04em 0.5em rgba(12,7,3,0.45); }
+.cta__title { font-size: min(8.5vw, 92px); color: var(--cream); line-height: 0.9; text-shadow: 0 0.04em 0.5em rgba(12,7,3,0.45); }
 .cta__lede { max-width: 46ch; font-size: 1.2em; line-height: 1.5; color: color-mix(in srgb, var(--cream) 88%, transparent); }
 .cta__pillars { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(1rem, 2.4vw, 2.4rem); width: 100%; max-width: 58rem; margin-top: clamp(0.6rem, 1.5vw, 1.4rem); }
 .cta__pillars li { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding-top: 1.4rem; border-top: 1px solid color-mix(in srgb, var(--cream) 32%, transparent); }
@@ -404,7 +404,7 @@ html[data-mark="lockup"] .wordmark__lockup { display: inline-flex; }
    FOOTER
    ============================================================ */
 .footer { background: var(--jungle-deep); color: var(--cream); padding-block: clamp(4rem, 8vw, 7rem) 2.5rem; border-top: 1px solid color-mix(in srgb, var(--cream) 10%, transparent); }
-.footer__lockup { font-family: "Salmond", serif; font-weight: 700; font-size: min(12vw, 132px); line-height: 0.9; text-transform: uppercase; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+.footer__lockup { font-family: "Salmond", serif; font-weight: 700; font-size: min(10vw, 104px); line-height: 0.9; text-transform: uppercase; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
 .footer__lockup em { color: var(--ochre); font-style: normal; }
 .footer__grid { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 2rem; margin-bottom: 3rem; }
 .footer__h { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ochre); margin-bottom: 1rem; }
@@ -571,7 +571,7 @@ body { background: var(--sand); }
 .included__title { font-size: var(--fs-quiet); color: var(--cream); margin-top: 0.9rem; }
 .included__price { display: flex; align-items: baseline; gap: 0.5rem; margin-top: clamp(1.6rem, 3vw, 2.6rem); }
 .included__from { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.16em; color: color-mix(in srgb, var(--cream) 82%, transparent); }
-.included__amt { font-family: "Salmond", serif; font-weight: 700; font-size: clamp(3.5rem, 9vw, 7rem); line-height: 0.9; color: var(--ochre); }
+.included__amt { font-family: "Salmond", serif; font-weight: 700; font-size: clamp(3rem, 7.2vw, 6rem); line-height: 0.9; color: var(--ochre); }
 .included__per { font-size: 1.05rem; color: color-mix(in srgb, var(--cream) 78%, transparent); }
 .included__sub { margin-top: 1.3rem; max-width: 42ch; color: color-mix(in srgb, var(--cream) 80%, transparent); line-height: 1.5; }
 .incl-tags { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; margin-top: clamp(2.6rem, 5vw, 3.6rem); max-width: 54rem; }
@@ -633,7 +633,7 @@ body { background: var(--sand); }
 .reveal-band::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,14,7,0.55), rgba(26,14,7,0.42) 50%, rgba(26,14,7,0.62)); }
 .reveal-band__inner { position: relative; max-width: min(92vw, 62rem); }
 .reveal-band .eyebrow { margin-bottom: 1.5rem; color: var(--ochre); letter-spacing: 0.28em; }
-.reveal-band__title { font-size: min(7.4vw, 88px); line-height: 0.96; color: var(--cream); text-shadow: 0 0.03em 0.5em rgba(18,10,4,0.4); }
+.reveal-band__title { font-size: min(6.6vw, 76px); line-height: 0.98; color: var(--cream); text-shadow: 0 0.03em 0.5em rgba(18,10,4,0.4); }
 
 /* DINING — image + copy + a little menu (light) */
 .dining { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; background: var(--sand); }

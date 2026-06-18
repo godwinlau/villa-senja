@@ -135,72 +135,95 @@
   initScrollbar();
 
   /* ---------- Experiences: a proper slider — arrows + progress bar ----------
-     Native horizontal scroll (so it works in every mode); arrows step one card,
-     the progress bar tracks position, and the arrows disable at each end. */
+     One click = one card. `current` indexes a list of real scroll STOPS (each
+     card brought flush-left, last stop flush-RIGHT so card 6 fully shows), so the
+     step never drifts. Arrows loop; drag/wheel resync onto the nearest stop. */
   function initExpSlider() {
     const track = document.querySelector(".exp__track");
     if (!track) return;
     const prev = document.querySelector("[data-exp-prev]");
     const next = document.querySelector("[data-exp-next]");
     const fill = document.querySelector(".exp__progress-fill");
-    const card = track.querySelector(".exp-card");
-    const stepSize = () => {
-      const cs = getComputedStyle(track);
-      const gap = parseFloat(cs.columnGap || cs.gap) || 0;
-      return card ? card.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
+    const cards = Array.prototype.slice.call(track.querySelectorAll(".exp-card"));
+    if (!cards.length) return;
+    track.style.scrollSnapType = "none";   // JS owns snapping (arrows + drag/wheel settle) — CSS proximity fought the glide
+
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+    const padLeft = () => { const cs = getComputedStyle(track); return parseFloat(cs.scrollPaddingLeft) || parseFloat(cs.paddingLeft) || 0; };
+    const stepPx = () => cards.length > 1 ? Math.abs(cards[1].getBoundingClientRect().left - cards[0].getBoundingClientRect().left) : track.clientWidth;
+    // The real scroll stops: each card aligned flush-left, dropping any that fall
+    // past the end, then the end (maxScroll) appended so the LAST card lands
+    // flush-right and fully visible (a tiny tail step is merged, not duplicated).
+    const stops = () => {
+      const trL = track.getBoundingClientRect().left, ms = maxScroll(), pl = padLeft(), base = track.scrollLeft, step = stepPx(), out = [];
+      cards.forEach((c) => { const p = Math.max(0, base + (c.getBoundingClientRect().left - trL) - pl); if (p < ms - 4) out.push(p); });
+      if (!out.length) return ms > 4 ? [0, ms] : [0];
+      if (ms - out[out.length - 1] > step * 0.15) out.push(ms); else out[out.length - 1] = ms;
+      return out;
     };
-    const maxScroll = () => track.scrollWidth - track.clientWidth;
-    const update = () => {
-      const max = maxScroll();
-      const p = max > 4 ? track.scrollLeft / max : 0;
-      if (fill) fill.style.transform = "scaleX(" + Math.max(0.06, Math.min(1, p)).toFixed(3) + ")";
-      if (prev) prev.disabled = track.scrollLeft <= 2;
-      if (next) next.disabled = track.scrollLeft >= max - 2;
-    };
-    // Custom eased glide (native smooth-scroll + scroll-snap felt janky). A small
-    // rAF tween with easeInOutCubic; snap is suspended mid-glide; targetIdx lets
-    // rapid clicks stack and redirect cleanly from the current position.
-    let animating = false, targetIdx = 0, raf = 0;
+    const nearestIdx = () => { const s = stops(); let bi = 0, bd = Infinity; s.forEach((p, i) => { const d = Math.abs(p - track.scrollLeft); if (d < bd) { bd = d; bi = i; } }); return bi; };
+
+    let current = 0, animating = false, raf = 0;
     const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const glideTo = (dest) => {
       cancelAnimationFrame(raf);
-      const from = track.scrollLeft;
-      const dist = dest - from;
-      if (Math.abs(dist) < 1) return;
-      const dur = 600;
-      let startT = null;
-      track.style.scrollSnapType = "none";
-      animating = true;
+      const from = track.scrollLeft, dist = dest - from;
+      if (Math.abs(dist) < 1) { animating = false; return; }
+      let startT = null; animating = true;
       const frame = (now) => {
         if (startT === null) startT = now;
-        const t = Math.min(1, (now - startT) / dur);
+        const t = Math.min(1, (now - startT) / 520);
         track.scrollLeft = from + dist * easeInOut(t);
         if (t < 1) { raf = requestAnimationFrame(frame); }
-        else { animating = false; track.style.scrollSnapType = ""; }
+        else { animating = false; paint(); }
       };
       raf = requestAnimationFrame(frame);
     };
-    const go = (dir) => {
-      const step = stepSize();
-      const maxIdx = Math.max(0, Math.round(maxScroll() / step));
-      const base = animating ? targetIdx : Math.round(track.scrollLeft / step);
-      targetIdx = Math.max(0, Math.min(maxIdx, base + dir));
-      const dest = Math.min(maxScroll(), targetIdx * step);
-      if (motionOff) track.scrollLeft = dest;
-      else glideTo(dest);
+    const paint = () => {
+      const last = stops().length - 1;
+      current = Math.max(0, Math.min(current, last));
+      if (fill) fill.style.transform = "scaleX(" + Math.max(0.06, last > 0 ? current / last : 1).toFixed(3) + ")";
+      if (prev) prev.disabled = false;   // arrows LOOP — never dead-end
+      if (next) next.disabled = false;
     };
+    const goTo = (idx) => {
+      const s = stops(), last = s.length - 1;
+      current = idx < 0 ? last : idx > last ? 0 : idx;   // wrap cleanly at either end
+      if (motionOff) track.scrollLeft = s[current]; else glideTo(s[current]);
+      paint();
+    };
+    const go = (dir) => goTo((animating ? current : nearestIdx()) + dir);
+
     if (prev) prev.addEventListener("click", () => go(-1));
     if (next) next.addEventListener("click", () => go(1));
     // Keyboard panning so the focusable track is operable without a pointer.
     track.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-      else if (e.key === "Home") { e.preventDefault(); motionOff ? (track.scrollLeft = 0) : glideTo(0); }
-      else if (e.key === "End") { e.preventDefault(); motionOff ? (track.scrollLeft = maxScroll()) : glideTo(maxScroll()); }
+      else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+      else if (e.key === "End") { e.preventDefault(); goTo(stops().length - 1); }
     });
-    track.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    update();
+    // after a DRAG settles, snap onto the nearest stop + resync current (the generic [data-drag] handler does the scrolling)
+    const snapToNearest = () => {
+      if (animating || motionOff) return;
+      current = nearestIdx();
+      const dest = stops()[current];
+      if (Math.abs(dest - track.scrollLeft) > 2) glideTo(dest); else paint();
+    };
+    let dragStartScroll = null;
+    track.addEventListener("pointerdown", () => { cancelAnimationFrame(raf); animating = false; dragStartScroll = track.scrollLeft; }, { passive: true });
+    window.addEventListener("pointerup", () => {
+      if (dragStartScroll === null) return;
+      const moved = Math.abs(track.scrollLeft - dragStartScroll) > 4;
+      dragStartScroll = null;
+      if (moved) setTimeout(snapToNearest, 30);   // let the drag handler finish, then settle onto a card
+    }, { passive: true });
+    // trackpad / wheel scrolling keeps current + progress in sync, then settles
+    let settle = 0;
+    track.addEventListener("scroll", () => { if (animating) return; current = nearestIdx(); paint(); clearTimeout(settle); settle = setTimeout(snapToNearest, 140); }, { passive: true });
+    window.addEventListener("resize", () => goTo(current));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(paint);   // scrollWidth shifts once fonts/images settle
+    paint();
   }
   initExpSlider();
 
@@ -587,45 +610,438 @@
     }
   });
 
-  /* ---------- Hero: choreographed entrance (fromTo so it can be pre-hidden under
-     the loader, then rise in as the gate doors open) ---------- */
+  /* ---------- Hero V10 (HT formula): video centerpiece whose clip-mask opens to full-bleed on scroll ---------- */
+  const heroVid = document.querySelector("[data-vid]");
+  const heroSpacer = document.querySelector("[data-hv10-spacer]");
+  // The video's rest window = the framed-centerpiece SPACER's box, so it aligns with the layout
+  // (headline + subtitle ABOVE it, CTA BELOW it). Measured only at SETTLED moments (post-loader,
+  // fonts-ready, resize) and cached in restInset — never on every ScrollTrigger refresh, which is
+  // what made it jump size mid-load.
+  function measureRest() {
+    const hero = document.querySelector(".hero");
+    if (!heroSpacer || !hero) return "inset(44% 24% 22% 24% round 10px)";
+    const r = heroSpacer.getBoundingClientRect(), h = hero.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    if (r.width < 4 || r.height < 4) return "inset(44% 24% 22% 24% round 10px)";
+    // Measure the spacer RELATIVE TO THE HERO, not the raw viewport — the spacer's offset within the
+    // hero is constant, so this gives the correct rest window even if a remeasure fires mid-scroll
+    // (raw viewport coords measured while scrolled are what made the window jump to the top).
+    const t = Math.max(0, ((r.top - h.top) / vh) * 100), b = Math.max(0, ((vh - (r.bottom - h.top)) / vh) * 100);
+    const l = Math.max(0, ((r.left - h.left) / vw) * 100), ri = Math.max(0, ((vw - (r.right - h.left)) / vw) * 100);
+    return `inset(${t.toFixed(2)}% ${ri.toFixed(2)}% ${b.toFixed(2)}% ${l.toFixed(2)}% round 10px)`;
+  }
+  let restInset = measureRest();
   function playHeroIntro() {
+    if (heroVid) { restInset = measureRest(); gsap.set(heroVid, { clipPath: restInset }); }   // re-measure once the loader clears (layout settled) so the window hugs the spacer
+    if (motionOff || !hasGSAP) return;   // static/automation: content already visible, video at its rest window
     gsap.timeline({ defaults: { ease: "expo.out" } })
-      // SENJA hero (default): the candi-bentar gate APERTURE grows to uncover the dusk valley
-      .fromTo(".hero__reveal", { "--ms": "14%" }, { "--ms": "1400%", duration: 2.0, ease: "power3.inOut" }, 0)
-      .from(".hero__valley", { scale: 1.16, duration: 2.4, ease: "power3.out" }, 0)
-      // SENJA letters rise from their per-letter clip masks as the gate opens
-      .from(".hero__senja .l > span", { yPercent: 118, duration: 1.0, stagger: 0.08 }, 0.7)
-      .fromTo([".hero__word-gloss", ".hero__btn"], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 1.7)
-      // editorial alternate (only visible when that variant is toggled in ?tweaks)
-      .fromTo(".hero .eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.1)
-      .fromTo(".hero__title .line", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.14 }, 0.2)
-      .fromTo(".hero .rule--hero", { opacity: 0 }, { opacity: 1, duration: 0.7 }, 0.62)
-      .fromTo(".hero__sub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.95 }, 0.74);
+      .from(".hv10__eye", { opacity: 0, y: 14, duration: 0.7 }, 0.2)
+      .from(".hv10__head", { opacity: 0, y: 26, duration: 0.95 }, 0.32)
+      .from([".hv10__sub", ".hv10__rule"], { opacity: 0, y: 16, duration: 0.8, stagger: 0.1 }, 0.62)
+      .from(heroVid, { opacity: 0, duration: 1.0, ease: "power2.out" }, 0.5)
+      .from([".hv10__cta", ".hv10__trust", ".hv10__cue"], { opacity: 0, y: 14, duration: 0.8, stagger: 0.1 }, 0.95);
   }
 
-  /* SENJA gate hero — scroll: ease the valley up + let the word recede ("fall through the gate").
-     (No Matter.js jelly: markup ships the .l clip-letters; the gate-aperture grow is the intro.) */
-  (function initSenjaScroll() {
-    if (!hasGSAP) return;
-    gsap.to(".hero__valley", { yPercent: -8, scale: 1.06, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
-    gsap.to(".hero__senja", { scale: 1.08, yPercent: -6, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+  /* the video mask OPENS from the framed window to full-bleed as you scroll the hero (video stays crisp) */
+  (function initHeroMask() {
+    if (!hasGSAP || motionOff || !heroVid) return;
+    gsap.set(heroVid, { clipPath: restInset });
+    let heroSeeking = false;   // only issue a new seek once the last finished → no decoder thrash ("shifty" jitter)
+    heroVid.addEventListener("seeking", () => { heroSeeking = true; });
+    heroVid.addEventListener("seeked", () => { heroSeeking = false; });
+    gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=160%", pin: true, scrub: 1, invalidateOnRefresh: true,
+        onUpdate: (self) => { const d = heroVid.duration; if (d && !heroSeeking) { const t = self.progress * d; if (Math.abs(t - heroVid.currentTime) > 0.05) { try { heroVid.currentTime = t; } catch (e) {} } } } } })   // SCRUB the footage to scroll position — symmetric, reverses on scroll-up (file:// included)
+      .to(["[data-hv10-content] > :not([data-hv10-spacer])", "[data-hv10-cue]"], { opacity: 0, y: -44, ease: "power2.in", duration: 0.4, stagger: 0.02 }, 0)
+      .fromTo(heroVid, { clipPath: () => restInset }, { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "power2.inOut", duration: 1 }, 0.05)   // dynamic from-value re-reads the cached window on refresh → no mid-scroll snap
+      .fromTo("[data-hv10-cap]", { opacity: 0, y: 22 }, { opacity: 1, y: 0, ease: "power2.out", duration: 0.4 }, 0.66);   // the caption fades in over the full-bleed video
+    // re-measure the window ONLY at settled moments, then refresh so the scrub picks it up
+    const remeasure = () => { restInset = measureRest(); ScrollTrigger.refresh(); };   // no gsap.set → a resize mid-scroll can't snap the open mask back to the small rest window
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(remeasure, 220); }, { passive: true });
   })();
 
-  /* ---------- Loader: "through the gate, into senja" — two dusk-stone doors carry the
-     lit candi bentar; the carved gate halves catch first light (base→finials), the
-     wordmark rises, then the doors PART to uncover the REAL valley behind — one
-     continuous move from dusk-shadow into golden hour, no separate splash. ---------- */
+  /* hero footage is SCRUBBED to scroll position in initHeroMask above (symmetric → reverses on scroll-up); video stays paused */
+
+  /* reveal-band — the flock drifts across + scales as the section scrolls through (parallax depth tiers) */
+  (function initRevealBirds() {
+    const band = document.querySelector(".reveal-band");
+    if (!band || !hasGSAP || motionOff) return;
+    const birds = gsap.utils.toArray("[data-bird]");
+    if (!birds.length) return;
+    birds.forEach((b, i) => {
+      const dir = i % 2 ? 1 : -1, depth = 0.55 + (i % 3) * 0.25;   // alternating direction + 3 depth tiers
+      gsap.fromTo(b,
+        { xPercent: -110 * dir * depth, yPercent: 28, scale: 0.4 + depth * 0.15 },
+        { xPercent: 190 * dir * depth, yPercent: -40, scale: 0.8 + depth * depth * 6.2, ease: "none",   // birds fly RIGHT PAST — front ones blow up to ~7x as the section scrolls (quadratic depth)
+          scrollTrigger: { trigger: band, start: "top bottom", end: "bottom top", scrub: 1 } });
+    });
+  })();
+
+  /* frangipani — varied petals drift down in occasional flurries (different sizes, spins, sometimes 2 at once) */
+  (function initFrangipani() {
+    const tpl = document.querySelector("[data-petal]");
+    if (!tpl || !hasGSAP || motionOff) return;
+    const MAX = 5;
+    const drop = () => {
+      if (document.querySelectorAll(".frangipani:not([data-petal])").length >= MAX) return;
+      const p = tpl.cloneNode(true);
+      p.removeAttribute("data-petal");
+      const flip = Math.random() < 0.5 ? -1 : 1;
+      p.style.left = (Math.random() * 100) + "vw";
+      p.style.width = (20 + Math.random() * 30) + "px";              // varied size
+      document.body.appendChild(p);
+      const dur = 10 + Math.random() * 11, swayX = (Math.random() * 2 - 1) * (70 + Math.random() * 130);
+      gsap.set(p, { opacity: 0, rotation: Math.random() * 360, scaleX: flip });
+      gsap.to(p, { y: window.innerHeight + 100, x: swayX, rotation: "+=" + flip * (160 + Math.random() * 430), duration: dur, ease: "none", onComplete: () => p.remove() });
+      gsap.to(p, { opacity: 0.4 + Math.random() * 0.38, duration: 1.5 + Math.random() });   // fade in (varied)
+      gsap.to(p, { opacity: 0, duration: 2.6, delay: dur - 2.6 });                          // fade out before it lands
+    };
+    const tick = () => {
+      const n = 1 + (Math.random() < 0.35 ? 1 : 0);                  // usually 1, sometimes 2 at once
+      for (let i = 0; i < n; i++) gsap.delayedCall(i * (0.3 + Math.random() * 0.8), drop);
+      gsap.delayedCall(5 + Math.random() * 8, tick);                 // next batch in ~5–13s
+    };
+    gsap.delayedCall(3 + Math.random() * 4, tick);
+  })();
+
+  /* ---------- Loader: redrawn candi-bentar — two columnar gate-towers draw in, then PART to reveal the hero ---------- */
   function initLoader(done) {
-    if (!loaderEl) { done(); return; }
-    loaderEl.classList.add("loader--cover");        // plain dusk cover (door sequence hidden via v2.css)
-    gsap.set([".hero .eyebrow", ".hero__title .line", ".hero .rule--hero", ".hero__sub", ".hero__word-gloss", ".hero__btn"], { opacity: 0 });
+    if (!loaderEl || motionOff || !hasGSAP) { hideLoader(); done(); return; }   // static/automation: skip straight to the hero
+    const paths = loaderEl.querySelectorAll(".vldr__gate .tower, .vldr__gate .base");
+    paths.forEach((p) => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+    gsap.set("[data-vldr-mark]", { yPercent: 120 });
+    gsap.set("[data-vldr-glow]", { opacity: 0, scale: 0.7 });
+    const hint = loaderEl.querySelector("[data-vldr-hint]"); if (hint) hint.style.display = "none";   // no "tap to enter" — the gate auto-reveals
+    // hold the reveal until the real content is ready (fonts so headings don't reflow), but never hang
+    const ready = Promise.race([
+      (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve(),
+      new Promise((res) => setTimeout(res, 1300)),
+    ]);
+
+    let parted = false;
+    function part() {
+      if (parted) return; parted = true;
+      // the wordmark SETTLES up into the nav wordmark (shared-element hand-off); the real
+      // nav wordmark sits at the same spot beneath the loader, so the fade is a match-cut.
+      const navMark = document.querySelector(".wordmark__txt") || document.querySelector(".wordmark");
+      const mark = loaderEl.querySelector("[data-vldr-mark]");
+      let dx = 0, dy = -window.innerHeight * 0.34, sc = 0.26;
+      if (navMark && mark) {
+        gsap.set(".vldr__mark", { overflow: "visible" });   // free the wordmark from its reveal clip so it can travel
+        const a = mark.getBoundingClientRect(), b = navMark.getBoundingClientRect();
+        dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+        dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        sc = Math.max(0.16, b.height / a.height);
+      }
+      gsap.timeline({ onComplete: () => { loaderEl.style.display = "none"; } })
+        .to("[data-vldr-eye]", { opacity: 0, y: -16, duration: 0.4, ease: "power2.in" }, 0)
+        .to("[data-vldr-glow]", { opacity: 0, duration: 0.5, ease: "power2.in" }, 0)
+        .to(mark, { x: dx, y: dy, scale: sc, duration: 0.7, ease: "power3.inOut" }, 0)                  // wordmark flies to the nav
+        .to(mark, { opacity: 0, duration: 0.32, ease: "power2.in" }, 0.46)
+        .to("[data-vldr-l]", { xPercent: -100, duration: 0.6, ease: "power3.inOut" }, 0.12)             // the gates PART = the mask uncovering the hero
+        .to("[data-vldr-r]", { xPercent: 100, duration: 0.6, ease: "power3.inOut" }, 0.12)
+        .add(done, 0.34);                                                                               // hero rises through the opening
+    }
+
+    // gate DRAWS IN (~0.7s), settles, then AUTO-parts once the content is ready — no gesture required
     gsap.timeline()
-      .add(done, 0.25)                                                            // start the gate-aperture grow
-      .to(loaderEl, { autoAlpha: 0, duration: 0.9, ease: "power2.inOut" }, 0.25)  // cover lifts as the gate opens
-      .add(() => { loaderEl.style.display = "none"; }, 1.3);
+      .to(paths, { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut", stagger: 0.03 }, 0.1)      // gate carves in
+      .to("[data-vldr-eye]", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.5)
+      .to("[data-vldr-mark]", { yPercent: 0, duration: 0.6, ease: "power4.out" }, 0.55)                 // wordmark rises
+      .to("[data-vldr-glow]", { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" }, 0.85)        // dawn light at the threshold
+      .call(() => { ready.then(() => gsap.delayedCall(0.2, part)); }, null, 1.05);
   }
   initLoader(playHeroIntro);
+
+  /* ---- ambient + interactive SOUND DESIGN -----------------------------------
+     One opt-in toggle drives a small Web Audio graph whose master gain IS the
+     mute. The Bali bed is routed through a lowpass that warms as you descend
+     toward dusk; synthesized hover / click / whoosh sfx + gamelan-pentatonic
+     note cues per section give a soft sense of place while scrolling. Degrades
+     to the plain <audio> bed (no sfx) where Web Audio is unavailable. */
+  (function initSound() {
+    const btn = document.querySelector("[data-snd]");
+    const audioEl = document.querySelector("[data-snd-audio]");
+    if (!btn || !audioEl) return;
+    const KEY = "senja-sound";
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const AMB_BASE = 0.10, AMB_SWELL = 0.04;   // quiet background bed, well under the sfx
+    const directAmb = location.protocol === "file:";   // file:// CORS-mutes Web-Audio-routed media → play the bed straight from the <audio> element instead (SFX still use Web Audio)
+    const save = (v) => { try { localStorage.setItem(KEY, v); } catch (e) {} };
+    const dbg = (window.__snd = { hover: 0, click: 0, whoosh: 0, cue: 0, grab: 0, release: 0, on: false, ctx: "none" });
+
+    let ctx = null, master = null, ambGain = null, ambFilter = null, dryBus = null, wetBus = null, noiseBuf = null, analyser = null, built = false, on = false;
+    let cuesMuted = false, cueMuteTimer = null;   // suppress section whoosh/chime during programmatic scrolls (anchor links) so jumping past sections doesn't cascade
+    dbg.muteCues = (ms) => { cuesMuted = true; if (cueMuteTimer) clearTimeout(cueMuteTimer); cueMuteTimer = setTimeout(() => { cuesMuted = false; }, ms || 1600); };
+    dbg.read = () => ctx ? { amb: +(directAmb ? audioEl.volume : ambGain.gain.value).toFixed(3), master: +master.gain.value.toFixed(3), filtHz: Math.round(ambFilter.frequency.value), playing: !audioEl.paused, ct: +audioEl.currentTime.toFixed(1), mode: directAmb ? "file-direct" : "graph" } : "no-ctx";
+    dbg.rms = () => { if (!analyser) return null; const a = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(a); let s = 0; for (let i = 0; i < a.length; i++) { const v = (a[i] - 128) / 128; s += v * v; } return +Math.sqrt(s / a.length).toFixed(4); };   // real output level — proves whether the bed is actually producing sound
+
+    function makeImpulse(seconds, decay) {      // algorithmic reverb tail → a soft room behind the sfx
+      const len = Math.floor(ctx.sampleRate * seconds), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = buf.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay); }
+      return buf;
+    }
+    function buildGraph() {
+      if (built) return true;
+      if (!AC) return false;
+      try {
+        ctx = new AC();
+        master = ctx.createGain(); master.gain.value = 0.0001; master.connect(ctx.destination);
+        analyser = ctx.createAnalyser(); analyser.fftSize = 512; master.connect(analyser);   // tap for the output meter (dbg.rms)
+        ambGain = ctx.createGain(); ambGain.gain.value = AMB_BASE;
+        ambFilter = ctx.createBiquadFilter(); ambFilter.type = "lowpass"; ambFilter.frequency.value = 10500; ambFilter.Q.value = 0.5;
+        // sfx buses: a shared lowpass softens the synthesis; clicks/cues/whoosh also feed a short reverb for space; hovers stay dry + crisp
+        const sfxLP = ctx.createBiquadFilter(); sfxLP.type = "lowpass"; sfxLP.frequency.value = 5200; sfxLP.Q.value = 0.3; sfxLP.connect(master);
+        dryBus = ctx.createGain(); dryBus.gain.value = 1; dryBus.connect(sfxLP);
+        wetBus = ctx.createGain(); wetBus.gain.value = 1; wetBus.connect(sfxLP);
+        const conv = ctx.createConvolver(); conv.buffer = makeImpulse(2.0, 2.4);   // a touch lusher so gamelan/gong bloom
+        const revGain = ctx.createGain(); revGain.gain.value = 0.4; wetBus.connect(conv); conv.connect(revGain); revGain.connect(master);
+        const n = Math.floor(ctx.sampleRate * 1.0);
+        noiseBuf = ctx.createBuffer(1, n, ctx.sampleRate);
+        const ch = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) ch[i] = Math.random() * 2 - 1;
+        if (!directAmb) {   // skip on file:// — routing the element through Web Audio there outputs zeroes (CORS); we play it directly instead
+          const src = ctx.createMediaElementSource(audioEl);   // once-only per element — create last
+          src.connect(ambFilter); ambFilter.connect(ambGain); ambGain.connect(master);
+        }
+        built = true; dbg.ctx = ctx.state; return true;
+      } catch (e) { ctx = null; built = false; return false; }
+    }
+    function prewarm() {                          // play a silent blip so the FIRST real sfx isn't late
+      if (!ctx) return; const s = ctx.createBufferSource(); s.buffer = ctx.createBuffer(1, 128, ctx.sampleRate); s.connect(master); s.start();
+    }
+
+    // ---- synthesized one-shots → sfx buses ----
+    function noiseTick(peak, cutoff, dur, type, dest) {   // soft physical "tick" — non-tonal (kept as a low-level texture helper)
+      if (!ctx || !noiseBuf) return;
+      const t = ctx.currentTime, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      s.buffer = noiseBuf; f.type = type || "lowpass"; f.frequency.value = cutoff; f.Q.value = 0.7;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak, t + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(dest || wetBus); s.start(t); s.stop(t + dur + 0.03);
+    }
+    const rnd = (a, b) => a + Math.random() * (b - a);   // per-trigger jitter → no two plays identical (kills the "machine-gun")
+    // dip the ambient bed briefly UNDER a prominent sfx so cues stay legible (graph mode only)
+    function duckBed() {
+      if (directAmb || !ambGain || !ctx) return;
+      const t = ctx.currentTime;
+      ambGain.gain.cancelScheduledValues(t);
+      ambGain.gain.setValueAtTime(Math.max(0.0001, ambGain.gain.value), t);
+      ambGain.gain.linearRampToValueAtTime(Math.max(0.0001, AMB_BASE * 0.5), t + 0.06);
+      ambGain.gain.linearRampToValueAtTime(AMB_BASE, t + 0.5);
+    }
+    // THE interaction family: a soft WOOD "tock" (teak/bamboo). Filtered NOISE only
+    // (no oscillator → can never read as a tone/chime); a quick downward resonant
+    // sweep gives the woody knock; per-trigger pitch + gain jitter so repeats vary.
+    function woodTock(level, centerHz, dest) {
+      if (!ctx || !noiseBuf) return;
+      const t = ctx.currentTime, det = rnd(0.9, 1.12), lvl = level * rnd(0.82, 1.0);
+      const s = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+      s.buffer = noiseBuf; bp.type = "bandpass"; bp.Q.value = rnd(1.0, 1.7);   // wider band → more energy (louder) AND less pitched/tonal
+      bp.frequency.setValueAtTime(centerHz * 1.7 * det, t);
+      bp.frequency.exponentialRampToValueAtTime(centerHz * det, t + 0.05);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(lvl, t + 0.0022);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.085);
+      s.connect(bp); bp.connect(g); g.connect(dest || dryBus); s.start(t); s.stop(t + 0.11);
+    }
+    function sfxHover() {
+      if (!on || !ctx || !noiseBuf) return;
+      woodTock(0.11, 740, dryBus);       // a clear light tick — same instrument as the click, just higher/softer
+      dbg.hover++;
+    }
+    function sfxClick() {
+      if (!on || !ctx || !noiseBuf) return;
+      woodTock(0.26, 400, dryBus);       // a clear warm teak "tock" — organic, not a tone/whoosh
+      dbg.click++;
+    }
+    function sfxWhoosh(big) {             // airy "breath of dusk air" for the big section moments — non-melodic
+      if (!on || !ctx || !noiseBuf) return;
+      const t = ctx.currentTime, dur = big ? 0.85 : 0.55, peak = big ? 0.12 : 0.075;
+      [[170, big ? 1050 : 850, 300, 0.7, 1], [850, big ? 2600 : 1900, 1100, 1.1, 0.45]].forEach((p) => {
+        const s = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+        s.buffer = noiseBuf; bp.type = "bandpass"; bp.Q.value = p[3];
+        bp.frequency.setValueAtTime(p[0], t);
+        bp.frequency.exponentialRampToValueAtTime(p[1], t + dur * 0.5);
+        bp.frequency.exponentialRampToValueAtTime(p[2], t + dur);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(peak * p[4], t + dur * 0.42);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        s.connect(bp); bp.connect(g); g.connect(wetBus); s.start(t); s.stop(t + dur + 0.05);
+      });
+      duckBed();
+      dbg.whoosh++;
+    }
+    // a warm low WOODEN DRUM thud (kendang-style) — the one allowed near-musical
+    // moment, played ONCE as the soundscape opens (replaces the bronze-gong cliché).
+    function sfxThud() {
+      if (!on || !ctx || !noiseBuf) return;
+      const t = ctx.currentTime;
+      const s = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = ctx.createGain();   // the wood knock
+      s.buffer = noiseBuf; bp.type = "bandpass"; bp.frequency.value = 300; bp.Q.value = 2;
+      ng.gain.setValueAtTime(0.0001, t); ng.gain.exponentialRampToValueAtTime(0.12, t + 0.003); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      s.connect(bp); bp.connect(ng); ng.connect(wetBus); s.start(t); s.stop(t + 0.12);
+      [86, 129].forEach((f, i) => {                       // the low resonant body — a short, deep, warm drum
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine"; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.7, t + 0.28);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(i ? 0.09 : 0.24, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + (i ? 0.5 : 0.9));
+        o.connect(g); g.connect(wetBus); o.start(t); o.stop(t + 1);
+      });
+      duckBed();
+      dbg.whoosh++;
+    }
+
+    // ---- toggle / enable-disable ------------------------------------------
+    function reflect() {
+      btn.classList.toggle("is-on", on); btn.classList.toggle("is-off", !on); btn.classList.remove("is-invite");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.setAttribute("aria-label", on ? "Mute sound" : "Play ambient Bali sound");
+      const txt = btn.querySelector("[data-snd-txt]"); if (txt) txt.textContent = on ? "Sound on" : "Sound";
+    }
+    function masterTo(v, dur) {
+      if (!ctx) return; const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), t);
+      master.gain.linearRampToValueAtTime(Math.max(0.0001, v), t + dur);
+    }
+    function ambStart() {   // bring the bed up — graph handles level via ambGain (element at 1), or fade the element directly on file://
+      if (directAmb) { audioEl.volume = 0; if (hasGSAP) gsap.to(audioEl, { volume: AMB_BASE, duration: 1.1 }); else audioEl.volume = AMB_BASE; }
+      else audioEl.volume = 1;
+    }
+    function ambStop() {
+      if (directAmb) { if (hasGSAP) gsap.to(audioEl, { volume: 0, duration: 0.5, onComplete: () => { if (!on) audioEl.pause(); } }); else { audioEl.volume = 0; audioEl.pause(); } }
+      else setTimeout(() => { if (!on) audioEl.pause(); }, 560);
+    }
+    function setOn(next, persist) {
+      on = next; dbg.on = on; reflect();
+      if (buildGraph()) {
+        if (ctx.state === "suspended") ctx.resume().then(() => { dbg.ctx = ctx.state; });
+        prewarm();
+        if (on) {
+          const p = audioEl.play(); if (p && p.catch) p.catch(() => {});
+          ambStart();                                       // bed up (graph level, or file:// direct)
+          masterTo(1, 1.1); sfxThud(); sfxWhoosh(true);   // a warm wooden thud + airy swell as the soundscape opens (no gong, no gamelan shimmer)
+        } else {
+          masterTo(0.0001, 0.5); ambStop();                 // sfx mute; bed fades + pauses
+        }
+      } else {                                              // no Web Audio → plain bed, no sfx
+        if (on) { audioEl.volume = 0; const p = audioEl.play(); if (p && p.catch) p.catch(() => {});
+          if (hasGSAP) gsap.to(audioEl, { volume: AMB_BASE, duration: 1.1 }); else audioEl.volume = AMB_BASE; }
+        else if (hasGSAP) gsap.to(audioEl, { volume: 0, duration: 0.5, onComplete: () => audioEl.pause() });
+        else { audioEl.volume = 0; audioEl.pause(); }
+      }
+      if (persist) save(on ? "on" : "off");
+    }
+    btn.addEventListener("click", () => setOn(!on, true));
+
+    // the bed respects your attention — fade it out when the tab is hidden, back when you return
+    document.addEventListener("visibilitychange", () => {
+      if (!on || !ctx) return;
+      if (directAmb) { if (hasGSAP) gsap.to(audioEl, { volume: document.hidden ? 0 : AMB_BASE, duration: document.hidden ? 0.4 : 0.7 }); }
+      else if (ambGain) { const t = ctx.currentTime; ambGain.gain.cancelScheduledValues(t); ambGain.gain.setValueAtTime(Math.max(0.0001, ambGain.gain.value), t); ambGain.gain.linearRampToValueAtTime(document.hidden ? 0.0001 : AMB_BASE, t + (document.hidden ? 0.4 : 0.7)); }
+    });
+
+    // ---- delegated ui sfx — fire the instant you ENTER a new control / PRESS it (tight, not throttled) ----
+    const HIT = "a,button,.btn,[role='button'],.nav__link,summary,input,label,.tweaks__opt";
+    let curHit = null;
+    document.addEventListener("pointerover", (e) => {
+      if (!on || (e.pointerType && e.pointerType !== "mouse")) return;
+      const el = e.target.closest && e.target.closest(HIT);
+      if (el && el !== curHit) { curHit = el; sfxHover(); }   // one immediate tick per control entered
+      else if (!el) curHit = null;
+    }, { passive: true });
+    document.addEventListener("pointerout", (e) => {
+      if (e.target === curHit && !(e.relatedTarget && curHit.contains && curHit.contains(e.relatedTarget))) curHit = null;
+    }, { passive: true });
+    document.addEventListener("pointerdown", (e) => {         // click sound on PRESS, not after release → feels in sync
+      if (!on) return; const el = e.target.closest && e.target.closest(HIT);
+      if (el && el !== btn) sfxClick();                       // the toggle plays its own whoosh
+    }, { passive: true });
+
+    // ---- slider / carousel feel: a grab, a drag-air that tracks your speed, a settle on release ----
+    function sfxGrab() { if (!on || !ctx) return; woodTock(0.16, 280, dryBus); dbg.grab++; }       // a low woody "catch" (was a sine blip)
+    function sfxRelease() { if (!on || !ctx) return; woodTock(0.11, 230, dryBus); dbg.release++; }   // softer, lower settle — same wood family
+    document.querySelectorAll("[data-drag]").forEach((track) => {
+      let down = false, lastX = 0, air = null;
+      const startAir = () => {
+        if (!ctx || air || !noiseBuf) return;
+        const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+        const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 540; bp.Q.value = 0.9;
+        const g = ctx.createGain(); g.gain.value = 0.0001;
+        s.connect(bp); bp.connect(g); g.connect(dryBus); s.start(); air = { s: s, bp: bp, g: g };
+      };
+      const stopAir = () => { if (!air) return; const a = air; air = null; a.g.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.08); setTimeout(() => { try { a.s.stop(); } catch (e) {} }, 220); };
+      track.addEventListener("pointerdown", (e) => { if (!on || !ctx) return; down = true; lastX = e.clientX; sfxGrab(); startAir(); }, { passive: true });
+      track.addEventListener("pointermove", (e) => {
+        if (!on || !ctx || !down || !air) return;
+        const dx = Math.abs(e.clientX - lastX); lastX = e.clientX; const t = ctx.currentTime;
+        air.g.gain.setTargetAtTime(Math.min(0.11, dx * 0.011), t, 0.05);
+        air.bp.frequency.setTargetAtTime(420 + Math.min(60, dx) * 16, t, 0.06);
+      }, { passive: true });
+      const rel = () => { if (!down) return; down = false; sfxRelease(); stopAir(); };
+      window.addEventListener("pointerup", rel, { passive: true });
+      window.addEventListener("pointercancel", rel, { passive: true });
+    });
+    document.querySelectorAll("[data-exp-prev],[data-exp-next]").forEach((b) => {
+      b.addEventListener("pointerdown", () => { if (on && ctx) sfxWhoosh(false); }, { passive: true });   // a soft slide whoosh under the click
+    });
+
+    // ---- section cues, SYNCED to arrival via the Lenis-driven ScrollTrigger ----
+    (function sectionCues() {
+      const secs = Array.prototype.slice.call(document.querySelectorAll("section, .footer"));
+      if (!secs.length) return;
+      const BIG = /reveal-band|gallery|cta/;
+      if (hasGSAP && typeof ScrollTrigger !== "undefined") {
+        secs.forEach((s, i) => ScrollTrigger.create({
+          trigger: s, start: "top 62%",                       // lands as the section settles into view
+          onEnter: () => { if (!on || cuesMuted) return; if (BIG.test(s.className)) sfxWhoosh(true); },    // airy swell on the BIG moments only — no chime, no per-section spam
+          onEnterBack: () => { if (!on || cuesMuted) return; if (BIG.test(s.className)) sfxWhoosh(false); },
+        }));
+      } else if ("IntersectionObserver" in window) {          // fallback: center-band observer
+        const seen = new WeakSet();
+        const io = new IntersectionObserver((ents) => ents.forEach((en) => {
+          if (!en.isIntersecting) { seen.delete(en.target); return; }
+          if (!on || cuesMuted || seen.has(en.target)) return; seen.add(en.target);
+          if (BIG.test(en.target.className)) sfxWhoosh(true);
+        }), { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+        secs.forEach((s) => io.observe(s));
+      }
+    })();
+
+    // reveal the control once the loader has cleared
+    if (motionOff) btn.classList.add("is-ready"); else setTimeout(() => btn.classList.add("is-ready"), 3400);
+
+    // AMBIENT IS ON BY DEFAULT — it begins at the first gesture (browsers block audio before one);
+    // only an explicit mute (stored "off") keeps it silent, and the toggle then acts as the mute.
+    let pref = null; try { pref = localStorage.getItem(KEY); } catch (e) {}
+    if (pref !== "off") {
+      const evs = ["pointerdown", "keydown", "touchstart"];   // valid user-activation gestures only — scroll/wheel can't unlock audio and spammed "AudioContext not allowed to start"
+      let pulsed = false;
+      const onGesture = () => {
+        if (!on) setOn(true, false);
+        if (ctx && ctx.state === "running") {
+          evs.forEach((e) => window.removeEventListener(e, onGesture));
+          if (!pulsed) { pulsed = true; btn.classList.add("is-invite"); setTimeout(() => btn.classList.remove("is-invite"), 5200); }  // flag the mute so it's discoverable
+        }
+      };
+      evs.forEach((e) => window.addEventListener(e, onGesture, { passive: true }));
+    }
+
+    // scroll → ambience breathes with velocity + the bed warms as you descend ---
+    let lastY = window.scrollY, vel = 0, raf = 0;
+    const docH = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const tick = () => {
+      raf = 0;
+      if (on && ctx) { if (directAmb) audioEl.volume = Math.min(1, AMB_BASE + AMB_SWELL * vel); else ambGain.gain.setTargetAtTime(AMB_BASE + AMB_SWELL * vel, ctx.currentTime, 0.18); vel *= 0.9; if (vel > 0.02) raf = requestAnimationFrame(tick); }
+    };
+    window.addEventListener("scroll", () => {
+      const y = window.scrollY; vel = Math.min(1, Math.abs(y - lastY) / 80); lastY = y;
+      if (on && ctx) {
+        const prog = Math.min(1, Math.max(0, y / docH()));
+        if (!directAmb) ambFilter.frequency.setTargetAtTime(10500 - prog * 2500, ctx.currentTime, 0.25);   // gentle warm-toward-dusk (graph only; the file:// direct bed has no filter)
+        if (!raf) raf = requestAnimationFrame(tick);
+      }
+    }, { passive: true });
+  })();
 
   /* DEV: header tweaks panel — flip header directions live (visit ?tweaks) */
   (function initTweaks() {
@@ -787,6 +1203,7 @@
         const target = document.querySelector(id);
         if (!target) return;
         e.preventDefault();
+        if (window.__snd && window.__snd.muteCues) window.__snd.muteCues(1700);   // flying past sections shouldn't fire a whoosh/chime cascade
         lenis.scrollTo(target, { offset: -20, duration: 1.4 });
       });
     });
@@ -824,17 +1241,9 @@
         stagger: 0.12, scrollTrigger: { trigger: ".exp__track", start: "top 80%" } });
   })();
 
-  /* "See for yourself" gallery pan → velocity lean (082 / 024 feel): the photos
-     shear a touch with scroll speed, then ease back. */
-  (function galleryVelocity() {
-    const items = gsap.utils.toArray(".gallery__item");
-    if (!items.length) return;
-    const setters = items.map((el) => gsap.quickTo(el, "skewX", { duration: 0.5, ease: "power3" }));
-    const clamp = gsap.utils.clamp(-9, 9);
-    let vel = 0;
-    ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
-    gsap.ticker.add(() => { const s = clamp(vel / 220); setters.forEach((fn) => fn(s)); vel *= 0.9; });
-  })();
+  /* "See for yourself" gallery: pans horizontally on scroll (horizontalGallery)
+     with NO velocity skew — the shear sheared the cards into leaning parallelograms
+     mid-scroll, which read as "glitching shapes." Clean upright photos now. */
 
   /* A day at Senja → 073-lite: the timeline stops deal in one after another. */
   (function timelineReveal() {
@@ -849,10 +1258,11 @@
   (function footerWordmark() {
     const lockup = document.querySelector(".footer__lockup");
     if (!lockup) return;
-    gsap.fromTo(lockup, { opacity: 0, yPercent: 45 },
-      { opacity: 1, yPercent: 0, duration: 1.1, ease: "power3.out",
+    // entrance uses y(px); parallax uses yPercent — separate transform sub-props so the two triggers don't fight (was the jitter)
+    gsap.fromTo(lockup, { opacity: 0, y: 60 },
+      { opacity: 1, y: 0, duration: 1.1, ease: "power3.out",
         scrollTrigger: { trigger: ".footer", start: "top 85%" } });
-    gsap.to(lockup, { yPercent: -14, ease: "none",
+    gsap.fromTo(lockup, { yPercent: 10 }, { yPercent: -10, ease: "none",
       scrollTrigger: { trigger: ".footer", start: "top bottom", end: "bottom bottom", scrub: true } });
   })();
 
@@ -869,8 +1279,11 @@
     cards.forEach((c) => track.appendChild(c.cloneNode(true)));   // duplicate for a seamless loop
     wrap.appendChild(track);
     wrap.classList.add("is-marquee");
+    // the .reveal fade only ran on the ORIGINALS — force EVERY card (incl. clones) visible so the row never shows empty shells
+    track.querySelectorAll(".tcard").forEach((c) => { gsap.killTweensOf(c); c.classList.remove("reveal"); });
+    gsap.set(track.querySelectorAll(".tcard"), { opacity: 1, y: 0 });
     const half = () => track.scrollWidth / 2;
-    const tl = gsap.to(track, { x: () => -half(), duration: half() / 38, ease: "none", repeat: -1, invalidateOnRefresh: true });
+    const tl = gsap.to(track, { x: () => -half(), duration: half() / 38, ease: "none", repeat: -1 });
     let vel = 0;
     ScrollTrigger.create({ onUpdate: (self) => { vel = self.getVelocity(); } });
     gsap.ticker.add(() => { tl.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(vel) / 400)); vel *= 0.92; });
@@ -879,6 +1292,7 @@
   /* Custom cursor — warm dot lerps to the pointer, grows to an ochre disc with a
      "drag"/"view" label over interactive targets. Desktop fine-pointer only. */
   (function initCursor() {
+    return;   // REMOVED per request — the custom warm-dot "sun" cursor is off; use the native cursor
     if (!window.matchMedia("(hover: hover)").matches || !window.matchMedia("(pointer: fine)").matches) return;
     const cur = document.createElement("div");
     cur.className = "v-cursor"; cur.setAttribute("aria-hidden", "true");

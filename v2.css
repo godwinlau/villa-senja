@@ -4,32 +4,94 @@
    the base design system (tokens, type, components) is untouched.
    ============================================================ */
 
-/* ---- HERO · GATE-APERTURE reveal -------------------------------------------
-   The candi-bentar gate opening (gate-aperture.svg as a mask) grows to uncover
-   the dusk valley; SENJA letters rise from per-letter clip masks over it. */
-.hero { background: radial-gradient(125% 95% at 50% 88%, color-mix(in srgb, var(--ochre) 18%, var(--clay)) 0%, var(--clay) 50%, color-mix(in srgb, var(--teak) 30%, var(--clay)) 100%); }
-.hero__reveal { position: absolute; inset: 0; overflow: hidden; z-index: 0; --ms: 14%;
-  -webkit-mask: url("gate-aperture.svg") center / var(--ms) no-repeat;
-          mask: url("gate-aperture.svg") center / var(--ms) no-repeat; }
-.hero__valley { position: absolute; inset: 0; width: 100%; height: calc(100% + 80px); object-fit: cover;
-  filter: saturate(1.16) contrast(1.03) sepia(0.2) hue-rotate(-12deg) brightness(0.86); }   /* warm to dusk */
-.hero__grade { position: absolute; inset: 0; pointer-events: none;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--espresso) 42%, transparent) 0%, transparent 32%, color-mix(in srgb, var(--teak) 58%, transparent) 100%),
-    radial-gradient(135% 90% at 50% 22%, transparent 42%, color-mix(in srgb, var(--ember) 20%, transparent) 100%); }
-html .hero__word { position: relative; z-index: 2; }
-html .hero__senja { display: flex; justify-content: center; -webkit-text-fill-color: var(--cream); color: var(--cream); background: none; white-space: nowrap; }
-.hero__senja .l { display: inline-block; overflow: hidden; }                 /* per-letter clip mask */
-.hero__senja .l > span { display: inline-block; will-change: transform; }    /* the rising glyph */
+/* ===== SOUL LAYER — handwriting font · host's note · polaroid guests · drifting frangipani ===== */
+@font-face { font-family: "Caveat"; src: url("fonts/caveat.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
 
-/* v2 loader = a brief dusk cover (the hero gate-aperture is the gate moment, not the doors) */
-.loader--cover { background: var(--espresso); }
-.loader--cover .loader__door, .loader--cover .loader__center { display: none; }
+/* — a note from the host (warm, personal, signed by hand) — */
+.hostnote { background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 18%, var(--clay)), var(--clay)); color: var(--cream); padding: clamp(4rem, 9vh, 7rem) var(--pad); overflow: hidden; }
+.hostnote__wrap { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: clamp(1.6rem, 4vw, 4.2rem); align-items: center; max-width: min(92vw, 68rem); margin-inline: auto; }
+.hostnote__portrait { margin: 0; justify-self: center; max-width: 21rem; background: var(--cream); padding: 0.7rem 0.7rem 0; border-radius: 4px; box-shadow: 0 26px 56px rgba(18, 9, 3, 0.46); transform: rotate(-2deg); }
+.hostnote__portrait img { width: 100%; height: clamp(15rem, 21vw, 19rem); object-fit: cover; border-radius: 2px; display: block; }
+.hostnote__cap { font-family: "Caveat", cursive; font-weight: 600; font-size: 1.45rem; line-height: 1; color: var(--teak); text-align: center; margin: 0; padding: 0.55rem 0 0.7rem; }
+.hostnote__text { font-family: "Salmond", Georgia, serif; font-weight: 700; text-transform: none; letter-spacing: 0.005em; font-size: clamp(1.15rem, 1.85vw, 1.68rem); line-height: 1.42; color: color-mix(in srgb, var(--cream) 95%, transparent); margin: 1rem 0 1.5rem; }
+.hostnote__text::first-letter { float: left; font-size: 3em; line-height: 0.74; padding: 0.04em 0.14em 0 0; color: var(--ochre); }
+.hostnote__sign { font-family: "Caveat", cursive; font-weight: 600; font-size: clamp(2.3rem, 4.2vw, 3.6rem); line-height: 0.85; color: var(--ochre); margin: 0; }
+.hostnote__flourish { display: block; width: 9.5rem; height: auto; color: var(--ochre); opacity: 0.85; margin-top: 0.3rem; }
+@media (max-width: 740px) { .hostnote__wrap { grid-template-columns: 1fr; text-align: left; } .hostnote__portrait { max-width: 16rem; } }
 
-/* hero on narrow phones: keep SENJA + the loader gate from clipping */
-@media (max-width: 540px) {
-  html .hero__senja { font-size: clamp(4.5rem, 24vw, 8rem); }
-  .loader__gh { height: auto; width: clamp(7rem, 40vw, 12rem); aspect-ratio: 100/280; }
+/* — guest words as warm polaroid snapshots (cream paper + handwritten names) — */
+.guests .tcard { background: var(--cream); color: var(--teak); border-radius: 5px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36); padding: 0.9rem 0.9rem 1.15rem; }
+.guests .tcard blockquote { color: var(--teak); }
+.guests .tcard__who strong { font-family: "Caveat", cursive; font-weight: 600; font-size: 1.55rem; letter-spacing: 0; text-transform: none; color: var(--clay); line-height: 1; }
+.guests .tcard__who span, .guests .tcard__src { color: color-mix(in srgb, var(--teak) 62%, transparent); }
+.guests .tcard__src i { color: var(--clay); }
+.guests .tcard__stars { color: var(--ochre); }   /* stay gold on the cream paper */
+
+/* — a frangipani petal drifting down the page (a quiet recurring delight) — */
+.frangipani { position: fixed; top: -9vh; left: 0; z-index: 8000; pointer-events: none; width: clamp(20px, 2.3vw, 34px); height: auto; opacity: 0; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .frangipani { display: none !important; } }
+
+/* ---- HERO · V10 (HT formula) — video centerpiece; its clip-mask OPENS to full-bleed on scroll ---- */
+.hero { position: relative; display: block; height: 100vh; min-height: 100svh; overflow: hidden; padding: 0; margin: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 20%, var(--clay)), var(--clay)); }
+.hv10__vid { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; will-change: clip-path;
+  clip-path: inset(44% 24% 22% 24% round 10px); filter: saturate(1.06) contrast(1.03); }
+.hv10__corner { position: absolute; z-index: 5; top: clamp(1.4rem, 2.6vw, 2.2rem); font: 600 clamp(0.58rem, 0.74vw, 0.72rem) "Hanken Grotesk", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 62%, transparent); }
+.hv10__corner--l { left: clamp(1.4rem, 3vw, 3rem); } .hv10__corner--r { right: clamp(1.4rem, 3vw, 3rem); }
+.hv10__corner em { font-style: normal; color: var(--ochre); }
+.hv10__content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: clamp(4.5rem, 9vh, 7rem) clamp(1.4rem, 3vw, 3rem) clamp(2rem, 4vh, 3rem); color: var(--cream); }
+.hv10__eye { color: color-mix(in srgb, var(--cream) 72%, transparent); margin: 0 0 clamp(0.7rem, 1.3vw, 1.1rem); }
+.hv10__head { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.015em; line-height: 0.94; font-size: clamp(2.1rem, 5.6vw, 6.6rem); color: var(--ochre); }
+.hv10__sub { margin: clamp(0.8rem, 1.4vw, 1.2rem) 0 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.15; font-size: clamp(1rem, 1.7vw, 1.55rem); color: color-mix(in srgb, var(--cream) 92%, transparent); }
+.hv10__rule { width: min(54%, 440px); margin: clamp(1rem, 1.8vw, 1.5rem) auto clamp(0.4rem, 1vw, 0.8rem); }
+.hv10__spacer { width: min(56vw, 720px); aspect-ratio: 1.78; margin-top: clamp(0.6rem, 1.4vw, 1.1rem); pointer-events: none; }
+.hv10__cta { margin-top: clamp(1rem, 2.2vw, 1.7rem); display: inline-flex; gap: clamp(1rem, 2vw, 1.6rem); align-items: center; }
+.hv10__talk { font: 500 0.92rem "Hanken Grotesk", sans-serif; text-decoration: none; padding-bottom: 3px; color: color-mix(in srgb, var(--cream) 86%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--cream) 40%, transparent); transition: color .3s var(--ease), border-color .3s var(--ease); }
+.hv10__talk:hover { color: var(--ochre); border-color: var(--ochre); }
+.hv10__trust { margin: clamp(0.7rem, 1.4vw, 1rem) 0 0; font: 600 0.8rem "Hanken Grotesk", sans-serif; letter-spacing: 0.03em; color: color-mix(in srgb, var(--cream) 78%, transparent); }
+.hv10__trust .stars { color: var(--ochre); }
+.hv10__cue { position: absolute; bottom: clamp(1.4rem, 3vh, 2.4rem); left: 50%; transform: translateX(-50%); z-index: 5; font: 600 0.62rem "Hanken Grotesk", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); }
+/* the moment that fades in over the full-bleed video — eyebrow + line + the villa's offer, on a soft scrim */
+.hv10__caption { position: absolute; left: 50%; bottom: 8.5vh; transform: translateX(-50%); z-index: 3; opacity: 0; pointer-events: none; text-align: center; max-width: min(92vw, 720px);
+  display: flex; flex-direction: column; align-items: center; gap: clamp(0.55rem, 1.2vw, 0.95rem);
+  padding: clamp(1.4rem, 2.8vw, 2.4rem) clamp(1.8rem, 4vw, 3.2rem); border-radius: 16px;
+  background: radial-gradient(120% 140% at 50% 50%, rgba(18,9,3,0.66), rgba(18,9,3,0.28) 68%, transparent); }
+.hv10__cap-eye { margin: 0; font: 600 0.66rem "Hanken Grotesk", sans-serif; letter-spacing: 0.26em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 74%, transparent); }
+.hv10__cap-line { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; line-height: 1; font-size: clamp(1.5rem, 3.2vw, 3rem); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+.hv10__cap-line em { font-style: normal; color: var(--ochre); }
+.hv10__cap-meta { margin: 0.2rem 0 0; font: 600 0.8rem "Hanken Grotesk", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+
+/* ---- LOADER · redrawn candi-bentar — two columnar gate-towers part to reveal the hero ---- */
+.vldr { position: fixed; inset: 0; z-index: 9600; }   /* above grain/paper (9000) + scrollbar (9500) */
+.vldr__glow { position: absolute; z-index: 1; left: 50%; top: 50%; width: 60vh; height: 90vh; transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--ochre) 60%, transparent), color-mix(in srgb, var(--ember) 22%, transparent) 45%, transparent 72%); filter: blur(6px); }
+.vldr__door { position: absolute; top: 0; bottom: 0; width: 50vw; z-index: 2; overflow: hidden; will-change: transform;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 34%, var(--espresso)) 0%, var(--espresso) 70%); }
+.vldr__door--l { left: 0; } .vldr__door--r { right: 0; }
+.vldr__door::after { content: ""; position: absolute; inset: 0; opacity: 0.5; mix-blend-mode: overlay; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 180px 180px; }
+.vldr__gate { position: absolute; bottom: 50vh; height: 30vh; width: auto; z-index: 3; }   /* emblem in the upper half; 200x100 viewBox → width = 2x height, so seam offset = height */
+.vldr__door--l .vldr__gate { right: -30vh; }
+.vldr__door--r .vldr__gate { left: -30vh; }
+.vldr__gate path { fill: color-mix(in srgb, var(--ochre) 12%, transparent); stroke: var(--ochre); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+.vldr__gate .base { fill: none; }
+.vldr__center { position: absolute; z-index: 4; left: 0; right: 0; top: 62%; transform: translateY(-50%); text-align: center; pointer-events: none; }
+.vldr__eye { margin: 0 0 0.7rem; font: 600 0.72rem "Hanken Grotesk", sans-serif; letter-spacing: 0.34em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); opacity: 0; }
+.vldr__mark { margin: 0; overflow: hidden; padding-bottom: 0.12em; }
+.vldr__mark .ln { display: inline-block; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(2.2rem, 6.5vw, 5.4rem); color: var(--ochre); }
+.vldr__hint { position: absolute; z-index: 5; left: 50%; bottom: 11vh; transform: translateX(-50%);
+  font: 600 0.7rem "Hanken Grotesk", sans-serif; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 64%, transparent);
+  background: none; border: 0; padding: 0.7rem 1.1rem; cursor: pointer; opacity: 0; pointer-events: none; transition: color .3s var(--ease); }
+.vldr.is-armed .vldr__hint { pointer-events: auto; animation: vldr-hint 2.2s ease-in-out infinite; }
+.vldr__hint:hover { color: var(--ochre); }
+@keyframes vldr-hint { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.95; } }
+@media (prefers-reduced-motion: reduce) { .vldr { display: none; } }
+
+/* hero on phones */
+@media (max-width: 700px) {
+  .hv10__head { font-size: clamp(2.2rem, 11vw, 4.4rem); }
+  .hv10__corner { display: none; }
 }
 
 /* ---- 087 · testimonials marquee -------------------------------------------
@@ -50,6 +112,28 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 .v-cursor__label { font: 600 0.58rem "Hanken Grotesk", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teak); opacity: 0; transition: opacity .25s; }
 .v-cursor.is-label .v-cursor__label { opacity: 1; }
 
+/* ---- footer asset credit (CC-BY attribution) — discreet, sits in the footer base ---- */
+.footer__credit { font-size: 0.66rem; letter-spacing: 0.02em; opacity: 0.62; }
+.footer__credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; transition: color .25s var(--ease); }
+.footer__credit a:hover { color: var(--ochre); opacity: 1; }
+
+/* ---- reveal-band — a flock of black SVG birds: wings flap, bodies float, and the
+   whole flock drifts + scales with scroll (wired in v2.js). Layered above the photo,
+   below the headline. ---------------------------------------------------------------- */
+.reveal-band__birds { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.reveal-band__inner { z-index: 2; }   /* headline stays above the flock */
+.bird { position: absolute; will-change: transform; }
+.bird__fly { display: block; animation: bird-float var(--fly, 6s) ease-in-out var(--flyd, 0s) infinite; }
+.bird__svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 3px 7px rgba(0,0,0,0.28)); }
+.bird__w { fill: #0b0704; }
+.bird__w--l { transform-box: fill-box; transform-origin: 100% 70%; animation: bird-flap-l var(--flap, .5s) ease-in-out var(--flapd, 0s) infinite; }
+.bird__w--r { transform-box: fill-box; transform-origin: 0% 70%; animation: bird-flap-r var(--flap, .5s) ease-in-out var(--flapd, 0s) infinite; }
+@keyframes bird-flap-l { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(24deg); } }
+@keyframes bird-flap-r { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(-24deg); } }
+@keyframes bird-float { 0%, 100% { transform: translateY(-5px); } 50% { transform: translateY(6px); } }
+@media (max-width: 700px) { .reveal-band__birds .bird:nth-child(n+5) { display: none; } }  /* thin the flock on phones */
+@media (prefers-reduced-motion: reduce) { .bird__w--l, .bird__w--r, .bird__fly { animation: none; } }
+
 /* ---- §2 lead — 004 word-slide reveal on the statement + a quiet story line ---- */
 .lead__p[data-words] { overflow: hidden; }
 .lead__p .word { display: inline-block; will-change: transform; }
@@ -62,3 +146,47 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   transform-origin: center center;
   will-change: transform;
 }
+
+/* ---- ambient sound toggle — opt-in Bali soundscape; tasteful glass pill + live equalizer ---- */
+.snd { position: fixed; z-index: 9400; right: clamp(1rem, 2.4vw, 2rem); bottom: clamp(1rem, 2.4vw, 2rem);
+  display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.62rem 0.95rem 0.62rem 0.78rem;
+  border: 1px solid color-mix(in srgb, var(--cream) 24%, transparent); border-radius: 999px;
+  background: color-mix(in srgb, var(--espresso) 62%, transparent); -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
+  color: color-mix(in srgb, var(--cream) 88%, transparent); font: 600 0.7rem "Hanken Grotesk", sans-serif; letter-spacing: 0.16em; text-transform: uppercase;
+  cursor: pointer; opacity: 0; transform: translateY(10px); transition: opacity .6s var(--ease), transform .6s var(--ease), background .35s var(--ease), border-color .35s var(--ease), color .35s var(--ease); }
+.snd.is-ready { opacity: 1; transform: translateY(0); }
+.snd:hover { background: color-mix(in srgb, var(--espresso) 82%, transparent); border-color: color-mix(in srgb, var(--ochre) 58%, transparent); color: var(--ochre); }
+.snd.is-on { color: var(--ochre); border-color: color-mix(in srgb, var(--ochre) 50%, transparent); }
+.snd__eq { display: inline-flex; align-items: flex-end; gap: 2px; width: 16px; height: 14px; }
+.snd__eq i { flex: 1 1 auto; height: 26%; background: currentColor; border-radius: 1px; transform-origin: bottom; }
+.snd.is-on .snd__eq i { animation: snd-eq 920ms ease-in-out infinite; }
+.snd.is-on .snd__eq i:nth-child(2) { animation-duration: 760ms; animation-delay: -220ms; }
+.snd.is-on .snd__eq i:nth-child(3) { animation-duration: 1080ms; animation-delay: -480ms; }
+.snd.is-on .snd__eq i:nth-child(4) { animation-duration: 680ms; animation-delay: -120ms; }
+@keyframes snd-eq { 0%, 100% { height: 22%; } 50% { height: 100%; } }
+/* first-visit invite — a few soft ochre pulses, then it rests */
+.snd.is-invite { animation: snd-invite 2.3s var(--ease) 3; }
+@keyframes snd-invite { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ochre) 0%, transparent); } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--ochre) 13%, transparent); } }
+.snd__hint { position: absolute; right: calc(100% + 0.55rem); top: 50%; transform: translate(6px, -50%); white-space: nowrap;
+  padding: 0.42rem 0.7rem; border-radius: 9px; background: var(--espresso); color: var(--cream); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: none;
+  opacity: 0; pointer-events: none; transition: opacity .45s var(--ease), transform .45s var(--ease); }
+.snd.is-invite .snd__hint, .snd:hover .snd__hint { opacity: 0.94; transform: translate(0, -50%); }
+@media (max-width: 700px) { .snd { padding: 0.6rem; gap: 0; } .snd__txt { display: none; } .snd__hint { display: none; } }
+@media (prefers-reduced-motion: reduce) { .snd.is-on .snd__eq i { animation: none; height: 56%; } .snd.is-invite { animation: none; } }
+
+/* ───────── Experiences slider — exact integer cards per view ─────────
+   Fixed 24rem cards showed ~3.9 per view, so the flush-right end-stop sliced the
+   left card ("cut off"). Sizing each card to an EXACT fraction of the row makes
+   flush-left snapping tile perfectly: every stop shows whole cards, the last card
+   lands fully visible, and nothing is ever half-cut on either side. */
+.exp__track { --show: 4; --expgap: clamp(1rem, 2vw, 1.6rem); gap: var(--expgap); }
+.exp-card { flex: 0 0 calc((100% - (var(--show) - 1) * var(--expgap)) / var(--show)); }
+@media (max-width: 1280px) { .exp__track { --show: 3; } }
+@media (max-width: 800px)  { .exp__track { --show: 2; } }
+@media (max-width: 520px)  { .exp__track { --show: 1; } }
+
+/* Booking heading was the ONLY non-uppercase heading on the page (a "deliberate
+   lowercase moment" in the base CSS) — it read as a mistake next to FAQ/Included,
+   its same-size tier-mates. Bring it in line with every other heading. Size stays
+   --fs-quiet (the intentional utility-section tier). */
+.booking__title { text-transform: uppercase; }
