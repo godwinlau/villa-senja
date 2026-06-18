@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — hero arch-aperture scroll lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--clay); font-family: "Hanken Grotesk", sans-serif; }
+    .lab-note { position: fixed; z-index: 80; bottom: 0; left: 0; right: 0; padding: 0.45rem 0.8rem; text-align: center; font: 600 0.6rem "Hanken Grotesk"; letter-spacing: 0.14em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 55%, transparent); background: rgba(20,10,4,0.5); pointer-events: none; }
+    .lab-prog { position: fixed; z-index: 80; top: 0; left: 0; height: 3px; width: 0; background: var(--ochre); }
+
+    .shero { position: relative; height: 100vh; width: 100%; overflow: hidden; color: var(--cream);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 22%, var(--clay)), var(--clay)); }
+
+    /* the valley, seen THROUGH the candi-bentar arch; the arch opens by growing its mask-size on scroll */
+    .shero__gate { position: absolute; inset: 0; z-index: 1; will-change: -webkit-mask-size, mask-size;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto calc(var(--archh, 44) * 1vh) no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto calc(var(--archh, 44) * 1vh) no-repeat; }
+    .shero__gate img { width: 100%; height: 100%; object-fit: cover; display: block; will-change: transform; filter: saturate(1.08) contrast(1.03); }
+    /* warm scrim so type reads over both terracotta and the arch image */
+    .shero__grade { position: absolute; inset: 0; z-index: 2; pointer-events: none;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--clay) 62%, transparent) 0%, color-mix(in srgb, var(--clay) 10%, transparent) 26%, transparent 50%, color-mix(in srgb, var(--teak) 30%, transparent) 78%, color-mix(in srgb, var(--teak) 60%, transparent) 100%); }
+
+    .shero__corner { position: absolute; z-index: 6; font: 600 clamp(0.58rem, 0.74vw, 0.72rem) "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 62%, transparent); }
+    .shero__corner--tl { top: clamp(1.2rem, 2.4vw, 2rem); left: clamp(1.4rem, 3vw, 3rem); }
+    .shero__corner--tr { top: clamp(1.2rem, 2.4vw, 2rem); right: clamp(1.4rem, 3vw, 3rem); }
+    .shero__corner em { font-style: normal; color: var(--ochre); }
+
+    .shero__top { position: absolute; top: clamp(2.6rem, 7vh, 6rem); left: 0; right: 0; z-index: 5; text-align: center; padding: 0 5vw; }
+    .shero__eye { margin: 0 0 clamp(0.5rem, 1.2vw, 1rem); font: 600 clamp(0.62rem, 0.82vw, 0.8rem) "Hanken Grotesk"; letter-spacing: 0.34em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 72%, transparent); }
+    .shero__head { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92;
+      font-size: clamp(2.4rem, 10.5vw, 11.5rem); color: var(--ochre); text-shadow: 0 6px 30px color-mix(in srgb, var(--teak) 60%, transparent); transform-origin: center 38%; will-change: transform; }
+    /* the quiet line that whispers in over the open valley */
+    .shero__bridge { position: absolute; z-index: 5; left: 0; right: 0; bottom: 22vh; margin: 0; text-align: center; opacity: 0;
+      font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(1.3rem, 2.6vw, 2.4rem);
+      color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,0.55); }
+    .shero__bridge em { font-style: normal; color: var(--ochre); }
+    .shero__sub { margin: clamp(0.4rem, 1vw, 0.8rem) 0 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(1.05rem, 2.3vw, 2.1rem); color: color-mix(in srgb, var(--cream) 94%, transparent); }
+
+    .shero__bottom { position: absolute; bottom: clamp(2rem, 5vh, 4rem); left: 0; right: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: clamp(0.8rem, 1.6vw, 1.2rem); }
+    .shero__cta { display: inline-flex; gap: clamp(1rem, 2vw, 1.6rem); align-items: center; }
+    .shero .sv-talk { font: 500 0.92rem "Hanken Grotesk"; text-decoration: none; padding-bottom: 3px; color: color-mix(in srgb, var(--cream) 86%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--cream) 40%, transparent); }
+    .shero__trust { margin: 0; font: 600 0.8rem "Hanken Grotesk"; letter-spacing: 0.03em; color: color-mix(in srgb, var(--cream) 76%, transparent); }
+    .shero__trust .stars { color: var(--ochre); letter-spacing: 0.05em; }
+    .shero__cue { font: 600 0.62rem "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); }
+
+    /* the section you fall INTO */
+    .next { position: relative; min-height: 100vh; background: var(--espresso); color: var(--cream); display: grid; place-items: center; text-align: center; padding: 8vh 6vw; }
+    .next__eye { font: 600 0.72rem "Hanken Grotesk"; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ochre); margin: 0 0 1rem; }
+    .next__h { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; font-size: clamp(2.4rem, 6vw, 5.5rem); line-height: 0.95; letter-spacing: -0.01em; max-width: 16ch; }
+    .next__p { margin: 1.4rem auto 0; max-width: 48ch; font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.6; color: color-mix(in srgb, var(--cream) 78%, transparent); }
+    .spacer { height: 60vh; background: var(--espresso); }
+  </style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="lab-prog" data-prog></div>
+
+  <div class="pinwrap" data-pin>
+    <section class="shero">
+      <div class="shero__gate" data-gate><img data-img src="images/valley.jpg" alt="The rice-terrace valley at dusk" /></div>
+      <div class="shero__grade" aria-hidden="true"></div>
+
+      <span class="shero__corner shero__corner--tl">Villa Senja</span>
+      <span class="shero__corner shero__corner--tr">Ubud · <time data-clock>17:45</time> <em>WITA</em></span>
+
+      <div class="shero__top" data-top>
+        <p class="shero__eye" data-eye>A hidden villa — Ubud, Bali</p>
+        <h1 class="shero__head" data-head>Wake Slowly</h1>
+        <p class="shero__sub" data-sub>Villa Senja · the warm Balinese dusk</p>
+      </div>
+
+      <p class="shero__bridge" data-bridge aria-hidden="true">and the day ends in <em>senja</em></p>
+
+      <div class="shero__bottom" data-bottom>
+        <div class="shero__cta">
+          <a href="#book" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a>
+          <a href="#host" class="sv-talk">or speak with the host →</a>
+        </div>
+        <p class="shero__trust"><span class="stars">★★★★★</span> 4.98 · 126 verified stays · from $420 / night</p>
+        <span class="shero__cue" data-cue>scroll to step through ↓</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="next">
+    <div>
+      <p class="next__eye">The whole place, only one booking at a time</p>
+      <h2 class="next__h">Three pavilions, a pool, and the valley — yours</h2>
+      <p class="next__p">You came through the gate. Now slow down: open-air living above the rice fields, a private chef, and the day ending in senja.</p>
+    </div>
+  </section>
+  <div class="spacer"></div>
+
+  <p class="lab-note" data-note>arch-aperture — the candi-bentar gate OPENS on scroll (mask-size grow, 037/gate mechanic) → through the gate into the valley</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+  (function () {
+    const $ = (s) => document.querySelector(s);
+    (function () { const el = $("[data-clock]"); if (!el) return; const tick = () => { try { el.textContent = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Makassar", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()); } catch (e) {} }; tick(); setInterval(tick, 30000); })();
+
+    if (!window.gsap) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const gate = $("[data-gate]");
+
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: "[data-pin]", start: "top top", end: "+=170%", pin: true, scrub: 1, invalidateOnRefresh: true,
+        onUpdate: (self) => { const p = $("[data-prog]"); if (p) p.style.width = (self.progress * 100) + "%"; } },
+    });
+
+    // 1) LAYERED EXIT — you move *past* the hero text (parallax depth, not a flat fade)
+    tl.to("[data-eye]", { opacity: 0, y: -80, ease: "power2.in", duration: 0.3 }, 0);
+    tl.to("[data-head]", { opacity: 0, y: -150, scale: 1.14, ease: "power2.in", duration: 0.5 }, 0);   // pass *through* WAKE SLOWLY
+    tl.to("[data-sub]", { opacity: 0, y: -70, ease: "power2.in", duration: 0.4 }, 0.04);
+    tl.to("[data-bottom]", { opacity: 0, y: 60, ease: "power2.in", duration: 0.4 }, 0);
+    tl.to(".shero__corner", { opacity: 0, duration: 0.3 }, 0);
+    // 2) the ARCH OPENS — mask-size grows so the candi-bentar doorway widens into the full valley
+    tl.fromTo(gate, { "--archh": 44 }, { "--archh": 820, ease: "power2.inOut", duration: 1 }, 0.05);
+    // 3) slow push-in on the valley as you move through (Ken-Burns)
+    tl.fromTo("[data-img]", { scale: 1.16 }, { scale: 1, ease: "none", duration: 1 }, 0.05);
+    // 4) a quiet line whispers in over the open valley, then clears
+    tl.fromTo("[data-bridge]", { opacity: 0, y: 24 }, { opacity: 1, y: 0, ease: "power2.out", duration: 0.3 }, 0.6)
+      .to("[data-bridge]", { opacity: 0, y: -16, ease: "power2.in", duration: 0.25 }, 0.92);
+
+    // 5) HAND-OFF — the next section's content rises in (the site's masked-line reveal) as the valley scrolls up
+    gsap.from(".next__eye, .next__h, .next__p", {
+      y: 48, opacity: 0, ease: "expo.out", duration: 0.9, stagger: 0.12,
+      scrollTrigger: { trigger: ".next", start: "top 72%" },
+    });
+
+    addEventListener("resize", () => ScrollTrigger.refresh());
+  })();
+  </script>
+</body>
+</html>

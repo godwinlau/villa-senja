@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — V10 hero · video-mask enlarge on scroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--clay); color: var(--cream); font-family: "Hanken Grotesk", sans-serif; }
+    .note { position: fixed; z-index: 200; bottom: 0; left: 0; right: 0; padding: 0.45rem 0.8rem; text-align: center; font: 600 0.6rem "Hanken Grotesk"; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 56%, transparent); background: rgba(20,10,4,0.5); pointer-events: none; }
+    .prog { position: fixed; z-index: 200; top: 0; left: 0; height: 3px; width: 0; background: var(--ochre); }
+
+    .hero { position: relative; height: 100vh; overflow: hidden;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 20%, var(--clay)), var(--clay)); }
+    /* the video: full-viewport, fixed, object-fit cover — a CLIP-PATH mask shows only the framed window; it opens to full on scroll */
+    .hero__vid { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; will-change: clip-path;
+      clip-path: inset(44% 22% 20% 22% round 8px); filter: saturate(1.06) contrast(1.03); }
+    .hero__corner { position: absolute; z-index: 5; font: 600 clamp(0.58rem, 0.74vw, 0.72rem) "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 62%, transparent); top: clamp(1.2rem,2.4vw,2rem); }
+    .hero__corner--l { left: clamp(1.4rem,3vw,3rem); } .hero__corner--r { right: clamp(1.4rem,3vw,3rem); } .hero__corner em { font-style: normal; color: var(--ochre); }
+
+    .hero__content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      padding: clamp(4.5rem, 9vh, 7rem) clamp(1.4rem, 3vw, 3rem) clamp(2rem, 4vh, 3rem); }
+    .hero__eye { margin: 0 0 clamp(0.7rem, 1.3vw, 1.1rem); font: 600 clamp(0.62rem, 0.78vw, 0.78rem) "Hanken Grotesk"; letter-spacing: 0.32em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 70%, transparent); }
+    .hero__head { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.015em; line-height: 0.94; font-size: clamp(2.2rem, 6.6vw, 7.6rem); color: var(--ochre); }
+    .hero__sub { margin: clamp(0.8rem, 1.4vw, 1.2rem) 0 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.15; font-size: clamp(1rem, 1.7vw, 1.55rem); color: color-mix(in srgb, var(--cream) 92%, transparent); }
+    .hero__rule { width: min(54%, 440px); margin: clamp(1rem, 1.8vw, 1.5rem) auto clamp(0.4rem, 1vw, 0.8rem); }
+    /* the spacer reserves the window's place in the layout; JS measures it to position the video's clip window */
+    .hero__spacer { width: min(56vw, 720px); aspect-ratio: 1.78; margin-top: clamp(0.6rem, 1.4vw, 1.1rem); pointer-events: none; }
+    .hero__cta { margin-top: clamp(1rem, 2.2vw, 1.7rem); display: inline-flex; gap: clamp(1rem, 2vw, 1.6rem); align-items: center; }
+    .hero .sv-talk { font: 500 0.92rem "Hanken Grotesk"; text-decoration: none; padding-bottom: 3px; color: color-mix(in srgb, var(--cream) 86%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--cream) 40%, transparent); }
+    .hero__trust { margin: clamp(0.7rem, 1.4vw, 1rem) 0 0; font: 600 0.8rem "Hanken Grotesk"; letter-spacing: 0.03em; color: color-mix(in srgb, var(--cream) 78%, transparent); } .hero__trust .stars { color: var(--ochre); }
+    .hero__cue { position: absolute; bottom: clamp(1.4rem,3vh,2.4rem); left: 50%; transform: translateX(-50%); z-index: 5; font: 600 0.62rem "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); }
+
+    /* the section you fall into once the video is full-bleed */
+    .next { position: relative; z-index: 3; min-height: 100vh; background: var(--espresso); color: var(--cream); display: grid; place-items: center; text-align: center; padding: 8vh 6vw; }
+    .next__eye { font: 600 0.72rem "Hanken Grotesk"; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ochre); margin: 0 0 1rem; }
+    .next__h { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; font-size: clamp(2.4rem, 6vw, 5.4rem); line-height: 0.95; letter-spacing: -0.01em; max-width: 16ch; }
+    .next__p { margin: 1.4rem auto 0; max-width: 48ch; font-size: clamp(1rem,1.3vw,1.2rem); line-height: 1.6; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+    .spacer-end { height: 50vh; background: var(--espresso); }
+  </style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="prog" data-prog></div>
+
+  <video class="hero__vid" data-vid autoplay muted loop playsinline poster="images/valley.jpg">
+    <source src="videos/hero.mp4" type="video/mp4" />
+  </video>
+
+  <div class="pin" data-pin>
+    <section class="hero">
+      <span class="hero__corner hero__corner--l">Villa Senja</span>
+      <span class="hero__corner hero__corner--r">Ubud · <time data-clock>—:—</time> <em>WITA</em></span>
+      <div class="hero__content" data-content>
+        <p class="hero__eye">A hidden villa — Ubud, Bali</p>
+        <h1 class="hero__head">Wake Slowly</h1>
+        <p class="hero__sub">Villa Senja · the warm Balinese dusk</p>
+        <div class="rule rule--dotted hero__rule" aria-hidden="true"></div>
+        <div class="hero__spacer" data-spacer aria-hidden="true"></div>
+        <div class="hero__cta"><a href="#book" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a><a href="#" class="sv-talk">or speak with the host →</a></div>
+        <p class="hero__trust"><span class="stars">★★★★★</span> 4.98 · 126 verified stays · from $420 / night</p>
+      </div>
+      <span class="hero__cue" data-cue>scroll — step into the valley ↓</span>
+    </section>
+  </div>
+
+  <section class="next">
+    <div>
+      <p class="next__eye">The whole place, only one booking at a time</p>
+      <h2 class="next__h">Three pavilions, a pool, and the valley — yours</h2>
+      <p class="next__p">Open-air living above the rice fields; a private chef, and the day ending in senja.</p>
+    </div>
+  </section>
+  <div class="spacer-end"></div>
+
+  <p class="note">V10 · the video's clip-mask opens from the framed window to full-bleed on scroll (video stays crisp — the mask grows)</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+  (function () {
+    const $ = (s) => document.querySelector(s);
+    (function () { const el = $('[data-clock]'); if (!el) return; const t = () => { try { el.textContent = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); } catch (e) {} }; t(); setInterval(t, 30000); })();
+    if (!window.gsap) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const vid = $('[data-vid]'), spacer = $('[data-spacer]');
+
+    // measure the spacer → the video's resting clip window (so it sits exactly where the framed centerpiece would)
+    function restInset() {
+      const r = spacer.getBoundingClientRect(), vw = innerWidth, vh = innerHeight;
+      const top = Math.max(0, (r.top / vh) * 100), bottom = Math.max(0, ((vh - r.bottom) / vh) * 100);
+      const left = Math.max(0, (r.left / vw) * 100), right = Math.max(0, ((vw - r.right) / vw) * 100);
+      return `inset(${top.toFixed(2)}% ${right.toFixed(2)}% ${bottom.toFixed(2)}% ${left.toFixed(2)}% round 8px)`;
+    }
+    gsap.set(vid, { clipPath: restInset() });
+
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '[data-pin]', start: 'top top', end: '+=160%', pin: true, scrub: 1, invalidateOnRefresh: true,
+      onRefresh: () => gsap.set(vid, { clipPath: restInset() }),
+      onUpdate: (s) => { const p = $('[data-prog]'); if (p) p.style.width = (s.progress * 100) + '%'; } } });
+    // type + chrome lift away
+    tl.to('[data-content] > :not([data-spacer])', { opacity: 0, y: -44, ease: 'power2.in', duration: 0.4, stagger: 0.03 }, 0);
+    tl.to('[data-cue]', { opacity: 0, duration: 0.3 }, 0);
+    // THE MASK OPENS — clip window grows to full-bleed (video stays crisp)
+    tl.to(vid, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'power2.inOut', duration: 1 }, 0.05);
+    // next section content rises in
+    gsap.from('.next__eye, .next__h, .next__p', { y: 48, opacity: 0, ease: 'expo.out', duration: 0.9, stagger: 0.12, scrollTrigger: { trigger: '.next', start: 'top 72%' } });
+
+    addEventListener('resize', () => ScrollTrigger.refresh());
+  })();
+  </script>
+</body>
+</html>

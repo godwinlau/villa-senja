@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — loader lab (redrawn candi-bentar gate)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--espresso); color: var(--cream); font-family: "Hanken Grotesk", sans-serif; overflow: hidden; }
+    .note { position: fixed; z-index: 300; bottom: 0; left: 0; right: 0; padding: 0.45rem 0.8rem; text-align: center; font: 600 0.6rem "Hanken Grotesk"; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 56%, transparent); background: rgba(20,10,4,0.5); pointer-events: none; }
+    .replay { position: fixed; z-index: 300; top: 14px; right: 16px; appearance: none; border: 1px solid color-mix(in srgb, var(--cream) 24%, transparent); background: color-mix(in srgb, var(--espresso) 70%, transparent); color: var(--cream); font: 600 0.66rem "Hanken Grotesk"; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.5em 1em; border-radius: 100em; cursor: pointer; }
+
+    /* ---- hero revealed behind the gate ---- */
+    .hero { position: fixed; inset: 0; z-index: 0; display: grid; place-items: center; text-align: center; overflow: hidden;
+      background: radial-gradient(120% 80% at 50% 116%, color-mix(in srgb, var(--ember) 34%, transparent), color-mix(in srgb, var(--ochre) 14%, transparent) 26%, transparent 56%), linear-gradient(180deg, color-mix(in srgb, var(--teak) 24%, var(--clay)), var(--clay)); }
+    .hero__valley { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; filter: saturate(1.05) contrast(1.02); }
+    .hero__veil { position: absolute; inset: 0; background: radial-gradient(80% 60% at 50% 50%, color-mix(in srgb, var(--clay) 30%, transparent), color-mix(in srgb, var(--clay) 72%, transparent)); }
+    .hero__in { position: relative; z-index: 2; }
+    .hero__eye { margin: 0 0 1rem; font: 600 0.74rem "Hanken Grotesk"; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 72%, transparent); }
+    .hero__h { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.9; font-size: clamp(3rem, 12vw, 12rem); color: var(--ochre); text-shadow: 0 8px 40px rgba(0,0,0,0.4); }
+    .hero__sub { margin: 1rem 0 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(1.05rem, 2.2vw, 2rem); color: color-mix(in srgb, var(--cream) 92%, transparent); }
+
+    /* ---- the loader: two dusk-stone doors, each carrying a candi-bentar tower; they part ---- */
+    .ldr { position: fixed; inset: 0; z-index: 50; }
+    .ldr__glow { position: absolute; z-index: 1; left: 50%; top: 50%; width: 60vh; height: 90vh; transform: translate(-50%, -50%); opacity: 0; pointer-events: none;
+      background: radial-gradient(closest-side, color-mix(in srgb, var(--ochre) 60%, transparent), color-mix(in srgb, var(--ember) 22%, transparent) 45%, transparent 72%); filter: blur(6px); }
+    .ldr__door { position: absolute; top: 0; bottom: 0; width: 50vw; z-index: 2; overflow: hidden; will-change: transform;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 34%, var(--espresso)) 0%, var(--espresso) 70%); }
+    .ldr__door--l { left: 0; }
+    .ldr__door--r { right: 0; }
+    /* dusk-stone tooth: coarse paper fibre on the doors */
+    .ldr__door::after { content: ""; position: absolute; inset: 0; opacity: 0.5; mix-blend-mode: overlay; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 180px 180px; }
+    /* each door holds the FULL gate, centred on the seam, so the two clipped halves meet as one gate */
+    .ldr__gate { position: absolute; bottom: 16vh; height: 58vh; width: auto; z-index: 3; }
+    .ldr__door--l .ldr__gate { right: -26.8vh; }   /* gate centre sits at the door's right edge = the seam */
+    .ldr__door--r .ldr__gate { left: -26.8vh; }
+    .ldr__gate path { fill: color-mix(in srgb, var(--ochre) 12%, transparent); stroke: var(--ochre); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+    .ldr__gate .base { fill: none; }
+
+    .ldr__center { position: absolute; z-index: 4; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; pointer-events: none; }
+    .ldr__eye { margin: 0 0 0.7rem; font: 600 0.72rem "Hanken Grotesk"; letter-spacing: 0.34em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); opacity: 0; }
+    .ldr__mark { margin: 0; overflow: hidden; padding-bottom: 0.12em; }
+    .ldr__mark .ln { display: inline-block; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(2.2rem, 6.5vw, 5.4rem); color: var(--ochre); }
+  </style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- hero behind -->
+  <section class="hero">
+    <img class="hero__valley" src="images/valley.jpg" alt="" />
+    <div class="hero__veil"></div>
+    <div class="hero__in">
+      <p class="hero__eye" data-heroeye>A hidden villa — Ubud, Bali</p>
+      <h1 class="hero__h" data-heroh>Wake Slowly</h1>
+      <p class="hero__sub" data-herosub>Villa Senja · the warm Balinese dusk</p>
+    </div>
+  </section>
+
+  <!-- loader -->
+  <div class="ldr" data-ldr>
+    <div class="ldr__glow" data-glow></div>
+    <div class="ldr__door ldr__door--l" data-door-l>
+      <svg class="ldr__gate" viewBox="0 0 240 260" fill="none" aria-hidden="true">
+        <path class="tower" d="M100 240 L100 22 L88 22 L88 30 L80 30 L80 42 L72 42 L72 210 L60 210 L60 224 L48 224 L48 236 L40 236 L40 240 Z"/>
+        <path class="tower" d="M140 240 L140 22 L152 22 L152 30 L160 30 L160 42 L168 42 L168 210 L180 210 L180 224 L192 224 L192 236 L200 236 L200 240 Z"/>
+        <path class="base" d="M30 242 L210 242"/>
+      </svg>
+    </div>
+    <div class="ldr__door ldr__door--r" data-door-r>
+      <svg class="ldr__gate" viewBox="0 0 240 260" fill="none" aria-hidden="true">
+        <path class="tower" d="M100 240 L100 22 L88 22 L88 30 L80 30 L80 42 L72 42 L72 210 L60 210 L60 224 L48 224 L48 236 L40 236 L40 240 Z"/>
+        <path class="tower" d="M140 240 L140 22 L152 22 L152 30 L160 30 L160 42 L168 42 L168 210 L180 210 L180 224 L192 224 L192 236 L200 236 L200 240 Z"/>
+        <path class="base" d="M30 242 L210 242"/>
+      </svg>
+    </div>
+    <div class="ldr__center" data-center>
+      <p class="ldr__eye" data-eye>Ubud, Bali</p>
+      <h1 class="ldr__mark"><span class="ln" data-mark>Villa Senja</span></h1>
+    </div>
+  </div>
+
+  <button class="replay" data-replay>↻ replay</button>
+  <p class="note">Loader · redrawn candi-bentar — two tiered gate-towers draw in, then part to reveal the hero</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+  (function () {
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    if (!window.gsap) return;
+
+    function play() {
+      const ldr = $('[data-ldr]');
+      gsap.set(ldr, { display: 'block' });
+      gsap.set('[data-door-l]', { xPercent: 0 }); gsap.set('[data-door-r]', { xPercent: 0 });
+      gsap.set('[data-glow]', { opacity: 0, scale: 0.7 });
+      gsap.set('[data-eye]', { opacity: 0 });
+      gsap.set('[data-center]', { opacity: 1, y: 0 });
+      gsap.set('[data-mark]', { yPercent: 120 });
+      // prime gate strokes for draw-on
+      const paths = $$('.ldr__gate .tower, .ldr__gate .base');
+      paths.forEach((p) => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+      gsap.set('[data-heroeye],[data-heroh],[data-herosub]', { clearProps: 'all' });
+
+      const tl = gsap.timeline();
+      // 1) the gate draws itself (gold line carving in)
+      tl.to(paths, { strokeDashoffset: 0, duration: 1.15, ease: 'power2.inOut', stagger: 0.04 }, 0.15);
+      // 2) wordmark + locator settle
+      tl.to('[data-eye]', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.7);
+      tl.to('[data-mark]', { yPercent: 0, duration: 0.85, ease: 'power4.out' }, 0.85);
+      // 3) a held breath, then warm light blooms at the threshold
+      tl.to('[data-glow]', { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' }, 1.9);
+      tl.to('[data-center]', { opacity: 0, y: -26, duration: 0.55, ease: 'power2.in' }, 2.05);
+      // 4) the towers PART — doors carry their halves away
+      tl.to('[data-door-l]', { xPercent: -100, duration: 1.2, ease: 'power3.inOut' }, 2.2);
+      tl.to('[data-door-r]', { xPercent: 100, duration: 1.2, ease: 'power3.inOut' }, 2.2);
+      // 5) the hero rises through the opening; glow fades
+      tl.from('[data-heroeye],[data-heroh],[data-herosub]', { opacity: 0, y: 24, duration: 0.9, ease: 'expo.out', stagger: 0.1 }, 2.55);
+      tl.to('[data-glow]', { opacity: 0, duration: 0.7, ease: 'power2.in' }, 2.9);
+      tl.set(ldr, { display: 'none' }, 3.5);
+    }
+    play();
+    $('[data-replay]').addEventListener('click', play);
+  })();
+  </script>
+</body>
+</html>

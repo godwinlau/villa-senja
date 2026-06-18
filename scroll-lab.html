@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — scroll-narrative lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--espresso); font-family: "Hanken Grotesk", sans-serif; color: var(--cream); }
+    .arch-mask { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto var(--ms, 100%) no-repeat;
+                       mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto var(--ms, 100%) no-repeat; }
+
+    /* switcher */
+    .sw { position: fixed; z-index: 200; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px;
+      background: color-mix(in srgb, var(--espresso) 82%, transparent); backdrop-filter: blur(8px); padding: 6px; border-radius: 100em; border: 1px solid color-mix(in srgb, var(--cream) 18%, transparent); }
+    .sw__btn { appearance: none; border: 0; cursor: pointer; font: 600 0.66rem "Hanken Grotesk"; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 64%, transparent); background: transparent; padding: 0.5em 0.9em; border-radius: 100em; }
+    .sw__btn.is-on { background: var(--ochre); color: var(--espresso); }
+    .sw__note { position: fixed; z-index: 200; bottom: 0; left: 0; right: 0; padding: 0.45rem 0.8rem; text-align: center; font: 600 0.6rem "Hanken Grotesk"; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); background: rgba(20,10,4,0.55); pointer-events: none; }
+    .sw__prog { position: fixed; z-index: 200; top: 0; left: 0; height: 3px; width: 0; background: var(--ochre); }
+
+    .exp { display: none; }
+    body[data-v="1"] .exp--d, body[data-v="2"] .exp--t, body[data-v="3"] .exp--v { display: block; }
+    body:not([data-v="1"]) .only-d, body:not([data-v="2"]) .only-t, body:not([data-v="3"]) .only-v { display: none !important; }
+
+    .sec { position: relative; height: 100vh; display: grid; place-items: center; text-align: center; padding: 8vh 6vw; overflow: hidden; }
+    .eyebrow2 { font: 600 0.72rem "Hanken Grotesk"; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ochre); margin: 0 0 1rem; }
+    .h-giant { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.9; font-size: clamp(2.6rem, 9vw, 9rem); }
+    .h-mid { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.95; font-size: clamp(2rem, 5.5vw, 5rem); max-width: 16ch; }
+    .p-lead { margin: 1.3rem auto 0; max-width: 46ch; font-size: clamp(1rem, 1.3vw, 1.18rem); line-height: 1.6; color: color-mix(in srgb, var(--cream) 82%, transparent); }
+    .gold { color: var(--ochre); }
+    .media-bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; }
+    .media-bg + .veil { position: absolute; inset: 0; z-index: 1; background:
+      radial-gradient(70% 50% at 50% 50%, color-mix(in srgb, var(--espresso) 62%, transparent), transparent 70%),
+      linear-gradient(180deg, color-mix(in srgb, var(--espresso) 42%, transparent) 0%, color-mix(in srgb, var(--espresso) 30%, transparent) 40%, color-mix(in srgb, var(--espresso) 72%, transparent) 100%); }
+    .sec > .inner { position: relative; z-index: 3; }
+    .h-giant, .h-mid, .p-lead, .eyebrow2 { text-shadow: 0 2px 26px rgba(20,10,4,0.72); }
+
+    /* ============ 1 · DESCENT INTO SENJA ============ */
+    /* a fixed ambient wash that warms through the day, + a descending sun, + a fixed time label */
+    /* z-index 2 = tints the photo (z0/1) but sits BELOW the text (z3) so headings stay crisp.
+       NOTE: normal blend (not multiply) — a fixed mix-blend layer drops the content above it in headless Chrome. */
+    .d-wash { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0.32; background: #6a7a8c; }
+    .d-sun { position: fixed; z-index: 61; left: 50%; top: 16%; width: 64px; height: 64px; margin-left: -32px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, #fff7e6, var(--ochre) 70%, transparent 72%); box-shadow: 0 0 60px 10px color-mix(in srgb, var(--ochre) 40%, transparent); }
+    .d-time { position: fixed; z-index: 62; top: 5.2rem; left: 50%; transform: translateX(-50%); pointer-events: none; font: 600 0.7rem "Hanken Grotesk"; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 78%, transparent); }
+    .d-time b { color: var(--ochre); font-weight: 700; }
+    .exp--d .sec { background: var(--clay); }
+    .d-hero { background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 26%, var(--clay)), var(--clay)); }
+    .d-hero .gatewrap { position: absolute; inset: 0; z-index: 0; }
+    /* guaranteed contrast: a soft dark plate behind the day-section text, on any photo */
+    .exp--d .sec .r-in { background: radial-gradient(120% 130% at 50% 46%, rgba(18,9,3,0.8), rgba(18,9,3,0.42) 60%, transparent 80%); padding: clamp(2rem, 5vw, 3.6rem) clamp(2rem, 6vw, 4.6rem); border-radius: 26px; }
+
+    /* ============ 2 · THRESHOLD (gate-wipe) ============ */
+    .t-sec .reveal-through { position: absolute; inset: 0; z-index: 0; will-change: -webkit-mask-size, mask-size; }
+    .t-sec .reveal-through img { width: 100%; height: 100%; object-fit: cover; }
+    .t-cap { position: absolute; z-index: 3; bottom: 8vh; left: 0; right: 0; text-align: center; }
+
+    /* ============ 3 · LIVING VALLEY (pinned backdrop) ============ */
+    .v-stage { position: fixed; inset: 0; z-index: 0; }
+    .v-scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; }
+    .v-scene img { width: 100%; height: 100%; object-fit: cover; }
+    .v-scene.is-on { opacity: 1; }
+    .v-tint { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, color-mix(in srgb, var(--espresso) 36%, transparent), color-mix(in srgb, var(--espresso) 30%, transparent) 50%, color-mix(in srgb, var(--espresso) 64%, transparent)); }
+    .exp--v .sec { background: transparent; }
+    .v-card { background: color-mix(in srgb, var(--espresso) 50%, transparent); backdrop-filter: blur(6px); border: 1px solid color-mix(in srgb, var(--ochre) 28%, transparent); border-radius: 14px; padding: clamp(1.6rem, 3vw, 2.6rem) clamp(1.8rem, 4vw, 3.4rem); }
+
+    @media (max-width: 700px) { .sw { flex-wrap: wrap; max-width: 92vw; } .h-giant { font-size: clamp(2.4rem, 13vw, 4.4rem); } }
+  </style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="sw__prog" data-prog></div>
+  <nav class="sw">
+    <button class="sw__btn" data-go="1">1 · Descent</button>
+    <button class="sw__btn" data-go="2">2 · Threshold</button>
+    <button class="sw__btn" data-go="3">3 · Living valley</button>
+  </nav>
+
+  <!-- fixed layers for exp 1 + 3 (shown only when active) -->
+  <div class="d-wash only-d" data-dwash aria-hidden="true"></div>
+  <div class="d-sun only-d" data-dsun aria-hidden="true"></div>
+  <p class="d-time only-d" data-dtime aria-hidden="true">In Ubud — <b data-todword>dawn</b></p>
+
+  <div class="v-stage only-v" aria-hidden="true">
+    <div class="v-scene" data-scene><img src="images/valley.jpg" alt=""></div>
+    <div class="v-scene" data-scene><img src="images/pool.jpg" alt=""></div>
+    <div class="v-scene" data-scene><img src="images/terrace.jpg" alt=""></div>
+  </div>
+  <div class="v-tint only-v" aria-hidden="true"></div>
+
+  <!-- ============ 1 · DESCENT INTO SENJA ============ -->
+  <main class="exp exp--d">
+    <section class="sec d-hero">
+      <div class="gatewrap arch-mask" data-gate style="--ms:46vh"><img class="media-bg" data-gateimg src="images/valley.jpg" alt=""></div>
+      <div class="inner">
+        <p class="eyebrow2">A hidden villa — Ubud, Bali</p>
+        <h1 class="h-giant gold">Wake Slowly</h1>
+        <p class="p-lead">Villa Senja · the warm Balinese dusk. <span style="opacity:.7">Scroll to descend through the day.</span></p>
+      </div>
+    </section>
+    <section class="sec"><img class="media-bg" src="images/linen.jpg" alt=""><div class="veil"></div><div class="inner r-in"><p class="eyebrow2">Morning · the mist burns off</p><h2 class="h-mid">The valley wakes slow, and so do you</h2><p class="p-lead">Mist sits in the terraces; coffee on the deck before the heat.</p></div></section>
+    <section class="sec"><img class="media-bg" src="images/pool.jpg" alt=""><div class="veil"></div><div class="inner r-in"><p class="eyebrow2">Midday · the pool, the shade</p><h2 class="h-mid">Swim, read, do nothing with intent</h2><p class="p-lead">The spring-fed pool over the rice fields; lunch whenever you feel like it.</p></div></section>
+    <section class="sec"><img class="media-bg" src="images/terrace.jpg" alt=""><div class="veil"></div><div class="inner r-in"><p class="eyebrow2">Senja · the gold hour</p><h2 class="h-mid">The day ends in <span class="gold">senja</span> — book it</h2><p class="p-lead">The warmest light from the west deck — the dusk this place is named for.</p><p class="p-lead" style="margin-top:1.6rem"><a href="#" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a></p></div></section>
+    <section class="sec"><img class="media-bg" src="images/bedroom.jpg" alt=""><div class="veil"></div><div class="inner r-in"><p class="eyebrow2">Night · frogs &amp; lanterns</p><h2 class="h-mid">Then the valley goes dark and loud</h2><p class="p-lead">Dinner under the lanterns, an absurd number of stars.</p></div></section>
+  </main>
+
+  <!-- ============ 2 · THRESHOLD (gate-wipe) ============ -->
+  <main class="exp exp--t">
+    <section class="sec d-hero" style="background:linear-gradient(180deg,color-mix(in srgb,var(--teak) 26%,var(--clay)),var(--clay))">
+      <div class="gatewrap arch-mask" data-tgate style="--ms:46vh"><img class="media-bg" src="images/valley.jpg" alt=""></div>
+      <div class="inner"><p class="eyebrow2">A hidden villa — Ubud, Bali</p><h1 class="h-giant gold">Wake Slowly</h1><p class="p-lead">Each space, entered through the gate.</p></div>
+    </section>
+    <section class="sec t-sec">
+      <div class="reveal-through arch-mask" data-twipe style="--ms:0%"><img src="images/suite.jpg" alt=""><div class="veil"></div></div>
+      <div class="t-cap"><p class="eyebrow2">Through the first gate</p><h2 class="h-mid">The open-air suite</h2></div>
+    </section>
+    <section class="sec t-sec">
+      <div class="reveal-through arch-mask" data-twipe style="--ms:0%"><img src="images/pool.jpg" alt=""><div class="veil"></div></div>
+      <div class="t-cap"><p class="eyebrow2">Through the next</p><h2 class="h-mid">The pool, over the terraces</h2></div>
+    </section>
+  </main>
+
+  <!-- ============ 3 · LIVING VALLEY ============ -->
+  <main class="exp exp--v">
+    <section class="sec"><div class="inner v-card"><p class="eyebrow2">A hidden villa — Ubud, Bali</p><h1 class="h-giant gold">Wake Slowly</h1><p class="p-lead">You arrive in the valley — and never quite leave it.</p></div></section>
+    <section class="sec"><div class="inner v-card"><p class="eyebrow2">The whole place, yours</p><h2 class="h-mid">Three pavilions, a pool, the valley</h2><p class="p-lead">Open-air living above the rice fields, only ever one booking at a time.</p></div></section>
+    <section class="sec"><div class="inner v-card"><p class="eyebrow2">Senja</p><h2 class="h-mid">The day ends in <span class="gold">gold</span></h2><p class="p-lead"><a href="#" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a></p></div></section>
+  </main>
+
+  <p class="sw__note" data-note>1 · Descent into senja — the page lives a day: light warms morning → senja → night as you scroll</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+  (function () {
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const params = new URLSearchParams(location.search);
+    const v = ['1', '2', '3'].includes(params.get('v')) ? params.get('v') : '1';
+    document.body.dataset.v = v;
+    const NOTES = {
+      '1': '1 · Descent into senja — the page lives a day: light warms morning → senja → night as you scroll (ambient wash + descending sun + time label)',
+      '2': '2 · Threshold — every space is entered THROUGH the candi-bentar gate (the gate mask wipes open as each section arrives)',
+      '3': '3 · Living valley — the valley is a fixed backdrop that cross-fades scenes + parallaxes while the content floats over it',
+    };
+    $('[data-note]').textContent = NOTES[v];
+    $$('.sw__btn').forEach((b) => { b.classList.toggle('is-on', b.dataset.go === v); b.addEventListener('click', () => { location.search = '?v=' + b.dataset.go; }); });
+
+    if (!window.gsap) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const prog = $('[data-prog]');
+    ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (s) => { prog.style.width = (s.progress * 100) + '%'; } });
+    // y-only reveal (never leaves content hidden even if jumped to); fades handled by being over a scrim
+    const reveals = (root) => gsap.utils.toArray('.r-in', root).forEach((el) => gsap.from(el.children, { y: 40, duration: 0.9, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: el, start: 'top 88%' } }));
+
+    if (v === '1') {
+      const exp = $('.exp--d');
+      // hero gate opens as you leave the first screen
+      gsap.fromTo('[data-gate]', { '--ms': '46vh' }, { '--ms': '900vh', ease: 'power2.inOut', scrollTrigger: { trigger: '.d-hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+      gsap.fromTo('[data-gateimg]', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.d-hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+      reveals(exp);
+      // THE DAY ARC — ambient wash warms then darkens across the whole experience
+      const wash = '[data-dwash]';
+      gsap.timeline({ scrollTrigger: { trigger: exp, start: 'top top', end: 'bottom bottom', scrub: 1 } })
+        .to(wash, { backgroundColor: '#d9c79a' })   // dawn -> morning warm
+        .to(wash, { backgroundColor: '#f0e3c4' })   // midday bright
+        .to(wash, { backgroundColor: '#f2a83a' })   // senja gold
+        .to(wash, { backgroundColor: '#c2532f' })   // senja ember (warm terracotta)
+        .to(wash, { backgroundColor: '#3a1c0e' });  // night (warm dark, not black)
+      // the sun descends + warms
+      gsap.timeline({ scrollTrigger: { trigger: exp, start: 'top top', end: 'bottom bottom', scrub: 1 } })
+        .to('[data-dsun]', { top: '42%', background: 'radial-gradient(circle,#fff,#faae33 70%,transparent 72%)' })
+        .to('[data-dsun]', { top: '60%', background: 'radial-gradient(circle,#ffd27a,#faae33 70%,transparent 72%)' })
+        .to('[data-dsun]', { top: '82%', background: 'radial-gradient(circle,#faae33,#d1255c 70%,transparent 72%)', boxShadow: '0 0 90px 18px rgba(209,37,92,0.5)' })
+        .to('[data-dsun]', { top: '108%', opacity: 0 });
+      // time-of-day word
+      const words = ['dawn', 'morning', 'midday', 'senja', 'night'];
+      const secs = $$('.exp--d .sec');
+      secs.forEach((s, i) => ScrollTrigger.create({ trigger: s, start: 'top center', end: 'bottom center',
+        onToggle: (self) => { if (self.isActive) $('[data-todword]').textContent = words[i] || 'night'; } }));
+    }
+
+    if (v === '2') {
+      gsap.fromTo('[data-tgate]', { '--ms': '46vh' }, { '--ms': '900vh', ease: 'power2.inOut', scrollTrigger: { trigger: '.exp--t .d-hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+      // each section opens THROUGH the gate as it enters
+      $$('[data-twipe]').forEach((el) => {
+        gsap.fromTo(el, { '--ms': '0vh' }, { '--ms': '460vh', ease: 'power2.out', scrollTrigger: { trigger: el.closest('.sec'), start: 'top 90%', end: 'top 10%', scrub: 1 } });
+      });
+      $$('.t-cap').forEach((cap) => gsap.from(cap.children, { y: 30, opacity: 0, duration: 0.8, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: cap.closest('.sec'), start: 'top 50%' } }));
+    }
+
+    if (v === '3') {
+      const scenes = $$('[data-scene]');
+      scenes[0].classList.add('is-on');
+      const secs = $$('.exp--v .sec');
+      // cross-fade the backdrop scene per section + slow parallax scale
+      secs.forEach((s, i) => ScrollTrigger.create({ trigger: s, start: 'top 60%', end: 'bottom 40%',
+        onToggle: (self) => { if (self.isActive) { scenes.forEach((sc, j) => sc.classList.toggle('is-on', j === Math.min(i, scenes.length - 1))); } } }));
+      gsap.to('.v-stage', { scale: 1.12, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 1 } });
+      gsap.set('.v-stage', { transformOrigin: 'center center' });
+      $$('.exp--v .v-card').forEach((c) => gsap.from(c, { y: 50, opacity: 0, duration: 0.9, ease: 'expo.out', scrollTrigger: { trigger: c, start: 'top 80%' } }));
+    }
+
+    addEventListener('resize', () => ScrollTrigger.refresh());
+  })();
+  </script>
+</body>
+</html>

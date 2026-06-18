@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Villa Senja — Phase 1 · Descent into senja (spine + gate hero)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=100" />
+  <style>
+    body { margin: 0; background: var(--espresso); color: var(--cream); font-family: "Hanken Grotesk", sans-serif; }
+    .note { position: fixed; z-index: 200; bottom: 0; left: 0; right: 0; padding: 0.45rem 0.8rem; text-align: center; font: 600 0.6rem "Hanken Grotesk"; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 58%, transparent); background: rgba(20,10,4,0.5); pointer-events: none; }
+    .prog { position: fixed; z-index: 200; top: 0; left: 0; height: 3px; width: 0; background: var(--ochre); }
+
+    /* ---- THE SPINE (fixed): ambient day-wash (normal blend, sits below text) + descending sun + time label ---- */
+    .sky { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.36; background: #6a7a8c; }   /* the warming light */
+    .sun { position: fixed; z-index: 2; left: 78%; top: 14%; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, #fff7e6, #ffd27a 60%, transparent 72%); box-shadow: 0 0 70px 14px rgba(255,210,120,0.35); }
+    .clock { position: fixed; z-index: 6; top: 5.4rem; left: 50%; transform: translateX(-50%); pointer-events: none;
+      font: 600 0.7rem "Hanken Grotesk"; letter-spacing: 0.3em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+    .clock b { color: var(--ochre); }
+
+    /* ---- sections ---- */
+    .sec { position: relative; min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 9vh 6vw; overflow: hidden; }
+    .sec__bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+    .sec__veil { position: absolute; inset: 0; z-index: 1; background:
+      radial-gradient(75% 60% at 50% 50%, rgba(18,9,3,0.55), transparent 72%),
+      linear-gradient(180deg, rgba(18,9,3,0.4), rgba(18,9,3,0.28) 42%, rgba(18,9,3,0.66)); }
+    .sec__in { position: relative; z-index: 4; max-width: 60rem; }
+    .eyebrow2 { font: 600 0.72rem "Hanken Grotesk"; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ochre); margin: 0 0 1rem; text-shadow: 0 2px 18px rgba(18,9,3,0.7); }
+    .h-mid { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.01em; line-height: 0.96; font-size: clamp(2.2rem, 6vw, 5.4rem); text-shadow: 0 3px 30px rgba(18,9,3,0.66); }
+    .p-lead { margin: 1.3rem auto 0; max-width: 44ch; font-size: clamp(1rem, 1.3vw, 1.18rem); line-height: 1.6; color: color-mix(in srgb, var(--cream) 86%, transparent); text-shadow: 0 2px 18px rgba(18,9,3,0.7); }
+    .gold { color: var(--ochre); }
+    .plate { background: radial-gradient(120% 130% at 50% 46%, rgba(18,9,3,0.74), rgba(18,9,3,0.36) 60%, transparent 82%); padding: clamp(2rem, 5vw, 3.6rem) clamp(2rem, 6vw, 4.6rem); border-radius: 26px; }
+    .r-in > * { will-change: transform; }   /* (NOT .reveal — that collides with styles.css) */
+
+    /* word-by-word reveal (HT signature) */
+    .words .w { display: inline-block; }
+    .words .w span { display: inline-block; opacity: 0.16; will-change: opacity, transform; }
+
+    /* ---- HERO (pinned): valley through the candi-bentar gate; the gate OPENS on scroll ---- */
+    .hero { height: 100vh; background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 26%, var(--clay)), var(--clay)); }
+    .hero__gate { position: absolute; inset: 0; z-index: 0; will-change: -webkit-mask-size, mask-size;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto var(--ms, 46vh) no-repeat;
+              mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='25 16 80 144'%3E%3Cpath fill='%23fff' d='M25 160 L25 100 L38 100 L38 78 L50 78 L54 56 L60 34 L65 16 L70 34 L76 56 L80 78 L92 78 L92 100 L105 100 L105 160 Z'/%3E%3C/svg%3E") center / auto var(--ms, 46vh) no-repeat; }
+    .hero__gate img { width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+    .hero__cnr { position: absolute; z-index: 6; font: 600 0.66rem "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 64%, transparent); top: clamp(1.2rem,2.4vw,2rem); }
+    .hero__cnr--l { left: clamp(1.4rem,3vw,3rem); } .hero__cnr--r { right: clamp(1.4rem,3vw,3rem); } .hero__cnr em { font-style: normal; color: var(--ochre); }
+    .hero__top { position: absolute; z-index: 5; top: clamp(2.6rem,7vh,6rem); left: 0; right: 0; text-align: center; padding: 0 5vw; }
+    .hero__eye { margin: 0 0 clamp(0.5rem,1.2vw,1rem); font: 600 clamp(0.62rem,0.82vw,0.8rem) "Hanken Grotesk"; letter-spacing: 0.34em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 72%, transparent); }
+    .hero__h { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92; font-size: clamp(2.4rem, 10.5vw, 11.5rem); color: var(--ochre); text-shadow: 0 6px 30px color-mix(in srgb, var(--teak) 60%, transparent); transform-origin: center 40%; }
+    .hero__sub { margin: clamp(0.4rem,1vw,0.8rem) 0 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(1.05rem,2.3vw,2.1rem); color: color-mix(in srgb, var(--cream) 94%, transparent); }
+    .hero__bottom { position: absolute; z-index: 5; bottom: clamp(2rem,5vh,4rem); left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: clamp(0.7rem,1.5vw,1.1rem); }
+    .hero .sv-talk { font: 500 0.92rem "Hanken Grotesk"; text-decoration: none; padding-bottom: 3px; color: color-mix(in srgb, var(--cream) 86%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--cream) 40%, transparent); }
+    .hero__cta { display: inline-flex; gap: clamp(1rem,2vw,1.6rem); align-items: center; }
+    .hero__trust { margin: 0; font: 600 0.8rem "Hanken Grotesk"; letter-spacing: 0.03em; color: color-mix(in srgb, var(--cream) 78%, transparent); } .hero__trust .stars { color: var(--ochre); }
+    .hero__cue { font: 600 0.62rem "Hanken Grotesk"; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 62%, transparent); }
+    .hero__bridge { position: absolute; z-index: 5; left: 0; right: 0; bottom: 24vh; margin: 0; text-align: center; opacity: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(1.3rem,2.6vw,2.4rem); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,0.55); }
+    .hero__bridge em { font-style: normal; color: var(--ochre); }
+
+    @media (max-width: 700px) { .hero__h { font-size: clamp(2.4rem, 13vw, 4.6rem); } .sun { left: 70%; } }
+  </style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="prog" data-prog></div>
+
+  <!-- THE SPINE -->
+  <div class="sky" data-sky aria-hidden="true"></div>
+  <div class="sun" data-sun aria-hidden="true"></div>
+  <p class="clock" aria-hidden="true">In Ubud · <b data-todword>dawn</b> · <span data-clock>—:—</span> WITA</p>
+
+  <!-- HERO -->
+  <div class="pin" data-pin>
+    <section class="hero">
+      <div class="hero__gate" data-gate><img data-gateimg src="images/valley.jpg" alt=""></div>
+      <span class="hero__cnr hero__cnr--l">Villa Senja</span>
+      <span class="hero__cnr hero__cnr--r">Ubud · <span data-clock>—:—</span> <em>WITA</em></span>
+      <div class="hero__top" data-htop>
+        <p class="hero__eye">A hidden villa — Ubud, Bali</p>
+        <h1 class="hero__h" data-hh>Wake Slowly</h1>
+        <p class="hero__sub">Villa Senja · the warm Balinese dusk</p>
+      </div>
+      <p class="hero__bridge" data-bridge>and the day begins in <em>mist</em></p>
+      <div class="hero__bottom" data-hbot>
+        <div class="hero__cta"><a href="#book" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a><a href="#" class="sv-talk">or speak with the host →</a></div>
+        <p class="hero__trust"><span class="stars">★★★★★</span> 4.98 · 126 verified stays · from $420 / night</p>
+        <span class="hero__cue">scroll to descend through the day ↓</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- MORNING (with HT-style word reveal) -->
+  <section class="sec" data-tod="morning"><img class="sec__bg" data-bg src="images/linen.jpg" alt=""><div class="sec__veil"></div>
+    <div class="sec__in plate r-in">
+      <p class="eyebrow2">Morning · the mist burns off</p>
+      <h2 class="h-mid words" data-words>The valley wakes slow, and so do you</h2>
+      <p class="p-lead">Mist sits in the terraces; Kintamani coffee on the deck before the heat.</p>
+    </div>
+  </section>
+
+  <!-- MIDDAY -->
+  <section class="sec" data-tod="midday"><img class="sec__bg" data-bg src="images/pool.jpg" alt=""><div class="sec__veil"></div>
+    <div class="sec__in plate r-in">
+      <p class="eyebrow2">Midday · the pool, the shade</p>
+      <h2 class="h-mid">Swim, read, do nothing with intent</h2>
+      <p class="p-lead">The spring-fed infinity pool over the rice fields; lunch whenever you feel like it.</p>
+    </div>
+  </section>
+
+  <!-- SENJA (the climax + CTA) -->
+  <section class="sec" data-tod="senja"><img class="sec__bg" data-bg src="images/terrace.jpg" alt=""><div class="sec__veil"></div>
+    <div class="sec__in plate r-in">
+      <p class="eyebrow2">Senja · the gold hour</p>
+      <h2 class="h-mid">The day ends in <span class="gold">senja</span></h2>
+      <p class="p-lead">The warmest light from the west deck — the dusk this place is named for. The moment to be here.</p>
+      <p class="p-lead" style="margin-top:1.8rem"><a href="#book" class="btn btn--lg"><span class="btn__txt">Check dates</span><span class="btn__fill"></span></a></p>
+    </div>
+  </section>
+
+  <!-- NIGHT -->
+  <section class="sec" data-tod="night"><img class="sec__bg" data-bg src="images/bedroom.jpg" alt=""><div class="sec__veil"></div>
+    <div class="sec__in plate r-in">
+      <p class="eyebrow2">Night · frogs &amp; lanterns</p>
+      <h2 class="h-mid">Then the valley goes dark and loud</h2>
+      <p class="p-lead">Dinner under the lanterns, an absurd number of stars, and tomorrow you do it all again — or nothing at all.</p>
+    </div>
+  </section>
+
+  <p class="note" data-note>Phase 1 · Descent into senja — the SPINE (light warms dawn→senja→night + descending sun + live Ubud time) and the gate hero opening into morning</p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script>
+  (function () {
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    // live Ubud clock
+    (function () { const els = $$('[data-clock]'); const tick = () => { let t; try { t = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Makassar', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); } catch (e) { return; } els.forEach((e) => (e.textContent = t)); }; tick(); setInterval(tick, 30000); })();
+
+    if (!window.gsap) return;
+    gsap.registerPlugin(ScrollTrigger);
+    $('[data-prog]') && ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (s) => { $('[data-prog]').style.width = (s.progress * 100) + '%'; } });
+
+    // ===== HERO — the gate opens, type does a layered exit, bridge line whispers =====
+    const heroTl = gsap.timeline({ scrollTrigger: { trigger: '[data-pin]', start: 'top top', end: '+=140%', pin: true, scrub: 1, invalidateOnRefresh: true } });
+    heroTl.to('[data-hh]', { opacity: 0, y: -150, scale: 1.14, ease: 'power2.in', duration: 0.5 }, 0)
+      .to('.hero__eye, .hero__sub', { opacity: 0, y: -70, ease: 'power2.in', duration: 0.4 }, 0)
+      .to('[data-hbot]', { opacity: 0, y: 60, ease: 'power2.in', duration: 0.4 }, 0)
+      .to('.hero__cnr', { opacity: 0, duration: 0.3 }, 0)
+      .fromTo('[data-gate]', { '--ms': '46vh' }, { '--ms': '900vh', ease: 'power2.inOut', duration: 1 }, 0.05)
+      .fromTo('[data-gateimg]', { scale: 1.16 }, { scale: 1, ease: 'none', duration: 1 }, 0.05)
+      .fromTo('[data-bridge]', { opacity: 0, y: 24 }, { opacity: 1, y: 0, ease: 'power2.out', duration: 0.3 }, 0.62)
+      .to('[data-bridge]', { opacity: 0, y: -16, ease: 'power2.in', duration: 0.25 }, 0.92);
+
+    // ===== THE SPINE — one day-clock across the whole page =====
+    const sky = '[data-sky]';
+    // light warms dawn -> morning -> midday -> senja gold -> ember -> night
+    gsap.timeline({ scrollTrigger: { start: 0, end: 'max', scrub: 1 } })
+      .to(sky, { backgroundColor: '#c8b487' })   // morning warm
+      .to(sky, { backgroundColor: '#eadfbf' })   // midday bright
+      .to(sky, { backgroundColor: '#f2a83a' })   // senja gold
+      .to(sky, { backgroundColor: '#bd4a2b' })   // ember
+      .to(sky, { backgroundColor: '#2a1409' });  // night
+    // the sun descends + warms + sinks away
+    gsap.timeline({ scrollTrigger: { start: 0, end: 'max', scrub: 1 } })
+      .to('[data-sun]', { top: '40%', background: 'radial-gradient(circle,#fff,#ffce74 62%,transparent 72%)' })
+      .to('[data-sun]', { top: '62%', background: 'radial-gradient(circle,#ffd27a,#faae33 62%,transparent 72%)' })
+      .to('[data-sun]', { top: '86%', background: 'radial-gradient(circle,#faae33,#d1255c 62%,transparent 72%)', boxShadow: '0 0 110px 22px rgba(209,37,92,0.5)' })
+      .to('[data-sun]', { top: '116%', opacity: 0 });
+    // sun drifts on its x a touch (rises/sets across the sky, not straight down)
+    gsap.fromTo('[data-sun]', { left: '76%' }, { left: '40%', ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 1 } });
+
+    // time-of-day word (+ hero is "dawn")
+    const setWord = (w) => { const el = $('[data-todword]'); if (el) el.textContent = w; };
+    ScrollTrigger.create({ trigger: '[data-pin]', start: 'top top', end: 'bottom top', onToggle: (s) => s.isActive && setWord('dawn') });
+    $$('.sec[data-tod]').forEach((sec) => ScrollTrigger.create({ trigger: sec, start: 'top center', end: 'bottom center', onToggle: (s) => s.isActive && setWord(sec.dataset.tod) }));
+
+    // ===== content reveals — sections rise; morning statement reveals word-by-word (HT) =====
+    $$('.r-in').forEach((el) => gsap.from(el.children, { y: 44, duration: 0.9, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: el, start: 'top 82%' } }));
+    // gentle parallax on each section photo
+    $$('[data-bg]').forEach((img) => gsap.fromTo(img, { yPercent: -6 }, { yPercent: 6, ease: 'none', scrollTrigger: { trigger: img.closest('.sec'), start: 'top bottom', end: 'bottom top', scrub: true } }));
+    // HT word-by-word on the morning statement
+    const ww = $('[data-words]');
+    if (ww) {
+      ww.innerHTML = ww.textContent.trim().split(' ').map((w) => `<span class="w"><span>${w}</span></span>`).join(' ');
+      gsap.to('[data-words] .w span', { opacity: 1, ease: 'none', stagger: 0.5, scrollTrigger: { trigger: ww, start: 'top 80%', end: 'top 35%', scrub: 1 } });
+    }
+
+    addEventListener('resize', () => ScrollTrigger.refresh());
+  })();
+  </script>
+</body>
+</html>
