@@ -46,8 +46,9 @@
 
     const update = () => {
       const y = window.scrollY;
-      if (y > 260 && y > lastY + 4) header.classList.add("is-hidden");
-      else if (y < lastY - 4 || y < 260) header.classList.remove("is-hidden");
+      const showThru = window.innerHeight * 1.6;   // keep the header shown through the pinned hero so the hero→nav video-logo crossfade is visible; auto-hide only past it
+      if (y > showThru && y > lastY + 4) header.classList.add("is-hidden");
+      else if (y < lastY - 4 || y < showThru) header.classList.remove("is-hidden");
       lastY = y;
 
       // warm paper scrim once we've left the hero (transparent over the hero photo)
@@ -300,10 +301,10 @@
       } else if (ci) {
         selWrap.hidden = false; inLbl.textContent = fmt(ci); outLbl.textContent = "—";
         summary.hidden = true; contact.hidden = true; submit.disabled = true;
-        note.hidden = false; note.textContent = "Now choose your check-out (2-night minimum).";
+        note.hidden = false; note.textContent = "Lovely — now pick your check-out (two nights with us, at least).";
       } else {
         selWrap.hidden = true; summary.hidden = true; contact.hidden = true; submit.disabled = true;
-        note.hidden = false; note.textContent = "Two-night minimum — pick your dates for a total.";
+        note.hidden = false; note.textContent = "Stay two nights or more — pick your dates and we'll add it up.";
       }
     };
 
@@ -311,8 +312,8 @@
       let msg = null;
       if (!ci || co) { ci = d; co = null; }
       else if (d <= ci) { ci = d; co = null; }
-      else if (Math.round((d - ci) / dayMs) < MIN) { msg = "Minimum stay is " + MIN + " nights — pick a later check-out."; }
-      else if (rangeHasBlock(ci, d)) { ci = d; co = null; msg = "Those dates aren't free — starting again from there."; }
+      else if (Math.round((d - ci) / dayMs) < MIN) { msg = "We ask for " + MIN + " nights at least — try a later check-out."; }
+      else if (rangeHasBlock(ci, d)) { ci = d; co = null; msg = "Ah — those nights are already taken. Let's start again from there."; }
       else { co = d; }
       render(); priceUpdate();
       if (msg) { note.hidden = false; note.textContent = msg; }
@@ -351,8 +352,8 @@
       if (submit.disabled || !ci || !co) return;
       const name = nameEl ? nameEl.value.trim() : "";
       const email = emailEl ? emailEl.value.trim() : "";
-      if (!name) { note.hidden = false; note.textContent = "Please add your name."; if (nameEl) nameEl.focus(); return; }
-      if (!email || !/.+@.+\..+/.test(email)) { note.hidden = false; note.textContent = "Please add a valid email."; if (emailEl) emailEl.focus(); return; }
+      if (!name) { note.hidden = false; note.textContent = "And your name? So we know who we're expecting."; if (nameEl) nameEl.focus(); return; }
+      if (!email || !/.+@.+\..+/.test(email)) { note.hidden = false; note.textContent = "We'll need an email to write back to."; if (emailEl) emailEl.focus(); return; }
       const nights = Math.round((co - ci) / dayMs);
       // No backend wired yet — open a pre-filled enquiry email. Swap this block
       // for a fetch() to a Formspree/serverless endpoint when one exists.
@@ -363,7 +364,7 @@
         (msgEl && msgEl.value.trim() ? "Note: " + msgEl.value.trim() + "\n\n" : "") +
         "Name: " + name + "\nEmail: " + email + "\n";
       window.location.href = "mailto:stay@villasenja.id?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-      submit.querySelector(".btn__txt").textContent = "Enquiry sent";
+      submit.querySelector(".btn__txt").textContent = "On its way to us";
       submit.disabled = true;
       if (confirmEl) confirmEl.hidden = false;
     });
@@ -613,11 +614,26 @@
   /* ---------- Hero V10 (HT formula): video centerpiece whose clip-mask opens to full-bleed on scroll ---------- */
   const heroVid = document.querySelector("[data-vid]");
   const heroSpacer = document.querySelector("[data-hv10-spacer]");
+  const HERO_FULLBLEED = true;   // the push-in fills the viewport (footage is the star); flip to false to restore the framed centerpiece
+  if (HERO_FULLBLEED) { const _h = document.querySelector(".hero"); if (_h) _h.classList.add("is-fullbleed"); }
+  // A/B the hero footage live: ?hero=gate vs ?hero=valley (default below). Pick the winner, set the default, then drop the ?hero param before launch.
+  const HERO_CLIP = (function () { try { return new URLSearchParams(location.search).get("hero"); } catch (e) { return null; } })() || "valley";
+  const HERO_CLIPS = {
+    gate: { src: "videos/hero-gate.mp4?v=2", poster: "images/hero-poster.jpg?v=3" },
+    valley: { src: "videos/hero-valley.mp4?v=1", poster: "images/hero-poster-valley.jpg?v=1" },
+  };
+  if (heroVid && HERO_CLIPS[HERO_CLIP]) {
+    const _c = HERO_CLIPS[HERO_CLIP], _s = heroVid.querySelector("source");
+    if (_s) _s.src = _c.src;
+    heroVid.setAttribute("poster", _c.poster);
+    try { heroVid.load(); } catch (e) {}
+  }
   // The video's rest window = the framed-centerpiece SPACER's box, so it aligns with the layout
   // (headline + subtitle ABOVE it, CTA BELOW it). Measured only at SETTLED moments (post-loader,
   // fonts-ready, resize) and cached in restInset — never on every ScrollTrigger refresh, which is
   // what made it jump size mid-load.
   function measureRest() {
+    if (HERO_FULLBLEED) return "inset(0% 0% 0% 0% round 0px)";   // full-bleed: no framing window (the SCRUB still runs; the open-animation just becomes a no-op)
     const hero = document.querySelector(".hero");
     if (!heroSpacer || !hero) return "inset(44% 24% 22% 24% round 10px)";
     const r = heroSpacer.getBoundingClientRect(), h = hero.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
@@ -648,11 +664,11 @@
     let heroSeeking = false;   // only issue a new seek once the last finished → no decoder thrash ("shifty" jitter)
     heroVid.addEventListener("seeking", () => { heroSeeking = true; });
     heroVid.addEventListener("seeked", () => { heroSeeking = false; });
-    gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=160%", pin: true, scrub: 1, invalidateOnRefresh: true,
-        onUpdate: (self) => { const d = heroVid.duration; if (d && !heroSeeking) { const t = self.progress * d; if (Math.abs(t - heroVid.currentTime) > 0.05) { try { heroVid.currentTime = t; } catch (e) {} } } } } })   // SCRUB the footage to scroll position — symmetric, reverses on scroll-up (file:// included)
-      .to(["[data-hv10-content] > :not([data-hv10-spacer])", "[data-hv10-cue]"], { opacity: 0, y: -44, ease: "power2.in", duration: 0.4, stagger: 0.02 }, 0)
-      .fromTo(heroVid, { clipPath: () => restInset }, { clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "power2.inOut", duration: 1 }, 0.05)   // dynamic from-value re-reads the cached window on refresh → no mid-scroll snap
-      .fromTo("[data-hv10-cap]", { opacity: 0, y: 22 }, { opacity: 1, y: 0, ease: "power2.out", duration: 0.4 }, 0.66);   // the caption fades in over the full-bleed video
+    gsap.timeline({ scrollTrigger: { trigger: ".hero-rail", start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true,
+        onUpdate: (self) => { window.__heroProg = self.progress; const d = heroVid.duration; if (d && !heroSeeking) { const t = self.progress * d; if (Math.abs(t - heroVid.currentTime) > 0.05) { try { heroVid.currentTime = t; } catch (e) {} } } } } })   // SCRUB the footage to scroll position over the rail; the hero is CSS-fixed and the .site-curtain slides up over it when the rail ends — NO morph
+      .to(["[data-hv10-content] > :not([data-hv10-spacer])", "[data-hv10-cue]"], { opacity: 0, y: -44, ease: "power2.in", duration: 0.3, stagger: 0.02 }, 0)   // headline/CTA clear early
+      .to(".hero", { "--scrim-o": 0, ease: "power1.in", duration: 0.4 }, 0)   // fade the legibility scrim out → clean footage as it reveals
+      .to({}, { duration: 0.001 }, 1.0);   // pad the timeline to the full rail so the fades finish early and the rest is a pure footage reveal before the curtain lifts
     // re-measure the window ONLY at settled moments, then refresh so the scrub picks it up
     const remeasure = () => { restInset = measureRest(); ScrollTrigger.refresh(); };   // no gsap.set → a resize mid-scroll can't snap the open mask back to the small rest window
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
@@ -660,6 +676,71 @@
   })();
 
   /* hero footage is SCRUBBED to scroll position in initHeroMask above (symmetric → reverses on scroll-up); video stays paused */
+
+  /* WebGL LIQUID HERO (morph rebuild) — render the scrubbing video as a texture through a flow shader; warp
+     strength driven by hero scroll progress (window.__heroProg). GPU displacement = the SMOOTH liquid SVG couldn't do. */
+  (function initHeroGL() {
+    const HERO_GL = true;   // MIST-DISSOLVE reveal (IGLOO-style, warm senja recolor): the dusk video materializes out of mist as you scroll, with a chromatic-shimmer front
+    const canvas = document.querySelector("[data-gl]");
+    const hero = document.querySelector(".hero");
+    if (!HERO_GL || !canvas || !heroVid || !hero || motionOff || !hasGSAP) return;
+    let gl;
+    try { gl = canvas.getContext("webgl", { premultipliedAlpha: false, alpha: true, antialias: true, depth: false }); } catch (e) {}
+    if (!gl) return;
+    const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : (console.warn("[GL]", gl.getShaderInfoLog(s)), null); };
+    const vs = sh(gl.VERTEX_SHADER, "attribute vec2 a; varying vec2 v; void main(){ v=a*0.5+0.5; gl_Position=vec4(a,0.,1.); }");
+    const fs = sh(gl.FRAGMENT_SHADER,
+      "precision highp float; uniform sampler2D uT; uniform vec2 uR; uniform vec2 uV; uniform float uP; uniform float uTime; varying vec2 v;" +
+      "float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }" +
+      "float noise(vec2 p){ vec2 i=floor(p),f=fract(p); vec2 u=f*f*(3.-2.*f); return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y); }" +
+      "float fbm(vec2 p){ float s=0.,a=.5; for(int i=0;i<4;i++){ s+=a*noise(p); p*=2.02; a*=.5; } return s; }" +
+      "void main(){ float sA=uR.x/uR.y, vA=uV.x/uV.y; vec2 c=v; if(sA>vA){ c.y=(v.y-.5)*(vA/sA)+.5; } else { c.x=(v.x-.5)*(sA/vA)+.5; }" +
+      // organic dissolve field — senja mist sinks to the valley floor (top clears first); the threshold descends as you scroll (uP)
+      "float diss=fbm(c*2.6 + vec2(uTime*0.03, uTime*-0.02))*0.72 + clamp(c.y,0.,1.)*0.5;" +
+      "float thr=uP*0.95 - 0.05;" +   // REVERSED: clear valley at rest (uP0) → dissolves INTO senja mist as you scroll (uP1), then the curtain covers
+      "float reveal=smoothstep(thr-0.17, thr+0.17, diss);" +
+      // the live dissolve FRONT — where the shimmer/glitch/glow concentrate (peaks where reveal crosses 0.5)
+      "float edge=pow(max(1.0 - abs(reveal-0.5)*2.0, 0.0), 1.5);" +
+      // voxel/block displacement on the front
+      "float bl=30.0; vec2 bc=floor(c*bl)/bl; vec2 disp=(vec2(hash(bc+floor(uTime*6.0)*0.017), hash(bc+7.3))-0.5)*0.05*edge;" +
+      "vec2 uv=c+disp;" +
+      // warm radial chromatic aberration, peaking on the front
+      "vec2 dir=v-0.5; float ca=edge*0.011+0.0015;" +
+      "vec3 col; col.r=texture2D(uT, vec2(uv.x+dir.x*ca, 1.0-(uv.y+dir.y*ca))).r;" +
+      "col.g=texture2D(uT, vec2(uv.x, 1.0-uv.y)).g;" +
+      "col.b=texture2D(uT, vec2(uv.x-dir.x*ca, 1.0-(uv.y-dir.y*ca))).b;" +
+      // warm senja mist (pale gold high → warmer low) + a marigold glow on the dissolve front
+      "vec3 mist=mix(vec3(0.90,0.84,0.70), vec3(0.97,0.94,0.86), clamp(c.y,0.,1.));" +
+      "vec3 outc=mix(mist, col, reveal) + edge*0.12*vec3(1.0,0.82,0.5);" +
+      "gl_FragColor=vec4(outc, 1.0); }");
+    if (!vs || !fs) return;
+    const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.warn("[GL] link", gl.getProgramInfoLog(p)); return; }
+    gl.useProgram(p);
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const aL = gl.getAttribLocation(p, "a"); gl.enableVertexAttribArray(aL); gl.vertexAttribPointer(aL, 2, gl.FLOAT, false, 0, 0);
+    const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    const uT = gl.getUniformLocation(p, "uT"), uR = gl.getUniformLocation(p, "uR"), uV = gl.getUniformLocation(p, "uV"), uP = gl.getUniformLocation(p, "uP"), uTime = gl.getUniformLocation(p, "uTime");
+    const resize = () => { const dpr = Math.min(window.devicePixelRatio || 1, 2); canvas.width = Math.round(window.innerWidth * dpr); canvas.height = Math.round(window.innerHeight * dpr); gl.viewport(0, 0, canvas.width, canvas.height); };
+    resize(); window.addEventListener("resize", resize, { passive: true });
+    hero.classList.add("is-gl");
+    const paintRest = () => { try { heroVid.currentTime = 0.04; } catch (e) {} };   // a tiny SEEK paints the rest frame (a paused/never-seeked video = black GL texture); 0.04 < the scrub's 0.05 guard so it isn't reset
+    if (heroVid.readyState >= 2) paintRest(); else heroVid.addEventListener("loadeddata", paintRest, { once: true });
+    let fed = false, t0 = 0;
+    const draw = (ts) => {
+      if (!t0) t0 = ts;
+      if (heroVid.readyState >= 2) { try { gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, heroVid); fed = true; } catch (e) {} }
+      if (fed) {
+        gl.uniform1i(uT, 0); gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform2f(uV, heroVid.videoWidth || 16, heroVid.videoHeight || 9);
+        gl.uniform1f(uP, window.__heroProg || 0); gl.uniform1f(uTime, (ts - t0) / 1000);
+        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      requestAnimationFrame(draw);
+    };
+    requestAnimationFrame(draw);
+  })();
 
   /* reveal-band — the flock drifts across + scales as the section scrolls through (parallax depth tiers) */
   (function initRevealBirds() {
@@ -674,6 +755,30 @@
         { xPercent: 190 * dir * depth, yPercent: -40, scale: 0.8 + depth * depth * 6.2, ease: "none",   // birds fly RIGHT PAST — front ones blow up to ~7x as the section scrolls (quadratic depth)
           scrollTrigger: { trigger: band, start: "top bottom", end: "bottom top", scrub: 1 } });
     });
+  })();
+
+  /* reveal-band video — plays only while the band is on-screen (muted ambient boomerang); under reduced-motion the poster stays */
+  (function initRevealVid() {
+    const v = document.querySelector("[data-rbvid]");
+    const band = document.querySelector(".reveal-band");
+    if (!v || !band) return;
+    if (motionOff) return;                       // reduced-motion / automation: keep the poster as a plain fill
+    v.muted = true;                              // belt-and-suspenders for muted-autoplay policy
+    const tryPlay = () => { const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((ents) => ents.forEach((e) => { e.isIntersecting ? tryPlay() : v.pause(); }), { rootMargin: "200px 0px" }).observe(v);
+    } else { tryPlay(); }
+    // upgrade to a viewport-FIXED background, revealed only through the band's on-screen rect → true
+    // background-attachment:fixed behaviour (the clip stays locked to the viewport while the band scrolls past, no drift)
+    band.classList.add("is-fixedvid");
+    const clip = () => {
+      const r = band.getBoundingClientRect(), vh = window.innerHeight || document.documentElement.clientHeight;
+      v.style.clipPath = "inset(" + Math.max(0, r.top) + "px 0px " + Math.max(0, vh - r.bottom) + "px 0px)";
+    };
+    clip();
+    if (window.__lenis) window.__lenis.on("scroll", clip); else window.addEventListener("scroll", clip, { passive: true });
+    window.addEventListener("resize", clip);
+    if (hasGSAP && typeof ScrollTrigger !== "undefined") ScrollTrigger.addEventListener("refresh", clip);
   })();
 
   /* frangipani — varied petals drift down in occasional flurries (different sizes, spins, sometimes 2 at once) */
@@ -711,10 +816,42 @@
     gsap.set("[data-vldr-mark]", { yPercent: 120 });
     gsap.set("[data-vldr-glow]", { opacity: 0, scale: 0.7 });
     const hint = loaderEl.querySelector("[data-vldr-hint]"); if (hint) hint.style.display = "none";   // no "tap to enter" — the gate auto-reveals
-    // hold the reveal until the real content is ready (fonts so headings don't reflow), but never hang
+
+    // a real loading bar that fills with the HERO VIDEO's buffered progress
+    const bar = document.createElement("div"); bar.className = "vldr__bar";
+    const barFill = document.createElement("i"); bar.appendChild(barFill); loaderEl.appendChild(bar);
+    const setProg = (f) => { barFill.style.transform = "scaleX(" + Math.max(0.015, Math.min(1, f || 0)).toFixed(3) + ")"; };
+    setProg(0);
+
+    // HOLD the reveal until the full-res hero video has buffered, so it's sharp + scrub-ready the instant
+    // the gate opens (no low-quality pop-in, no mid-scrub stalls). Fonts too. Capped at 10s so a slow line
+    // can't hang the loader — the poster covers if the video is still finishing.
+    // FETCH the whole video up-front (real byte progress), then hand the element a fully-loaded blob —
+    // guarantees it's sharp + instantly scrub-able the instant the gate opens. A paused <video> won't
+    // reliably buffer to the end on its own, and canplaythrough fires far too early for seeking.
+    const vid = document.querySelector("[data-vid]");
+    const srcEl = vid && vid.querySelector("source");
+    const videoUrl = srcEl ? srcEl.src : (vid ? (vid.currentSrc || vid.src) : null);
+    const videoReady = new Promise((resolve) => {
+      if (!vid || !videoUrl || !window.fetch || !window.ReadableStream) return resolve();
+      let vdone = false; const fin = () => { if (vdone) return; vdone = true; setProg(1); resolve(); };
+      fetch(videoUrl).then((resp) => {
+        if (!resp.ok || !resp.body) throw 0;
+        const total = +(resp.headers.get("content-length") || 0), reader = resp.body.getReader(), chunks = [];
+        let loaded = 0;
+        const pump = () => reader.read().then(({ done, value }) => {
+          if (done) return new Blob(chunks, { type: "video/mp4" });
+          chunks.push(value); loaded += value.length; if (total) setProg(loaded / total);
+          return pump();
+        });
+        return pump();
+      }).then((blob) => { try { vid.src = URL.createObjectURL(blob); vid.load(); } catch (e) {} fin(); })
+        .catch(() => fin());   // any failure → don't hang; the <source> still loads normally
+    });
+    const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
     const ready = Promise.race([
-      (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve(),
-      new Promise((res) => setTimeout(res, 1300)),
+      Promise.all([fontsReady, videoReady]),
+      new Promise((res) => setTimeout(res, 10000)),
     ]);
 
     let parted = false;
@@ -1190,6 +1327,23 @@
     });
   }
 
+  /* ---------- Direction-aware button fill — the teak circle grows from where the cursor
+     ENTERS the button and retracts toward where it LEAVES, so it follows your approach
+     (and the cursor ring appears to seed it). Origin + a covering diameter → --fx/--fy/--fd;
+     CSS animates the scale via .is-fill. Every .btn (incl. the booking CTA). ---------- */
+  document.querySelectorAll(".btn").forEach((btn) => {
+    const fill = btn.querySelector(".btn__fill");
+    if (!fill) return;
+    const origin = (e) => {
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty("--fx", (e.clientX - r.left) + "px");
+      btn.style.setProperty("--fy", (e.clientY - r.top) + "px");
+      btn.style.setProperty("--fd", (Math.hypot(r.width, r.height) * 2.2) + "px");   // covers the button from any entry point
+    };
+    btn.addEventListener("pointerenter", (e) => { origin(e); btn.classList.add("is-fill"); });
+    btn.addEventListener("pointerleave", (e) => { origin(e); btn.classList.remove("is-fill"); });
+  });
+
   initDraw();
   initWipe();
   initHeader(lenis);
@@ -1281,7 +1435,7 @@
     wrap.classList.add("is-marquee");
     // the .reveal fade only ran on the ORIGINALS — force EVERY card (incl. clones) visible so the row never shows empty shells
     track.querySelectorAll(".tcard").forEach((c) => { gsap.killTweensOf(c); c.classList.remove("reveal"); });
-    gsap.set(track.querySelectorAll(".tcard"), { opacity: 1, y: 0 });
+    gsap.set(track.querySelectorAll(".tcard"), { opacity: 1, y: 0 });   // cards stay upright — Godwin didn't want them tilted
     const half = () => track.scrollWidth / 2;
     const tl = gsap.to(track, { x: () => -half(), duration: half() / 38, ease: "none", repeat: -1 });
     let vel = 0;
@@ -1289,33 +1443,64 @@
     gsap.ticker.add(() => { tl.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(vel) / 400)); vel *= 0.92; });
   })();
 
-  /* Custom cursor — warm dot lerps to the pointer, grows to an ochre disc with a
-     "drag"/"view" label over interactive targets. Desktop fine-pointer only. */
+  /* Host-voiced cursor — a warm dot lerps to the pointer and, over a meaningful
+     target, grows into an ochre disc with a HANDWRITTEN verb in the family's voice
+     ("meet Wayan", "look closer", "drift through"). Desktop fine-pointer only,
+     skipped for reduced-motion, steps aside over text fields. Off → CURSOR_ON=false. */
   (function initCursor() {
-    return;   // REMOVED per request — the custom warm-dot "sun" cursor is off; use the native cursor
+    const CURSOR_ON = true;
+    if (!CURSOR_ON) return;
     if (!window.matchMedia("(hover: hover)").matches || !window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const cur = document.createElement("div");
     cur.className = "v-cursor"; cur.setAttribute("aria-hidden", "true");
     const lbl = document.createElement("span"); lbl.className = "v-cursor__label"; cur.appendChild(lbl);
     document.body.appendChild(cur);
     document.documentElement.classList.add("has-cursor");
-    const xTo = gsap.quickTo(cur, "x", { duration: 0.4, ease: "power3" });
-    const yTo = gsap.quickTo(cur, "y", { duration: 0.4, ease: "power3" });
-    window.addEventListener("pointermove", (e) => { xTo(e.clientX); yTo(e.clientY); }, { passive: true });
-    const HOT = "a, button, [data-drag], .exp__track, .gallery__track, .gallery__item, .bk-day, .faq__q";
-    const labelFor = (el) => el.closest("[data-drag], .exp__track, .gallery__track") ? "drag"
-      : el.closest(".gallery__item, .sides__media, .suite, .dining__media") ? "view" : "";
-    document.addEventListener("pointerover", (e) => {
-      if (!e.target.closest(HOT)) return;
-      cur.classList.add("is-hover");
-      const t = labelFor(e.target);
-      if (t) { lbl.textContent = t; cur.classList.add("is-label"); }
-    });
-    document.addEventListener("pointerout", (e) => {
-      if (!e.target.closest(HOT)) return;
-      const into = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(HOT);
-      if (!into) { cur.classList.remove("is-hover", "is-label"); lbl.textContent = ""; }
-    });
+    gsap.set(cur, { xPercent: -50, yPercent: -50 });   // centre the pill on the point at any size
+    const xTo = gsap.quickTo(cur, "x", { duration: 0.22, ease: "power3" });
+    const yTo = gsap.quickTo(cur, "y", { duration: 0.22, ease: "power3" });
+    const isField = (el) => el.closest && el.closest("input, textarea, select, [contenteditable]");
+    // photos & special spots → a filled ochre PILL with a handwritten verb
+    const LABELS = [
+      [".hostnote__portrait", "meet Wayan"],
+      [".gallery__item, .sides__media, .suite, .dining__media, .lead__media", "look closer"],
+      [".tcard", "a kind word"],
+      ["[data-drag], .exp__track", "drift through"],
+      [".bk-submit", "ask us"],
+    ];
+    // links & buttons → a hollow ochre RING that reads "clickable"
+    const RING = "a, button, .btn, .nav__link, .snd, .faq__q, summary, .bk-day, .bk-cal__nav, [data-exp-prev], [data-exp-next], [data-nav-toggle]";
+    // ALL state runs off pointermove (no pointerover/out races): re-assert "is-on" every
+    // move so a stray event can't strand it hidden, and recompute the MORPH only when the
+    // element under the pointer changes.
+    let lastEl = null;
+    window.addEventListener("pointermove", (e) => {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      xTo(e.clientX); yTo(e.clientY);
+      cur.classList.add("is-on");
+      if (e.target === lastEl) return;
+      lastEl = e.target;
+      const el = e.target;
+      let mode = "none", text = "";
+      if (el && el.closest) {
+        if (isField(el)) mode = "field";
+        else {
+          for (let i = 0; i < LABELS.length; i++) { if (el.closest(LABELS[i][0])) { mode = "label"; text = LABELS[i][1]; break; } }
+          if (mode === "none" && el.closest(RING)) mode = "ring";
+        }
+      }
+      cur.classList.toggle("is-hidden", mode === "field");
+      cur.classList.toggle("is-ring", mode === "ring");
+      cur.classList.toggle("is-label", mode === "label");
+      if (mode === "label" && text) lbl.textContent = text;
+    }, { passive: true });
+    // a tactile press — the cursor dips on mouse-down, springs back on release
+    window.addEventListener("pointerdown", (e) => { if (!e.pointerType || e.pointerType === "mouse") gsap.to(cur, { scale: 0.78, duration: 0.12, ease: "power2.out" }); }, { passive: true });
+    window.addEventListener("pointerup", () => gsap.to(cur, { scale: 1, duration: 0.22, ease: "back.out(2)" }), { passive: true });
+    // hide when the pointer truly leaves the viewport; the next move brings it right back
+    document.documentElement.addEventListener("mouseleave", () => cur.classList.remove("is-on"), { passive: true });
+    document.documentElement.addEventListener("mouseenter", () => cur.classList.add("is-on"), { passive: true });
   })();
 
   window.addEventListener("resize", () => ScrollTrigger.refresh());

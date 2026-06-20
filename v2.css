@@ -32,9 +32,15 @@
 @media (prefers-reduced-motion: reduce) { .frangipani { display: none !important; } }
 
 /* ---- HERO · V10 (HT formula) — video centerpiece; its clip-mask OPENS to full-bleed on scroll ---- */
-.hero { position: relative; display: block; height: 100vh; min-height: 100svh; overflow: hidden; padding: 0; margin: 0;
+/* The hero is FIXED to the viewport — it scrub-reveals on the .hero-rail below it, then STAYS put while
+   the .site-curtain (the rest of the page) scrolls up and covers it. z-index 1 → under the curtain (z 2). */
+.hero { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; min-height: 100svh; overflow: hidden; padding: 0; margin: 0; z-index: 1;
   background: linear-gradient(180deg, color-mix(in srgb, var(--teak) 20%, var(--clay)), var(--clay)); }
-.hv10__vid { position: fixed; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; will-change: clip-path;
+/* invisible scroll runway that drives the hero scrub while the fixed hero is on screen */
+.hero-rail { position: relative; z-index: 0; height: 240vh; pointer-events: none; }   /* ~140vh of scrub (ends at "bottom bottom") + ~100vh for the curtain to rise over the fixed hero */
+/* everything after the hero rides above the fixed hero on one opaque layer (page bg) → it curtains over it */
+.site-curtain { position: relative; z-index: 2; background: var(--sand); }
+.hv10__vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; will-change: transform; transform-origin: center center;
   clip-path: inset(44% 24% 22% 24% round 10px); filter: saturate(1.06) contrast(1.03); }
 .hv10__corner { position: absolute; z-index: 5; top: clamp(1.4rem, 2.6vw, 2.2rem); font: 600 clamp(0.58rem, 0.74vw, 0.72rem) "Hanken Grotesk", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 62%, transparent); }
 .hv10__corner--l { left: clamp(1.4rem, 3vw, 3rem); } .hv10__corner--r { right: clamp(1.4rem, 3vw, 3rem); }
@@ -52,15 +58,11 @@
 .hv10__trust { margin: clamp(0.7rem, 1.4vw, 1rem) 0 0; font: 600 0.8rem "Hanken Grotesk", sans-serif; letter-spacing: 0.03em; color: color-mix(in srgb, var(--cream) 78%, transparent); }
 .hv10__trust .stars { color: var(--ochre); }
 .hv10__cue { position: absolute; bottom: clamp(1.4rem, 3vh, 2.4rem); left: 50%; transform: translateX(-50%); z-index: 5; font: 600 0.62rem "Hanken Grotesk", sans-serif; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 60%, transparent); }
-/* the moment that fades in over the full-bleed video — eyebrow + line + the villa's offer, on a soft scrim */
-.hv10__caption { position: absolute; left: 50%; bottom: 8.5vh; transform: translateX(-50%); z-index: 3; opacity: 0; pointer-events: none; text-align: center; max-width: min(92vw, 720px);
-  display: flex; flex-direction: column; align-items: center; gap: clamp(0.55rem, 1.2vw, 0.95rem);
-  padding: clamp(1.4rem, 2.8vw, 2.4rem) clamp(1.8rem, 4vw, 3.2rem); border-radius: 16px;
-  background: radial-gradient(120% 140% at 50% 50%, rgba(18,9,3,0.66), rgba(18,9,3,0.28) 68%, transparent); }
-.hv10__cap-eye { margin: 0; font: 600 0.66rem "Hanken Grotesk", sans-serif; letter-spacing: 0.26em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 74%, transparent); }
-.hv10__cap-line { margin: 0; font-family: "Salmond", serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; line-height: 1; font-size: clamp(1.5rem, 3.2vw, 3rem); color: var(--cream); text-shadow: 0 4px 24px rgba(0,0,0,0.4); }
-.hv10__cap-line em { font-style: normal; color: var(--ochre); }
-.hv10__cap-meta { margin: 0.2rem 0 0; font: 600 0.8rem "Hanken Grotesk", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+/* OPENING STATEMENT — composes above the shrunk box as it holds, turning the hero into the first
+   editorial beat (revealed in the hold window by initHeroMask; scrolls away with the pinned hero). */
+.hv10__open { position: absolute; top: clamp(4rem, 9.5vh, 7.5rem); left: 50%; transform: translateX(-50%); z-index: 4; opacity: 0; pointer-events: none; margin: 0;
+  width: min(92vw, 30rem); text-align: center; font-family: "Salmond", serif; font-weight: 700; line-height: 1.06;
+  font-size: clamp(1.6rem, 3.6vw, 2.9rem); color: var(--cream); text-shadow: 0 2px 18px rgba(20, 11, 4, 0.4); }
 
 /* ---- LOADER · redrawn candi-bentar — two columnar gate-towers part to reveal the hero ---- */
 .vldr { position: fixed; inset: 0; z-index: 9600; }   /* above grain/paper (9000) + scrollbar (9500) */
@@ -101,16 +103,27 @@
 .testimonials .tmarquee { display: flex; flex-wrap: nowrap; align-items: stretch; gap: clamp(1rem, 2vw, 1.6rem); width: max-content; will-change: transform; }
 .testimonials.is-marquee .tcard { flex: 0 0 clamp(280px, 26vw, 380px); margin: 0; }
 
-/* ---- custom cursor (Awwwards staple) — warm dot that grows to an ochre disc
-   with a drag/view label on interactive hover; desktop pointers only ---------- */
+/* ---- host-voiced cursor — a warm dot that grows into an ochre disc / pill with a
+   HANDWRITTEN verb in the family's voice; desktop fine-pointers only. The dot keeps a
+   faint ring + shadow so it stays visible on both light and dark sections. The pill is
+   centred on the point via GSAP xPercent/yPercent (-50), so it can size to its label. */
 html.has-cursor, html.has-cursor * { cursor: none !important; }
-.v-cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none;
-  width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
-  background: var(--cream); display: grid; place-items: center; will-change: transform;
-  transition: width .35s var(--ease, ease), height .35s var(--ease, ease), margin .35s var(--ease, ease), background-color .35s; }
-.v-cursor.is-hover { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: color-mix(in srgb, var(--ochre) 88%, var(--cream)); }
-.v-cursor__label { font: 600 0.58rem "Hanken Grotesk", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teak); opacity: 0; transition: opacity .25s; }
-.v-cursor.is-label .v-cursor__label { opacity: 1; }
+html.has-cursor input, html.has-cursor textarea, html.has-cursor select, html.has-cursor [contenteditable] { cursor: auto !important; }   /* let the native I-beam show in fields */
+.v-cursor { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; box-sizing: border-box;
+  display: grid; place-items: center; min-width: 11px; height: 11px; padding: 0; border-radius: 999px;
+  background: var(--cream); border: 0 solid color-mix(in srgb, var(--ochre) 90%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--espresso) 26%, transparent), 0 2px 10px rgba(20, 10, 4, 0.28);
+  opacity: 0; will-change: transform;
+  transition: min-width .3s var(--ease), height .3s var(--ease), padding .3s var(--ease), background-color .3s var(--ease), border-width .3s var(--ease), box-shadow .3s var(--ease), opacity .3s var(--ease); }
+.v-cursor.is-on { opacity: 1; }
+.v-cursor.is-hidden { opacity: 0; }
+/* RING — over links & buttons: a hollow ochre outline that reads "clickable" */
+.v-cursor.is-ring { min-width: 42px; height: 42px; background: transparent; border-width: 1.5px; box-shadow: 0 4px 14px rgba(20, 10, 4, 0.2); }
+/* PILL — over photos & special spots: a filled ochre pill carrying a handwritten verb */
+.v-cursor.is-label { min-width: 0; height: 42px; padding: 0 0.9rem; background: color-mix(in srgb, var(--ochre) 92%, var(--cream)); border-width: 0; box-shadow: 0 5px 18px rgba(20, 10, 4, 0.3); }
+.v-cursor__label { font-family: "Caveat", cursive; font-weight: 600; font-size: 1.18rem; line-height: 1; letter-spacing: 0; text-transform: none; color: var(--espresso); white-space: nowrap;
+  max-width: 0; overflow: hidden; opacity: 0; transition: max-width .32s var(--ease), opacity .25s var(--ease); }
+.v-cursor.is-label .v-cursor__label { max-width: 10rem; opacity: 1; }
 
 /* ---- footer asset credit (CC-BY attribution) — discreet, sits in the footer base ---- */
 .footer__credit { font-size: 0.66rem; letter-spacing: 0.02em; opacity: 0.62; }
@@ -190,3 +203,146 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
    its same-size tier-mates. Bring it in line with every other heading. Size stays
    --fs-quiet (the intentional utility-section tier). */
 .booking__title { text-transform: uppercase; }
+
+/* ───────── Imperfection + grain — de-grid the handmade artifacts ─────────
+   Real photos aren't perfectly placed. Varied tilts on the guest polaroids (the
+   CSS `rotate:` property COMPOSES with the marquee's GSAP `transform` instead of
+   being overridden — which is why CSS `transform:rotate` failed before), hand-cut
+   uneven corners, a strip of tape on the host's note, and a whisper of film warmth
+   on the photos. NO new global grain — the .paper/.grain layer already carries it
+   (and noisy grain was killed before); every flaw here is intentional, not noise. */
+.guests .tcard__avatar, .hostnote__portrait img { filter: saturate(0.97) contrast(1.03) sepia(0.05); }   /* gentle film warmth, not grain */
+
+
+.hostnote__portrait { position: relative; border-radius: 5px 4px 6px 4px; }   /* hand-cut corners (keeps its -2deg tilt) */
+.hostnote__portrait::before {   /* a strip of tape holding the photo down */
+  content: ""; position: absolute; z-index: 2; top: -0.55rem; left: 50%; width: 4.6rem; height: 1.5rem;
+  transform: translateX(-50%) rotate(-3.5deg);
+  background: color-mix(in srgb, var(--sand) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cream) 20%, transparent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Gallery: drop the percentage arched tops on items 1 & 3. A % border-radius is tied
+   to the item's pixel size, so as the strip pans (and clips at the viewport edge) the
+   arch visibly "morphs", and arched-mixed-with-flat reads as random. Uniform fixed
+   corners = stable + consistent across every card. */
+.gallery__item:nth-child(1), .gallery__item:nth-child(3) { border-radius: 6px; }
+
+/* Direction-aware button fill — the teak circle grows from where the cursor ENTERS the
+   button (origin --fx/--fy + a covering diameter --fd, all set by v2.js) and retracts
+   toward where it leaves, instead of the base center-scale. .btn's overflow:hidden clips
+   the circle to the pill, so you see the fill sweep in from your approach direction. */
+.btn__fill {
+  inset: auto; top: var(--fy, 50%); left: var(--fx, 50%);
+  width: var(--fd, 170%); height: var(--fd, 170%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transform-origin: center;
+  transition: transform 0.5s var(--ease);
+}
+.btn:hover .btn__fill { transform: translate(-50%, -50%) scale(0); }   /* neutralize the base center-scale hover — JS drives it via .is-fill */
+.btn.is-fill .btn__fill { transform: translate(-50%, -50%) scale(1); }
+
+/* ───────── HERO — FULL-BLEED variant (gated by HERO_FULLBLEED in v2.js) ─────────
+   The gate→villa push-in fills the viewport from the start; content overlays bottom-left
+   on a soft scrim, the headline goes BIG + mixed-case, and the scroll-scrub still runs
+   (measureRest returns inset(0), so the clip-mask open-animation is a no-op). Restore the
+   framed centerpiece by flipping HERO_FULLBLEED=false in v2.js. */
+.hero.is-fullbleed .hv10__vid { clip-path: inset(0); filter: saturate(1.05) contrast(1.03); }
+.hero.is-fullbleed { --scrim-o: 1; }   /* scrim opacity — v2.js fades it 1→0 on scroll so the video clears under the push-in */
+.hero.is-fullbleed::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: var(--scrim-o, 1);
+  background: radial-gradient(85% 75% at 50% 52%, rgba(14,8,3,0.55), rgba(14,8,3,0.15) 68%, transparent 80%), linear-gradient(180deg, rgba(14,8,3,0.34) 0%, transparent 30%, transparent 70%, rgba(14,8,3,0.5) 100%); }
+.hero.is-fullbleed .hv10__content { z-index: 3; justify-content: center; align-items: center; text-align: center;
+  padding: clamp(3.5rem, 8vh, 6rem) clamp(1.5rem, 5vw, 5rem); }
+.hero.is-fullbleed .hv10__eye { color: var(--ochre); margin: 0 0 clamp(0.6rem, 1vw, 1rem); }
+.hero.is-fullbleed .hv10__head { text-transform: none; letter-spacing: -0.02em; line-height: 0.9;
+  font-size: clamp(3rem, 8.5vw, 8.5rem); color: var(--cream); text-shadow: 0 0.04em 0.55em rgba(12, 7, 3, 0.45); }
+.hero.is-fullbleed .hv10__sub { text-transform: none; font-weight: 500; letter-spacing: 0;
+  color: color-mix(in srgb, var(--cream) 88%, transparent); margin-top: clamp(0.7rem, 1.3vw, 1.1rem); }
+.hero.is-fullbleed .hv10__rule, .hero.is-fullbleed .hv10__spacer { display: none; }
+.hero.is-fullbleed .hv10__cta { justify-content: center; }
+.hero.is-fullbleed .hv10__trust { color: color-mix(in srgb, var(--cream) 80%, transparent); }
+
+/* Loader progress bar — fills with the hero video's buffered % (driven by v2.js), so the
+   gate only opens once the full-res video is loaded + scrub-ready. */
+.vldr__bar { position: absolute; z-index: 6; left: 50%; bottom: 13vh; transform: translateX(-50%);
+  width: min(34vw, 280px); height: 2px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--cream) 13%, transparent); }
+.vldr__bar i { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left center; background: var(--ochre); transition: transform 0.3s var(--ease); }
+
+/* paper texture OFF for now (Godwin's call) — restore by deleting this one rule. (.grain still on.) */
+.paper { display: none !important; }
+
+/* ───────── SPLIT SECTIONS — height tracks the viewport, not the image's aspect ─────────
+   .sides ("what's around you") and .dining crop a PORTRAIT photo via height:100%/object-fit
+   in a stretch row. A %-height replaced element still hands its INTRINSIC height to the
+   flex/grid cross-size pass, so on wide screens [column width (45–50vw) × portrait aspect]
+   forced the row to ~0.67×viewport-WIDTH tall (1728px @ 2560w) and align:stretch dragged the
+   text panel to match — the big empty espresso gap. Taking the <img> out of flow (absolute)
+   drops its height contribution to 0, so the row collapses to the TEXT + a vh-based floor:
+   height now scales with viewport HEIGHT (~0.6–0.8 × vh), not width. Caption/curl overlays are
+   already position:absolute against the media, so they're unaffected. Mobile (<900px stacked,
+   62vh/48vh media) is left alone — the floor override is scoped to ≥901px. */
+.sides__media .sides__img,
+.dining__media img { position: absolute; inset: 0; }
+
+@media (min-width: 901px) {
+  .sides__row { min-height: clamp(36rem, 80vh, 52rem); }
+  .dining__media { min-height: clamp(36rem, 80vh, 52rem); }
+}
+
+/* Setting arch (.location) holds a PORTRAIT crop of a landscape pool shot. Desktop frame is an
+   exact 4:5 match (no crop → object-position is a no-op), but on mobile the frame flips to 16:10
+   and a centered cover-crop would drop the pool, which sits at the bottom of the crop. Nudge the
+   focal point down so the infinity edge stays in view. Scoped to the mobile breakpoint. */
+@media (max-width: 900px) {
+  .location__media img { object-position: center 72%; }
+}
+
+/* ───────── REVEAL BAND — video background (replaces the fixed valley.jpg) ─────────
+   The band was a background-attachment:fixed image; a <video> can't be a CSS background, so it's a
+   full-bleed absolute <video> behind everything. isolation:isolate scopes the z-stack to the band:
+   video (0) → dark legibility overlay (1) → ochre curl + bird flock (2) → headline (3). The base
+   valley.jpg stays as the band's CSS background = graceful fallback before the clip paints / if it
+   fails. Plays only while on-screen + skipped under reduced-motion (initRevealVid in v2.js). */
+.reveal-band { isolation: isolate; }
+.reveal-band__vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+/* viewport-FIXED reveal (initRevealVid adds .is-fixedvid when motion is on): the video locks to the
+   viewport and is revealed only through the band's on-screen rect (clip kept in sync by JS) = true
+   background-attachment:fixed, no drift. Reverts to the absolute fill above for reduced-motion / no-JS. */
+.reveal-band.is-fixedvid .reveal-band__vid { position: fixed; will-change: clip-path; }
+.reveal-band::before { z-index: 1; }
+.reveal-band__curl { z-index: 2; }
+.reveal-band__birds { z-index: 2; }
+.reveal-band__inner { z-index: 3; }
+
+/* LIVE VIDEO-LOGO — the hero clip crossfades into this tiny looping video in the nav as the hero flies up
+   (driven by initHeroMask). The SVG emblem fades out beneath it; the whole thing reverses on scroll-up. */
+.wordmark__mark { position: relative; }
+.wm-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; opacity: 0; pointer-events: none; }
+
+/* ───────── HEADER → floating contained PILL (was a full-width bar) ─────────
+   Content capped to a centered ~860px capsule with its own dark glass bg, inset from top + sides.
+   The full-width is-scrolled bar bg is dropped (the pill carries its own); text forced cream for
+   legibility over the dark pill. The video-logo re-targets the wordmark live so the crossfade still lands. */
+.header { padding-inline: clamp(1rem, 3vw, 2rem); }
+.header.is-scrolled { background: none; box-shadow: none; }
+.nav {
+  max-width: 860px; margin-inline: auto;
+  padding: clamp(0.5rem, 1vw, 0.72rem) clamp(1.1rem, 2.4vw, 1.7rem);
+  background: color-mix(in srgb, var(--espresso) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cream) 13%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 16px 46px -22px rgba(18, 10, 4, 0.62);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.nav__link, .wordmark { color: var(--cream); }
+.nav__link:hover { color: var(--ochre); }
+.wordmark em { color: var(--ochre); }
+.nav__meta { color: color-mix(in srgb, var(--cream) 74%, transparent); }
+
+/* WebGL liquid hero — a <canvas> renders the scrubbing video as a texture through a flow shader (initHeroGL in
+   v2.js); the raw <video> stays as the hidden texture source. Off unless .is-gl is set (WebGL ok + motion on). */
+.hv10__gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: none; transform-origin: center center; will-change: transform; }
+.hero.is-gl .hv10__gl { display: block; }
+.hero.is-gl .hv10__vid { visibility: hidden; }   /* hide the raw video via VISIBILITY (not opacity — the intro animates opacity inline and would un-hide it); still decodes frames for the GL texture */
