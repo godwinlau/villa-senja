@@ -664,7 +664,7 @@
     let heroSeeking = false;   // only issue a new seek once the last finished → no decoder thrash ("shifty" jitter)
     heroVid.addEventListener("seeking", () => { heroSeeking = true; });
     heroVid.addEventListener("seeked", () => { heroSeeking = false; });
-    gsap.timeline({ scrollTrigger: { trigger: ".hero-rail", start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true,
+    gsap.timeline({ scrollTrigger: { trigger: ".hero-rail", start: "top top", end: "bottom top", scrub: 1, invalidateOnRefresh: true,
         onUpdate: (self) => { window.__heroProg = self.progress; const d = heroVid.duration; if (d && !heroSeeking) { const t = self.progress * d; if (Math.abs(t - heroVid.currentTime) > 0.05) { try { heroVid.currentTime = t; } catch (e) {} } } } } })   // SCRUB the footage to scroll position over the rail; the hero is CSS-fixed and the .site-curtain slides up over it when the rail ends — NO morph
       .to(["[data-hv10-content] > :not([data-hv10-spacer])", "[data-hv10-cue]"], { opacity: 0, y: -44, ease: "power2.in", duration: 0.3, stagger: 0.02 }, 0)   // headline/CTA clear early
       .to(".hero", { "--scrim-o": 0, ease: "power1.in", duration: 0.4 }, 0)   // fade the legibility scrim out → clean footage as it reveals
@@ -690,7 +690,7 @@
     const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : (console.warn("[GL]", gl.getShaderInfoLog(s)), null); };
     const vs = sh(gl.VERTEX_SHADER, "attribute vec2 a; varying vec2 v; void main(){ v=a*0.5+0.5; gl_Position=vec4(a,0.,1.); }");
     const fs = sh(gl.FRAGMENT_SHADER,
-      "precision highp float; uniform sampler2D uT; uniform vec2 uR; uniform vec2 uV; uniform float uP; uniform float uTime; varying vec2 v;" +
+      "precision highp float; uniform sampler2D uT; uniform vec2 uR; uniform vec2 uV; uniform float uP; uniform float uLead; uniform float uTime; varying vec2 v;" +
       "float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }" +
       "float noise(vec2 p){ vec2 i=floor(p),f=fract(p); vec2 u=f*f*(3.-2.*f); return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y); }" +
       "float fbm(vec2 p){ float s=0.,a=.5; for(int i=0;i<4;i++){ s+=a*noise(p); p*=2.02; a*=.5; } return s; }" +
@@ -710,8 +710,11 @@
       "col.g=texture2D(uT, vec2(uv.x, 1.0-uv.y)).g;" +
       "col.b=texture2D(uT, vec2(uv.x-dir.x*ca, 1.0-(uv.y-dir.y*ca))).b;" +
       // warm senja mist (pale gold high → warmer low) + a marigold glow on the dissolve front
-      "vec3 mist=mix(vec3(0.90,0.84,0.70), vec3(0.97,0.94,0.86), clamp(c.y,0.,1.));" +
+      "vec3 mist=vec3(0.9255, 0.8627, 0.7137);" +   // = var(--sand) rgb(236,220,182): the mist resolves to the EXACT page/.lead bg so the curtain's edge melts in seamlessly (no cream-on-cream seam)
       "vec3 outc=mix(mist, col, reveal) + edge*0.12*vec3(1.0,0.82,0.5);" +
+      // flood pure sand UP to the rising curtain's top edge (uLead, in screen v.y) so the boundary always lands on flat mist — kills the textured hero/lead edge
+      "float sandFade=clamp(smoothstep(uLead+0.14, uLead, v.y), 0.0, 1.0);" +
+      "outc=mix(outc, mist, sandFade);" +
       "gl_FragColor=vec4(outc, 1.0); }");
     if (!vs || !fs) return;
     const p = gl.createProgram(); gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
@@ -722,12 +725,13 @@
     const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    const uT = gl.getUniformLocation(p, "uT"), uR = gl.getUniformLocation(p, "uR"), uV = gl.getUniformLocation(p, "uV"), uP = gl.getUniformLocation(p, "uP"), uTime = gl.getUniformLocation(p, "uTime");
+    const uT = gl.getUniformLocation(p, "uT"), uR = gl.getUniformLocation(p, "uR"), uV = gl.getUniformLocation(p, "uV"), uP = gl.getUniformLocation(p, "uP"), uLead = gl.getUniformLocation(p, "uLead"), uTime = gl.getUniformLocation(p, "uTime");
     const resize = () => { const dpr = Math.min(window.devicePixelRatio || 1, 2); canvas.width = Math.round(window.innerWidth * dpr); canvas.height = Math.round(window.innerHeight * dpr); gl.viewport(0, 0, canvas.width, canvas.height); };
     resize(); window.addEventListener("resize", resize, { passive: true });
     hero.classList.add("is-gl");
     const paintRest = () => { try { heroVid.currentTime = 0.04; } catch (e) {} };   // a tiny SEEK paints the rest frame (a paused/never-seeked video = black GL texture); 0.04 < the scrub's 0.05 guard so it isn't reset
     if (heroVid.readyState >= 2) paintRest(); else heroVid.addEventListener("loadeddata", paintRest, { once: true });
+    const curtainEl = document.querySelector(".site-curtain");   // its live top edge tells the shader where to stop the valley and show flat sand
     let fed = false, t0 = 0;
     const draw = (ts) => {
       if (!t0) t0 = ts;
@@ -735,6 +739,7 @@
       if (fed) {
         gl.uniform1i(uT, 0); gl.uniform2f(uR, canvas.width, canvas.height); gl.uniform2f(uV, heroVid.videoWidth || 16, heroVid.videoHeight || 9);
         gl.uniform1f(uP, window.__heroProg || 0); gl.uniform1f(uTime, (ts - t0) / 1000);
+        let lv = -2.0; if (curtainEl) { const rr = curtainEl.getBoundingClientRect(); lv = 1.0 - rr.top / window.innerHeight; } gl.uniform1f(uLead, lv);   // curtain top edge → v.y (rest: off-screen below → no sand flood)
         gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
       }
       requestAnimationFrame(draw);

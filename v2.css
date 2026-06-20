@@ -327,6 +327,8 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select, html.ha
    legibility over the dark pill. The video-logo re-targets the wordmark live so the crossfade still lands. */
 .header { padding-inline: clamp(1rem, 3vw, 2rem); }
 .header.is-scrolled { background: none; box-shadow: none; }
+/* once scrolled into content the pill goes near-solid so headings don't bleed THROUGH it (looked "broken") — stays airy/translucent over the hero where is-scrolled isn't set */
+.header.is-scrolled .nav { background: color-mix(in srgb, var(--espresso) 94%, transparent); }
 .nav {
   max-width: 860px; margin-inline: auto;
   padding: clamp(0.5rem, 1vw, 0.72rem) clamp(1.1rem, 2.4vw, 1.7rem);
@@ -346,3 +348,12 @@ html.has-cursor input, html.has-cursor textarea, html.has-cursor select, html.ha
 .hv10__gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: none; transform-origin: center center; will-change: transform; }
 .hero.is-gl .hv10__gl { display: block; }
 .hero.is-gl .hv10__vid { visibility: hidden; }   /* hide the raw video via VISIBILITY (not opacity — the intro animates opacity inline and would un-hide it); still decodes frames for the GL texture */
+
+/* Lead: the base padding-block (~170px top) left a big empty-cream gap above "A Slower Way" — trim the TOP so the
+   heading sits up near the hero boundary (also brings it into view sooner as the curtain rises). Base bottom kept. */
+.lead { padding-block-start: clamp(1.5rem, 3vw, 3rem); }
+
+/* Footer sits AFTER .site-curtain (outside it), so at z-index 0 it was hidden BEHIND the fixed hero (z1) — the
+   dissolved-to-sand hero covered it. Lift it (+ the mobile book-bar) above the hero. Both have solid bgs. */
+.footer { position: relative; z-index: 2; }
+.book-bar { z-index: 1200; }
